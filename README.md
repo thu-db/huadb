@@ -1,6 +1,6 @@
 # HuaDB
 
-HuaDB 为清华大学《数据库专题训练》课程的实验框架，实验说明可参阅[课程文档](https://thu-db.github.io/huadb-doc/)，课程资料可在[课程主页](https://dbgroup.cs.tsinghua.edu.cn/ligl/courses_cn.html)查阅。
+HuaDB 为清华大学数据库内核课程的实验框架，实验说明可参阅[课程文档](https://thu-db.github.io/huadb-doc/)，课程资料可在[课程主页](https://dbgroup.cs.tsinghua.edu.cn/ligl/courses_cn.html)查阅。
 
 ## 编译与测试
 
@@ -10,7 +10,7 @@ HuaDB 为清华大学《数据库专题训练》课程的实验框架，实验�
 make
 ```
 
-你也可以通过设置 CMAKE_BUILD_PARALLEL_LEVEL 环境变量进行并行编译：
+你也可以通过设置 CMAKE_BUILD_PARALLEL_LEVEL 环境变量来并行编译：
 
 ```bash
 CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) make
