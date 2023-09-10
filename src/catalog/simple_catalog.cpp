@@ -63,7 +63,7 @@ void SimpleCatalog::DropDatabase(const std::string &database_name, bool missing_
   throw DbException("DropDatabase not implemented in SimpleCatalog");
 }
 
-std::vector<std::string> SimpleCatalog::GetDatabaseNames() { return {"temp"}; }
+std::vector<std::string> SimpleCatalog::GetDatabaseNames() { return {"tmp"}; }
 
 oid_t SimpleCatalog::GetDatabaseOid(const std::string &database_name) {
   throw DbException("GetDatabaseOid not implemented in SimpleCatalog");

@@ -43,6 +43,9 @@ std::unique_ptr<Statement> Binder::BindStatement(duckdb_libpgquery::PGNode *stmt
     case duckdb_libpgquery::T_PGCheckPointStmt:
       return BindCheckpointStatement(reinterpret_cast<duckdb_libpgquery::PGCheckPointStmt *>(stmt));
 
+    case duckdb_libpgquery::T_PGLoadStmt:
+      return BindLockStatement(reinterpret_cast<duckdb_libpgquery::PGLockStmt *>(stmt));
+
     case duckdb_libpgquery::T_PGVariableSetStmt:
       return BindVariableSetStatement(reinterpret_cast<duckdb_libpgquery::PGVariableSetStmt *>(stmt));
     case duckdb_libpgquery::T_PGVariableShowStmt:
@@ -293,6 +296,10 @@ std::unique_ptr<Statement> Binder::BindTransactionStatement(duckdb_libpgquery::P
 
 std::unique_ptr<Statement> Binder::BindCheckpointStatement(duckdb_libpgquery::PGCheckPointStmt *stmt) {
   return std::make_unique<CheckpointStatement>();
+}
+
+std::unique_ptr<Statement> Binder::BindLockStatement(duckdb_libpgquery::PGLockStmt *stmt) {
+  throw DbException("BindLockStatement not implemented");
 }
 
 std::unique_ptr<Statement> Binder::BindVariableSetStatement(duckdb_libpgquery::PGVariableSetStmt *stmt) {

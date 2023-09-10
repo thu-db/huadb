@@ -39,6 +39,8 @@ struct PGFuncCall;
 struct PGRangeVar;
 struct PGJoinExpr;
 
+struct PGLockStmt;
+
 struct PGVariableSetStmt;
 struct PGVariableShowStmt;
 
@@ -76,6 +78,8 @@ class Binder {
 
   std::unique_ptr<Statement> BindTransactionStatement(duckdb_libpgquery::PGTransactionStmt *stmt);
   std::unique_ptr<Statement> BindCheckpointStatement(duckdb_libpgquery::PGCheckPointStmt *stmt);
+
+  std::unique_ptr<Statement> BindLockStatement(duckdb_libpgquery::PGLockStmt *stmt);
 
   std::unique_ptr<Statement> BindVariableSetStatement(duckdb_libpgquery::PGVariableSetStmt *stmt);
   std::unique_ptr<Statement> BindVariableShowStatement(duckdb_libpgquery::PGVariableShowStmt *stmt);
