@@ -1,0 +1,47 @@
+statement ok
+create table test_insert(id int, score double, info varchar(20));
+
+query
+insert into test_insert values(1, 1.1, 'a'), (2, 2.2, 'bb'), (3, 3.3, 'ccc');
+----
+3
+
+query rowsort
+select * from test_insert;
+----
+1 1.1 a
+2 2.2 bb
+3 3.3 ccc
+
+query
+insert into test_insert values(4, 4.4, 'dddd'), (5, 5.5, 'eeeee'), (6, 6.6, 'ffffff');
+----
+3
+
+query rowsort
+select score, info from test_insert;
+----
+1.1 a
+2.2 bb
+3.3 ccc
+4.4 dddd
+5.5 eeeee
+6.6 ffffff
+
+query
+insert into test_insert values(7, 7.7, 'ggggggg'), (8, 8.8, 'hhhhhhhh'), (9, 9.9, 'iiiiiiiii'), (10, 10.0, 'jjjjjjjjjj'), (11, 11.1, 'kkkkkkkkkkk');
+----
+5
+
+query rowsort
+select id, info from test_insert where id > 5;
+----
+6 ffffff
+7 ggggggg
+8 hhhhhhhh
+9 iiiiiiiii
+10 jjjjjjjjjj
+11 kkkkkkkkkkk
+
+statement ok
+drop table test_insert;

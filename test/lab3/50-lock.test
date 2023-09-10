@@ -1,0 +1,70 @@
+statement ok
+create table a_lock(id int);
+
+query
+insert into a_lock values(1), (2), (3);
+----
+3
+
+statement ok C1
+begin;
+
+query C1
+delete from a_lock where id = 1;
+----
+1
+
+statement ok C2
+begin;
+
+# C1 已经删除了 id = 1 的行，C2 不能修改
+statement error C2
+update a_lock set id = 5 where id = 1;
+
+statement ok C2
+rollback;
+
+statement ok C1
+rollback;
+
+statement ok C1
+begin;
+
+query C1
+update a_lock set id = 4 where id = 1;
+----
+1
+
+statement ok C2
+begin;
+
+# C1 已经修改了 id = 1 的行，C2 不能修改
+statement error C2
+update a_lock set id = 5 where id = 1;
+
+statement ok C2
+rollback;
+
+statement ok C2
+begin;
+
+statement ok C1
+rollback;
+
+query C2
+update a_lock set id = 5 where id = 1;
+----
+1
+
+statement ok C2
+commit;
+
+query
+select * from a_lock;
+----
+2
+3
+5
+
+statement ok
+drop table a_lock;

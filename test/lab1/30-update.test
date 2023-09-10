@@ -1,0 +1,126 @@
+statement ok
+create table test_update(id int, score double, info varchar(20));
+
+query
+insert into test_update values(1, 1.1, 'a'), (2, 2.2, 'bb'), (3, 3.3, 'ccc');
+----
+3
+
+query rowsort
+select * from test_update;
+----
+1 1.1 a
+2 2.2 bb
+3 3.3 ccc
+
+query
+update test_update set score = 3.4 where score > 3.2 and score < 3.4;
+----
+1
+
+query rowsort
+select * from test_update;
+----
+1 1.1 a
+2 2.2 bb
+3 3.4 ccc
+
+query
+insert into test_update values(4, 4.4, 'dddd'), (5, 5.5, 'eeeee'), (6, 6.6, 'ffffff');
+----
+3
+
+query
+select score, info from test_update;
+----
+1.1 a
+2.2 bb
+3.4 ccc
+4.4 dddd
+5.5 eeeee
+6.6 ffffff
+
+query
+update test_update set id = 100 where id >= 3 and id <= 5;
+----
+3
+
+query rowsort
+select id, score, info from test_update;
+----
+1 1.1 a
+2 2.2 bb
+100 3.4 ccc
+100 4.4 dddd
+100 5.5 eeeee
+6 6.6 ffffff
+
+query rowsort
+delete from test_update where score > 5.0;
+----
+2
+
+query rowsort
+select * from test_update;
+----
+1 1.1 a
+2 2.2 bb
+100 3.4 ccc
+100 4.4 dddd
+
+query
+insert into test_update values(7, 7.7, 'ggggggg'), (8, 8.8, 'hhhhhhhh'), (9, 9.9, 'iiiiiiiii'), (10, 10.1, 'jjjjjjjjjj'), (11, 11.1, 'kkkkkkkkkkk');
+----
+5
+
+query
+select id, info from test_update;
+----
+1 a
+2 bb
+100 ccc
+100 dddd
+7 ggggggg
+8 hhhhhhhh
+9 iiiiiiiii
+10 jjjjjjjjjj
+11 kkkkkkkkkkk
+
+query
+update test_update set id = 1 where id < 0;
+----
+0
+
+query
+select id, info from test_update;
+----
+1 a
+2 bb
+100 ccc
+100 dddd
+7 ggggggg
+8 hhhhhhhh
+9 iiiiiiiii
+10 jjjjjjjjjj
+11 kkkkkkkkkkk
+
+query
+update test_update set score = 99.9 where score < 4.0;
+----
+3
+
+query rowsort
+select id, score from test_update;
+----
+1 99.9
+2 99.9
+100 99.9
+100 4.4
+7 7.7
+8 8.8
+9 9.9
+10 10.1
+11 11.1
+
+statement ok
+drop table test_update;

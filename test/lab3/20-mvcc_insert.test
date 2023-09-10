@@ -1,0 +1,46 @@
+statement ok
+create table b_mvcc(id int);
+
+statement ok C1
+set isolation_level = 'repeatable_read';
+
+statement ok C2
+set isolation_level = 'repeatable_read';
+
+statement ok C1
+begin;
+
+query C1
+insert into b_mvcc values(1);
+----
+1
+
+query C1
+select * from b_mvcc;
+----
+1
+
+statement ok C2
+begin;
+
+query C2
+select * from b_mvcc;
+----
+
+statement ok C1
+commit
+
+query C2
+select * from b_mvcc;
+----
+
+statement ok C2
+commit
+
+query
+select * from b_mvcc;
+----
+1
+
+statement ok
+drop table b_mvcc;

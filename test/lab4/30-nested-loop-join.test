@@ -1,0 +1,152 @@
+statement ok
+set enable_optimizer = false;
+
+statement ok
+create table nl_left_1(id int, info varchar(100));
+
+statement ok
+create table nl_middle_1(id int, score double);
+
+statement ok
+create table nl_right_1(id int, name varchar(100));
+
+statement ok
+create table nl_empty(id int, info varchar(100));
+
+statement ok
+create table nl_left_2(id int, info varchar(100));
+
+statement ok
+create table nl_right_2(id int, score double);
+
+query
+insert into nl_left_1 values(2, 'b'), (3, 'c'), (1, 'a'), (2, 'bb'), (1, 'aa'), (2, 'bbb');
+----
+6
+
+query
+insert into nl_middle_1 values(4, 4.4), (3, 3.3), (2, 2.2), (3, 3.4), (2, 2.3), (3, 3.5);
+----
+6
+
+query
+insert into nl_right_1 values(3, 'name_c'), (1, 'name_a'), (2, 'name_b'), (3, 'name_cc');
+----
+4
+
+query
+insert into nl_left_2 values(1, 'a'), (1, 'aa'), (1, 'aaa'), (1, 'aaaa'), (1, 'aaaaa');
+----
+5
+
+query
+insert into nl_right_2 values(1, 1.1), (1, 1.2), (1, 1.3), (1, 1.4), (1, 1.5);
+----
+5
+
+query rowsort
+explain (optimizer) select nl_left_1.id, nl_left_1.info, nl_middle_1.score from nl_left_1 join nl_middle_1 on nl_left_1.id = nl_middle_1.id;
+----
+===Optimizer===
+Projection: ["nl_left_1.id", "nl_left_1.info", "nl_middle_1.score"]
+  NestedLoopJoin: nl_left_1.id = nl_middle_1.id
+    SeqScan: nl_left_1
+    SeqScan: nl_middle_1
+
+query rowsort
+select nl_left_1.id, nl_left_1.info, nl_middle_1.score from nl_left_1 join nl_middle_1 on nl_left_1.id = nl_middle_1.id;
+----
+2 b 2.2
+2 bb 2.2
+2 bbb 2.2
+2 b 2.3
+2 bb 2.3
+2 bbb 2.3
+3 c 3.3
+3 c 3.4
+3 c 3.5
+
+query rowsort
+select nl_left_1.id, nl_left_1.info, nl_middle_1.score from nl_left_1, nl_middle_1 where nl_left_1.id = nl_middle_1.id;
+----
+2 b 2.2
+2 bb 2.2
+2 bbb 2.2
+2 b 2.3
+2 bb 2.3
+2 bbb 2.3
+3 c 3.3
+3 c 3.4
+3 c 3.5
+
+# 三表连接
+query rowsort
+select nl_left_1.id, nl_left_1.info, nl_middle_1.score, nl_right_1.name from (nl_left_1 join nl_middle_1 on nl_left_1.id = nl_middle_1.id) join nl_right_1 on nl_left_1.id = nl_right_1.id;
+----
+2 b 2.2 name_b
+2 bb 2.2 name_b
+2 bbb 2.2 name_b
+2 b 2.3 name_b
+2 bb 2.3 name_b
+2 bbb 2.3 name_b
+3 c 3.3 name_c
+3 c 3.4 name_c
+3 c 3.5 name_c
+3 c 3.3 name_cc
+3 c 3.4 name_cc
+3 c 3.5 name_cc
+
+query rowsort
+select nl_left_2.id, nl_left_2.info, nl_right_2.score from nl_left_2 join nl_right_2 on nl_left_2.id = nl_right_2.id;
+----
+1 a 1.1
+1 a 1.2
+1 a 1.3
+1 a 1.4
+1 a 1.5
+1 aa 1.1
+1 aa 1.2
+1 aa 1.3
+1 aa 1.4
+1 aa 1.5
+1 aaa 1.1
+1 aaa 1.2
+1 aaa 1.3
+1 aaa 1.4
+1 aaa 1.5
+1 aaaa 1.1
+1 aaaa 1.2
+1 aaaa 1.3
+1 aaaa 1.4
+1 aaaa 1.5
+1 aaaaa 1.1
+1 aaaaa 1.2
+1 aaaaa 1.3
+1 aaaaa 1.4
+1 aaaaa 1.5
+
+query rowsort
+select * from nl_left_1 join nl_empty on nl_left_1.id = nl_empty.id;
+----
+
+query rowsort
+select * from nl_empty join nl_left_1 on nl_left_1.id = nl_empty.id;
+----
+
+statement ok
+drop table nl_left_1;
+
+statement ok
+drop table nl_middle_1;
+
+statement ok
+drop table nl_right_1;
+
+statement ok
+drop table nl_left_2;
+
+statement ok
+drop table nl_right_2;
+
+statement ok
+drop table nl_empty;

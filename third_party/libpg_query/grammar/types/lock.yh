@@ -1,0 +1,2 @@
+%type <lockstrength> opt_lock
+%type <lockstrength> lock_type

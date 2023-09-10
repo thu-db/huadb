@@ -1,0 +1,53 @@
+statement ok
+create table left_table_filter(id int, score double);
+
+statement ok
+create table middle_table_filter(id int, info varchar(100));
+
+statement ok
+create table right_table_filter(id int, name varchar(100));
+
+query rowsort
+explain (optimizer) select a.id, a.score, b.info from left_table_filter a join middle_table_filter b on a.id = b.id where a.id > 1;
+----
+===Optimizer===
+Projection: ["a.id", "a.score", "b.info"]
+  NestedLoopJoin: a.id = b.id
+    Filter: a.id > 1
+      SeqScan: left_table_filter a
+    SeqScan: middle_table_filter b
+
+query rowsort
+explain (optimizer) select a.id, a.score, b.info from left_table_filter a join middle_table_filter b on a.id = b.id where a.id > 1 and b.id < 3;
+----
+===Optimizer===
+Projection: ["a.id", "a.score", "b.info"]
+  NestedLoopJoin: a.id = b.id
+    Filter: a.id > 1
+      SeqScan: left_table_filter a
+    Filter: b.id < 3
+      SeqScan: middle_table_filter b
+
+# 3 tables
+query rowsort
+explain (optimizer) select a.id, a.score, b.info, c.name from (left_table_filter a join middle_table_filter b on a.id = b.id) join right_table_filter c on a.id = c.id where a.id > 1 and b.id < 3 and c.id > 2;
+----
+===Optimizer===
+Projection: ["a.id", "a.score", "b.info", "c.name"]
+  NestedLoopJoin: a.id = c.id
+    NestedLoopJoin: a.id = b.id
+      Filter: a.id > 1
+        SeqScan: left_table_filter a
+      Filter: b.id < 3
+        SeqScan: middle_table_filter b
+    Filter: c.id > 2
+      SeqScan: right_table_filter c
+
+statement ok
+drop table left_table_filter;
+
+statement ok
+drop table middle_table_filter;
+
+statement ok
+drop table right_table_filter;

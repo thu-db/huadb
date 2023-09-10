@@ -1,0 +1,120 @@
+statement ok
+create table test_rollback(id int, info varchar(10));
+
+query
+insert into test_rollback values(1, 'info1'), (2, 'info2');
+----
+2
+
+query
+select * from test_rollback;
+----
+1 info1
+2 info2
+
+# 插入回滚测试
+statement ok
+begin;
+
+query
+insert into test_rollback values(1, 'temp_info');
+----
+1
+
+query rowsort
+select * from test_rollback;
+----
+1 info1
+2 info2
+1 temp_info
+
+statement ok
+rollback;
+
+query rowsort
+select * from test_rollback;
+----
+1 info1
+2 info2
+
+# 删除回滚测试
+statement ok
+begin;
+
+query
+delete from test_rollback where id < 2;
+----
+1
+
+query
+select * from test_rollback;
+----
+2 info2
+
+statement ok
+rollback;
+
+query rowsort
+select * from test_rollback;
+----
+1 info1
+2 info2
+
+# 更新回滚测试
+statement ok
+begin;
+
+query
+update test_rollback set id = 3 where id = 2;
+----
+1
+
+query rowsort
+select * from test_rollback;
+----
+1 info1
+3 info2
+
+statement ok
+rollback;
+
+query rowsort
+select * from test_rollback;
+----
+1 info1
+2 info2
+
+# 新页回滚测试
+statement ok
+begin;
+
+query
+insert into test_rollback values(3, 'info3'), (4, 'info4'), (5, 'info5'), (6, 'info6'), (7, 'info7'), (8, 'info8'), (9, 'info9'), (10, 'info10');
+----
+8
+
+query rowsort
+select * from test_rollback;
+----
+1 info1
+2 info2
+3 info3
+4 info4
+5 info5
+6 info6
+7 info7
+8 info8
+9 info9
+10 info10
+
+statement ok
+rollback;
+
+query rowsort
+select * from test_rollback;
+----
+1 info1
+2 info2
+
+statement ok
+drop table test_rollback;

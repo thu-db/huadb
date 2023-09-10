@@ -1,0 +1,82 @@
+statement ok
+create table rr(id int, info varchar(2));
+
+query
+insert into rr values(0, 'a');
+----
+1
+
+statement ok C1
+set isolation_level = repeatable_read;
+
+statement ok C2
+set isolation_level = repeatable_read;
+
+statement ok C1
+begin;
+
+statement ok C2
+begin;
+
+query C1
+insert into rr values(1, 'b');
+----
+1
+
+query rowsort C1
+select * from rr;
+----
+0 a
+1 b
+
+query C2
+select * from rr;
+----
+0 a
+
+# Halloween problem
+query C2
+update rr set id = 2;
+----
+1
+
+query rowsort C1
+select * from rr;
+----
+0 a
+1 b
+
+query C2
+select * from rr;
+----
+2 a
+
+statement ok C2
+commit;
+
+query rowsort C1
+select * from rr;
+----
+0 a
+1 b
+
+query rowsort C2
+select * from rr;
+----
+2 a
+
+statement ok C1
+rollback;
+
+query rowsort C1
+select * from rr;
+----
+2 a
+
+query rowsort C2
+select * from rr;
+----
+2 a
+
+statement ok
+drop table rr;

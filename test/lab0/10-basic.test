@@ -1,0 +1,5 @@
+query
+select 1; select 2;
+----
+1
+2

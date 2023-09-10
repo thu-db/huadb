@@ -1,0 +1,56 @@
+statement ok
+create table write_skew(name varchar(1));
+
+query
+insert into write_skew values('A'), ('B');
+----
+2
+
+statement ok C1
+set isolation_level = 'repeatable_read';
+
+statement ok C2
+set isolation_level = 'repeatable_read';
+
+statement ok C1
+begin;
+
+query C1
+update write_skew set name = 'B' where name = 'A';
+----
+1
+
+query C1
+select * from write_skew;
+----
+B
+B
+
+statement ok C2
+begin;
+
+query C2
+update write_skew set name = 'A' where name = 'B';
+----
+1
+
+query C2
+select * from write_skew;
+----
+A
+A
+
+statement ok C1
+commit;
+
+statement ok C2
+commit;
+
+query rowsort
+select * from write_skew;
+----
+A
+B
+
+statement ok
+drop table write_skew;

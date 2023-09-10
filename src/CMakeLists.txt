@@ -1,0 +1,28 @@
+add_subdirectory(binder)
+add_subdirectory(catalog)
+add_subdirectory(common)
+add_subdirectory(database)
+add_subdirectory(executors)
+add_subdirectory(log)
+add_subdirectory(optimizer)
+add_subdirectory(planner)
+add_subdirectory(storage)
+add_subdirectory(table)
+add_subdirectory(transaction)
+
+add_library(huadb STATIC ${ALL_OBJECT_FILES})
+
+set(LIBS binder catalog common database executors log log_records optimizer planner storage table transaction)
+set(THIRDPARTY_LIBS duckdb_pg_query fort fmt)
+
+target_link_libraries(huadb ${LIBS} ${THIRDPARTY_LIBS})
+
+if(NOT EMSCRIPTEN)
+  add_executable(shell shell.cpp)
+  target_link_libraries(shell huadb linenoise)
+else()
+  add_executable(web-shell web-shell.cpp)
+  target_compile_options(web-shell PRIVATE -fwasm-exceptions)
+  target_link_libraries(web-shell huadb)
+  target_link_options(web-shell PRIVATE -sEXPORTED_FUNCTIONS=['_Init','_ExecuteSql','_GetCurrentDatabase','_free'] -sEXPORTED_RUNTIME_METHODS=['ccall','cwrap','allocateUTF8','UTF8ToString'] -fwasm-exceptions)
+endif()

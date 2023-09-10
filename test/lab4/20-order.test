@@ -1,0 +1,125 @@
+statement ok
+create table test_order(id int, score double, info varchar(100));
+
+query 5
+insert into test_order values(3, 3.3, 'ccc'), (3, 33.3, 'ccc'), (3, 333.3, 'ccc'), (1, 1.1, 'a'), (1, 11.1, 'a'), (2, 2.2, 'bb'), (5, 5.5, 'eeeee'), (4, 4.4, 'dddd'), (5, 55.5, 'eeeee');
+----
+9
+
+query rowsort
+select * from test_order;
+----
+1 1.1 a
+1 11.1 a
+2 2.2 bb
+3 3.3 ccc
+3 33.3 ccc
+3 333.3 ccc
+4 4.4 dddd
+5 5.5 eeeee
+5 55.5 eeeee
+
+query rowsort
+select * from test_order order by id;
+----
+1 1.1 a
+1 11.1 a
+2 2.2 bb
+3 3.3 ccc
+3 33.3 ccc
+3 333.3 ccc
+4 4.4 dddd
+5 5.5 eeeee
+5 55.5 eeeee
+
+query
+select * from test_order order by score;
+----
+1 1.1 a
+2 2.2 bb
+3 3.3 ccc
+4 4.4 dddd
+5 5.5 eeeee
+1 11.1 a
+3 33.3 ccc
+5 55.5 eeeee
+3 333.3 ccc
+
+query
+select * from test_order order by score asc;
+----
+1 1.1 a
+2 2.2 bb
+3 3.3 ccc
+4 4.4 dddd
+5 5.5 eeeee
+1 11.1 a
+3 33.3 ccc
+5 55.5 eeeee
+3 333.3 ccc
+
+query
+select * from test_order order by score desc;
+----
+3 333.3 ccc
+5 55.5 eeeee
+3 33.3 ccc
+1 11.1 a
+5 5.5 eeeee
+4 4.4 dddd
+3 3.3 ccc
+2 2.2 bb
+1 1.1 a
+
+# Order by two columns
+query
+select * from test_order order by id, score;
+----
+1 1.1 a
+1 11.1 a
+2 2.2 bb
+3 3.3 ccc
+3 33.3 ccc
+3 333.3 ccc
+4 4.4 dddd
+5 5.5 eeeee
+5 55.5 eeeee
+
+query
+select * from test_order order by id desc, score;
+----
+5 5.5 eeeee
+5 55.5 eeeee
+4 4.4 dddd
+3 3.3 ccc
+3 33.3 ccc
+3 333.3 ccc
+2 2.2 bb
+1 1.1 a
+1 11.1 a
+
+query
+select * from test_order order by id, score desc;
+----
+1 11.1 a
+1 1.1 a
+2 2.2 bb
+3 333.3 ccc
+3 33.3 ccc
+3 3.3 ccc
+4 4.4 dddd
+5 55.5 eeeee
+5 5.5 eeeee
+
+statement ok
+drop table test_order;
+
+statement ok
+create table empty(id int);
+
+query
+select * from empty order by id;
+----
+
+statement ok
+drop table empty;

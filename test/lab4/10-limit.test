@@ -1,0 +1,85 @@
+statement ok
+create table test_limit(id int, score double, info varchar(100));
+
+query
+insert into test_limit values(1, 1.1, 'a'), (2, 2.2, 'bb'), (3, 3.3, 'ccc'), (4, 4.4, 'dddd'), (5, 5.5, 'eeeee');
+----
+5
+
+# Simple case
+query
+select * from test_limit order by id limit 2;
+----
+1 1.1 a
+2 2.2 bb
+
+# limit 0 support
+query
+select score from test_limit limit 0;
+----
+
+query
+select id from test_limit limit 5;
+----
+1
+2
+3
+4
+5
+
+query
+select score from test_limit limit 10;
+----
+1.1
+2.2
+3.3
+4.4
+5.5
+
+# Add predicate
+query rowsort
+select id, score, info from test_limit where score < 3.0 limit 3;
+----
+1 1.1 a
+2 2.2 bb
+
+# Offset test
+query
+select id from test_limit order by id offset 2;
+----
+3
+4
+5
+
+# Offset 0
+query
+select id from test_limit offset 0;
+----
+1
+2
+3
+4
+5
+
+# Offset and limit
+query rowsort
+select id, info from test_limit order by score limit 2 offset 1;
+----
+2 bb
+3 ccc
+
+query
+select id, info from test_limit order by score limit 2 offset 4;
+----
+5 eeeee
+
+query
+select id, info from test_limit offset 5 limit 2;
+----
+
+query
+select * from test_limit offset 6 limit 2;
+----
+
+statement ok
+drop table test_limit;

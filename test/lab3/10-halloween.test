@@ -1,0 +1,36 @@
+statement ok
+create table halloween (salary int);
+
+query
+insert into halloween values (1000), (2000), (3000), (4000);
+----
+4
+
+query
+update halloween set salary = salary + 1000 where salary < 3000;
+----
+2
+
+query rowsort
+select * from halloween;
+----
+2000
+3000
+3000
+4000
+
+query
+update halloween set salary = salary + 1500 where salary > 3000;
+----
+1
+
+query rowsort
+select * from halloween;
+----
+2000
+3000
+3000
+5500
+
+statement ok
+drop table halloween;

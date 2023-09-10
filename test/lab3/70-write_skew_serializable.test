@@ -1,0 +1,82 @@
+statement ok
+create table write_skew_serializable(name varchar(1));
+
+query
+insert into write_skew_serializable values('A'), ('B');
+----
+2
+
+statement ok C1
+set isolation_level = serializable;
+
+statement ok C2
+set isolation_level = serializable;
+
+statement ok C1
+begin;
+
+query rowsort C1
+select * from write_skew_serializable for share;
+----
+A
+B
+
+query C1
+select * from write_skew_serializable where name = 'A' for update;
+----
+A
+
+query C1
+update write_skew_serializable set name = 'B' where name = 'A';
+----
+1
+
+statement ok C2
+begin;
+
+statement error C2
+select * from write_skew_serializable for share;
+
+statement error C2
+select * from write_skew_serializable where name = 'B' for update;
+
+statement error C2
+update write_skew_serializable set name = 'A' where name = 'B';
+
+query C1
+select * from write_skew_serializable;
+----
+B
+B
+
+statement ok C1
+commit;
+
+query C2
+select * from write_skew_serializable for share;
+----
+B
+B
+
+query C2
+select * from write_skew_serializable where name = 'B' for update;
+----
+B
+B
+
+query C2
+update write_skew_serializable set name = 'A' where name = 'B';
+----
+2
+
+statement ok C2
+commit;
+
+query
+select * from write_skew_serializable;
+----
+A
+A
+
+statement ok
+drop table write_skew_serializable;

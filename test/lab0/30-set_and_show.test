@@ -1,0 +1,72 @@
+statement error
+show a;
+
+statement ok
+set a = 1;
+
+query
+show a;
+----
+1
+
+statement ok
+set a = abc;
+
+query
+show a;
+----
+abc
+
+statement ok
+set isolation_level=read_committed;
+
+statement ok
+set isolation_level=repeatable_read;
+
+statement ok
+set isolation_level=serializable;
+
+statement error
+set isolation_level=isolation_not_exist;
+
+statement ok
+set join_order_algorithm=dp;
+
+statement ok
+set join_order_algorithm=greedy;
+
+statement error
+set join_order_algorithm=not_exist;
+
+statement ok
+set force_join=none;
+
+statement ok
+set force_join=hash;
+
+statement ok
+set force_join=merge;
+
+statement error
+set force_join=not_exist;
+
+statement ok
+set enable_optimizer=0;
+
+statement ok
+set enable_optimizer=false;
+
+statement ok
+set enable_optimizer=off;
+
+statement ok
+set enable_optimizer=1;
+
+statement ok
+set enable_optimizer=true;
+
+statement ok
+set enable_optimizer=on;
+
+statement error
+set enable_optimizer=not_exist;

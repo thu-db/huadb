@@ -1,0 +1,152 @@
+statement ok
+create table buffer_1(id int, info varchar(20));
+
+query
+insert into buffer_1 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, 'eee');
+----
+5
+
+query
+show disk_access_count;
+----
+1
+
+statement ok
+create table buffer_2(id int, info varchar(20));
+
+query
+insert into buffer_2 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, 'eee');
+----
+5
+
+statement ok
+create table buffer_3(id int, info varchar(20));
+
+query
+insert into buffer_3 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, 'eee');
+----
+5
+
+statement ok
+create table buffer_4(id int, info varchar(20));
+
+query
+insert into buffer_4 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, 'eee');
+----
+5
+
+statement ok
+create table buffer_5(id int, info varchar(20));
+
+query
+insert into buffer_5 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, 'eee');
+----
+5
+
+query
+show disk_access_count;
+----
+5
+
+statement ok
+create table buffer_6(id int, info varchar(20));
+
+query
+insert into buffer_6 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, 'eee');
+----
+5
+
+query
+show disk_access_count;
+----
+7
+
+statement ok
+create table buffer_7(id int, info varchar(20));
+
+query
+insert into buffer_7 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, 'eee'), (6, 'fff'), (7, 'ggg'), (8, 'hhh'), (9, 'iii'), (10, 'jjj');
+----
+10
+
+query
+show disk_access_count;
+----
+11
+
+query
+select * from buffer_6;
+----
+1 aaa
+2 bbb
+3 ccc
+4 ddd
+5 eee
+
+query
+select * from buffer_7;
+----
+1 aaa
+2 bbb
+3 ccc
+4 ddd
+5 eee
+6 fff 
+7 ggg 
+8 hhh 
+9 iii 
+10 jjj
+
+query
+select * from buffer_7;
+----
+1 aaa
+2 bbb
+3 ccc
+4 ddd
+5 eee
+6 fff 
+7 ggg 
+8 hhh 
+9 iii 
+10 jjj
+
+query
+show disk_access_count;
+----
+11
+
+query
+select * from buffer_3;
+----
+1 aaa
+2 bbb
+3 ccc
+4 ddd
+5 eee
+
+query
+show disk_access_count;
+----
+13
+
+statement ok
+drop table buffer_1;
+
+statement ok
+drop table buffer_2;
+
+statement ok
+drop table buffer_3;
+
+statement ok
+drop table buffer_4;
+
+statement ok
+drop table buffer_5;
+
+statement ok
+drop table buffer_6;
+
+statement ok
+drop table buffer_7;

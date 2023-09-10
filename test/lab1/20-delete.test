@@ -1,0 +1,122 @@
+statement ok
+create table test_delete(id int, score double, info varchar(20));
+
+query
+insert into test_delete values(1, 1.1, 'a'), (2, 2.2, 'bb'), (3, 3.3, 'ccc');
+----
+3
+
+query rowsort
+select * from test_delete;
+----
+1 1.1 a
+2 2.2 bb
+3 3.3 ccc
+
+query
+delete from test_delete where id = 1;
+----
+1
+
+query rowsort
+select * from test_delete;
+----
+2 2.2 bb
+3 3.3 ccc
+
+query
+insert into test_delete values(4, 4.4, 'dddd'), (5, 5.5, 'eeeee'), (6, 6.6, 'ffffff');
+----
+3
+
+query rowsort
+select score, info from test_delete;
+----
+2.2 bb
+3.3 ccc
+4.4 dddd
+5.5 eeeee
+6.6 ffffff
+
+query
+delete from test_delete where score < 5.0 and id >= 3;
+----
+2
+
+query rowsort
+select score, info from test_delete;
+----
+2.2 bb
+5.5 eeeee
+6.6 ffffff
+
+query
+insert into test_delete values(7, 7.7, 'ggggggg'), (8, 8.8, 'hhhhhhhh'), (9, 9.9, 'iiiiiiiii'), (10, 10.1, 'jjjjjjjjjj'), (11, 11.1, 'kkkkkkkkkkk');
+----
+5
+
+query rowsort
+select id, info from test_delete;
+----
+2 bb
+5 eeeee
+6 ffffff
+7 ggggggg
+8 hhhhhhhh
+9 iiiiiiiii
+10 jjjjjjjjjj
+11 kkkkkkkkkkk
+
+query
+delete from test_delete where id < 0;
+----
+0
+
+query rowsort
+select id, info from test_delete;
+----
+2 bb
+5 eeeee
+6 ffffff
+7 ggggggg
+8 hhhhhhhh
+9 iiiiiiiii
+10 jjjjjjjjjj
+11 kkkkkkkkkkk
+
+query
+delete from test_delete where info = 'kkkkkkkkkkk';
+----
+1
+
+query
+select info from test_delete where id = 11;
+----
+
+query
+delete from test_delete;
+----
+7
+
+query
+insert into test_delete values(1, 1.1, 'a'), (2, 2.2, 'bb');
+----
+2
+
+query rowsort
+select * from test_delete;
+----
+1 1.1 a
+2 2.2 bb
+
+query
+delete from test_delete;
+----
+2
+
+query
+select * from test_delete;
+----
+
+statement ok
+drop table test_delete;
