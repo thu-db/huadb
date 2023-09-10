@@ -18,9 +18,9 @@
 
 namespace huadb {
 
+class Connection;
 class ResultWriter;
 class ExplainStatement;
-class Connection;
 class VariableSetStatement;
 class VariableShowStatement;
 class AnalyzeStatement;

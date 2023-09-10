@@ -7,6 +7,7 @@
 #include "binder/statements/drop_table_statement.h"
 #include "binder/statements/explain_statement.h"
 #include "binder/statements/insert_statement.h"
+#include "binder/statements/lock_statement.h"
 #include "binder/statements/select_statement.h"
 #include "binder/statements/transaction_statement.h"
 #include "binder/statements/update_statement.h"
