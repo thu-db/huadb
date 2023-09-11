@@ -21,6 +21,7 @@ namespace huadb {
 class Connection;
 class ResultWriter;
 class ExplainStatement;
+class LockStatement;
 class VariableSetStatement;
 class VariableShowStatement;
 class AnalyzeStatement;
@@ -58,6 +59,8 @@ class DatabaseEngine {
   void Recover();
 
   void Explain(const ExplainStatement &stmt, ResultWriter &writer);
+  void Lock(xid_t xid, const LockStatement &stmt, ResultWriter &writer);
+
   void VariableSet(const Connection &connection, const VariableSetStatement &stmt, ResultWriter &writer);
   void VariableShow(const Connection &connection, const VariableShowStatement &stmt, ResultWriter &writer);
 

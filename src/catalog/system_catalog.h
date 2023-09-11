@@ -51,9 +51,6 @@ class SystemCatalog {
   // 获取表的schema信息
   const ColumnList &GetTableColumnList(oid_t oid);
   const ColumnList &GetTableColumnList(const std::string &table_name);
-  // 获取指定数据库下所有表oid
-  std::vector<oid_t> GetDatabaseTableOids(oid_t db_oid = INVALID_OID);
-  std::vector<oid_t> GetDatabaseTableOids(const std::string &database_name);
   // 表是否存在
   bool TableExists(oid_t oid);
   // 获取下一个 oid

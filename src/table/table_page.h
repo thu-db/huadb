@@ -12,7 +12,7 @@ namespace huadb {
 // page_lsn(8) + next_page(4) + page_lower(2) + page_upper(2) = 16
 static constexpr db_size_t PAGE_HEADER_SIZE = sizeof(lsn_t) + sizeof(pageid_t) + sizeof(db_size_t) + sizeof(db_size_t);
 
-struct Item {
+struct Slot {
   db_size_t offset_;
   db_size_t size_;
 };
@@ -40,21 +40,23 @@ class TablePage {
                         db_size_t record_size);
 
   // 获取记录数目
-  db_size_t GetRecordCount();
-  // 获取下一个页面的页面号
-  pageid_t GetNextPageId();
-  // 获取页面 upper 指针
-  db_size_t GetUpper();
+  db_size_t GetRecordCount() const;
   // Lab 2: 获取 page lsn
-  lsn_t GetPageLSN();
+  lsn_t GetPageLSN() const;
+  // 获取下一个页面的页面号
+  pageid_t GetNextPageId() const;
+  // 获取页面 lower 指针
+  db_size_t GetLower() const;
+  // 获取页面 upper 指针
+  db_size_t GetUpper() const;
+
+  // 获取页面剩余空间大小
+  db_size_t GetFreeSpaceSize();
 
   // 设置下一个页面的页面号
   void SetNextPageId(pageid_t page_id);
   // Lab 2: 设置 page lsn
   void SetPageLSN(lsn_t page_lsn);
-
-  // 获取页面剩余空间大小
-  db_size_t GetFreeSpaceSize();
 
  private:
   std::shared_ptr<Page> page_;
@@ -63,7 +65,7 @@ class TablePage {
   pageid_t *next_page_id_;  // 下一个页面的页面号
   db_size_t *lower_;        // 页面 lower 指针
   db_size_t *upper_;        // 页面 upper 指针
-  Item *slots_;             // 槽位数组
+  Slot *slots_;             // 槽位数组
 };
 
 }  // namespace huadb

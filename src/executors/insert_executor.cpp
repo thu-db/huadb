@@ -25,6 +25,8 @@ std::shared_ptr<Record> InsertExecutor::Next() {
       values[column_index] = record->GetValue(i);
     }
     auto table_record = std::make_shared<Record>(std::move(values));
+    // 获取正确的锁，加锁失败时抛出异常
+    // LAB 3 BEGIN
     auto rid = table_->InsertRecord(std::move(table_record), context_.GetXid(), context_.GetCid());
     // 获取正确的锁，加锁失败时抛出异常
     // LAB 3 BEGIN

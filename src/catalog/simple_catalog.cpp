@@ -170,14 +170,6 @@ const ColumnList &SimpleCatalog::GetTableColumnList(const std::string &table_nam
   return GetTable(oid)->GetColumnList();
 }
 
-std::vector<oid_t> SimpleCatalog::GetDatabaseTableOids(oid_t db_oid) {
-  throw DbException("GetDatabaseTableOids not implemented in SimpleCatalog");
-}
-
-std::vector<oid_t> SimpleCatalog::GetDatabaseTableOids(const std::string &database_name) {
-  throw DbException("GetDatabaseTableOids not implemented in SimpleCatalog");
-}
-
 bool SimpleCatalog::TableExists(oid_t oid) { return !oid_manager_.OidExists(oid); }
 
 oid_t SimpleCatalog::GetNextOid() const { return oid_manager_.GetNextOid(); }

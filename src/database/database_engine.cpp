@@ -14,7 +14,6 @@
 #include "operators/expressions/column_value.h"
 #include "postgres_parser.hpp"
 #include "table/record.h"
-#include "table/table_page.h"
 
 namespace huadb {
 
@@ -144,6 +143,11 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
     }
 
     bool is_modification_sql = false;
+    // 如果该语句不在事务块内，则自动开启一个事务
+    if (xids_.find(&connection) == xids_.end()) {
+      Begin(connection);
+      auto_transaction_set_.insert(&connection);
+    }
     switch (statement->type_) {
       // 对于 DDL 查询，直接调用对应的函数
       case StatementType::CREATE_DATABASE_STATEMENT: {
@@ -171,6 +175,11 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
         Explain(explain_statement, writer);
         break;
       }
+      case StatementType::LOCK_STATEMENT: {
+        const auto &lock_statement = dynamic_cast<LockStatement &>(*statement);
+        Lock(xids_[&connection], lock_statement, writer);
+        break;
+      }
       case StatementType::VARIABLE_SET_STATEMENT: {
         const auto &variable_set_statement = dynamic_cast<VariableSetStatement &>(*statement);
         VariableSet(connection, variable_set_statement, writer);
@@ -196,12 +205,6 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
         is_modification_sql = true;
       // 对于 DML 查询，需要生成查询计划并执行
       default: {
-        // 如果该语句不在事务块内，则自动开启一个事务
-        if (xids_.find(&connection) == xids_.end()) {
-          Begin(connection);
-          auto_transaction_set_.insert(&connection);
-        }
-
         try {
           // 生成查询计划
           Planner planner(force_join_);
@@ -252,14 +255,13 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
           }
           throw e;
         }
-
-        // 如果事务是自动开启的，查询结束后需要自动提交
-        if (auto_transaction_set_.find(&connection) != auto_transaction_set_.end()) {
-          Commit(connection);
-          auto_transaction_set_.erase(&connection);
-        }
         break;
       }
+    }
+    // 如果事务是自动开启的，查询结束后需要自动提交
+    if (auto_transaction_set_.find(&connection) != auto_transaction_set_.end()) {
+      Commit(connection);
+      auto_transaction_set_.erase(&connection);
     }
   }
 }
@@ -412,6 +414,20 @@ void DatabaseEngine::Checkpoint() { log_manager_->Checkpoint(); }
 
 void DatabaseEngine::Recover() { log_manager_->Recover(); }
 
+void DatabaseEngine::Lock(xid_t xid, const LockStatement &stmt, ResultWriter &writer) {
+  LockType lock_type;
+  if (stmt.lock_type_ == TableLockType::SHARE) {
+    lock_type = LockType::S;
+  } else if (stmt.lock_type_ == TableLockType::EXCLUSIVE) {
+    lock_type = LockType::X;
+  } else {
+    throw DbException("Unknown lock type");
+  }
+  if (!lock_manager_->LockTable(xid, lock_type, stmt.table_->oid_)) {
+    throw DbException("Cannot acquire lock");
+  }
+}
+
 void DatabaseEngine::Explain(const ExplainStatement &stmt, ResultWriter &writer) {
   std::string output;
   if ((stmt.options_ & ExplainOptions::BINDER) != 0) {
@@ -487,13 +503,13 @@ void DatabaseEngine::VariableShow(const Connection &connection, const VariableSh
 
 // Not finished yet
 void DatabaseEngine::Analyze(const AnalyzeStatement &stmt, ResultWriter &writer) {
-  std::vector<oid_t> table_oids;
+  std::vector<std::string> table_names;
   std::vector<uint32_t> column_idxs;
   std::vector<ColumnValue> columns;
   if (stmt.table_ == nullptr) {
-    table_oids = catalog_->GetDatabaseTableOids(current_db_);
+    table_names = catalog_->GetTableNames();
   } else {
-    table_oids.push_back(stmt.table_->oid_);
+    table_names.push_back(stmt.table_->table_);
     if (!stmt.columns_.empty()) {
       for (const auto &column : stmt.columns_) {
         auto column_list = catalog_->GetTableColumnList(stmt.table_->table_);
@@ -505,8 +521,9 @@ void DatabaseEngine::Analyze(const AnalyzeStatement &stmt, ResultWriter &writer)
       }
     }
   }
-  for (const auto &table_oid : table_oids) {
-    auto table = catalog_->GetTable(table_oid);
+  for (const auto &table_name : table_names) {
+    auto oid = catalog_->GetTableOid(table_name);
+    auto table = catalog_->GetTable(oid);
     if (stmt.columns_.empty()) {
     }
     auto scan = std::make_unique<TableScan>(*buffer_pool_, table, Rid{table->GetFirstPageId(), 0});

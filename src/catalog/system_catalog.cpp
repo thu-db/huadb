@@ -296,29 +296,6 @@ const ColumnList &SystemCatalog::GetTableColumnList(const std::string &table_nam
   return GetTable(oid)->GetColumnList();
 }
 
-std::vector<oid_t> SystemCatalog::GetDatabaseTableOids(oid_t db_oid) {
-  if (db_oid == INVALID_OID) {
-    throw DbException("Invalid database oid in GetDatabaseTableOids");
-  }
-  std::vector<oid_t> table_oids{};
-  // 获取db_oid相同元素的table_oid
-  auto table_meta = GetTable(TABLE_META_OID);
-  auto scan = std::make_shared<TableScan>(buffer_pool_, table_meta, Rid{table_meta->GetFirstPageId(), 0});
-  auto table_oid_idx = table_meta_schema.GetColumnIndex("table_oid");
-  auto db_oid_idx = table_meta_schema.GetColumnIndex("db_oid");
-  while (auto record = scan->GetNextRecord()) {
-    if (record->GetValue(db_oid_idx).GetValue<oid_t>() == db_oid) {
-      table_oids.push_back(record->GetValue(table_oid_idx).GetValue<oid_t>());
-    }
-  }
-  return table_oids;
-}
-
-std::vector<oid_t> SystemCatalog::GetDatabaseTableOids(const std::string &database_name) {
-  auto db_oid = GetDatabaseOid(database_name);
-  return GetDatabaseTableOids(db_oid);
-}
-
 bool SystemCatalog::TableExists(oid_t oid) { return oid_manager_.OidExists(oid); }
 
 oid_t SystemCatalog::GetNextOid() const { return oid_manager_.GetNextOid(); }

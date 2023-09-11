@@ -300,15 +300,15 @@ std::unique_ptr<Statement> Binder::BindCheckpointStatement(duckdb_libpgquery::PG
 
 std::unique_ptr<Statement> Binder::BindLockStatement(duckdb_libpgquery::PGLockStmt *stmt) {
   auto table = BindBaseTableRef(stmt->relation->relname, std::nullopt);
-  TableLockType type;
+  TableLockType lock_type;
   if (stmt->mode == duckdb_libpgquery::PG_LCS_FORSHARE) {
-    type = TableLockType::SHARE;
+    lock_type = TableLockType::SHARE;
   } else if (stmt->mode == duckdb_libpgquery::LCS_FORUPDATE) {
-    type = TableLockType::EXCLUSIVE;
+    lock_type = TableLockType::EXCLUSIVE;
   } else {
     throw DbException("Unknown lock mode");
   }
-  return std::make_unique<LockStatement>(std::move(table), type);
+  return std::make_unique<LockStatement>(std::move(table), lock_type);
 }
 
 std::unique_ptr<Statement> Binder::BindVariableSetStatement(duckdb_libpgquery::PGVariableSetStmt *stmt) {

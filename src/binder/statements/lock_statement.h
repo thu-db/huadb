@@ -10,12 +10,12 @@ enum class TableLockType { SHARE, EXCLUSIVE };
 
 class LockStatement : public Statement {
  public:
-  explicit LockStatement(std::unique_ptr<BaseTableRef> table, TableLockType type)
-      : Statement(StatementType::LOCK_STATEMENT), table_(std::move(table)), type_(type) {}
+  explicit LockStatement(std::unique_ptr<BaseTableRef> table, TableLockType lock_type)
+      : Statement(StatementType::LOCK_STATEMENT), table_(std::move(table)), lock_type_(lock_type) {}
   std::unique_ptr<BaseTableRef> table_;
-  TableLockType type_;
+  TableLockType lock_type_;
 
-  std::string ToString() const override { return fmt::format("LockStatement: {} {}\n", table_, type_); }
+  std::string ToString() const override { return fmt::format("LockStatement: {} {}\n", table_, lock_type_); }
 };
 
 }  // namespace huadb

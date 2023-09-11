@@ -14,7 +14,7 @@ TablePage::TablePage(std::shared_ptr<Page> page) : page_(page) {
   upper_ = reinterpret_cast<db_size_t *>(page_data_ + offset);
   offset += sizeof(db_size_t);
   assert(offset == PAGE_HEADER_SIZE);
-  slots_ = reinterpret_cast<Item *>(page_data_ + PAGE_HEADER_SIZE);
+  slots_ = reinterpret_cast<Slot *>(page_data_ + PAGE_HEADER_SIZE);
 }
 
 void TablePage::Init() {
@@ -68,13 +68,23 @@ void TablePage::RedoInsertRecord(slotid_t slot_id, std::shared_ptr<char> raw_rec
   // LAB 2 BEGIN
 }
 
-db_size_t TablePage::GetRecordCount() { return (*lower_ - PAGE_HEADER_SIZE) / sizeof(Item); }
+db_size_t TablePage::GetRecordCount() const { return (*lower_ - PAGE_HEADER_SIZE) / sizeof(Slot); }
 
-pageid_t TablePage::GetNextPageId() { return *next_page_id_; }
+lsn_t TablePage::GetPageLSN() const { return *page_lsn_; }
 
-db_size_t TablePage::GetUpper() { return *upper_; }
+pageid_t TablePage::GetNextPageId() const { return *next_page_id_; }
 
-lsn_t TablePage::GetPageLSN() { return *page_lsn_; }
+db_size_t TablePage::GetLower() const { return *lower_; }
+
+db_size_t TablePage::GetUpper() const { return *upper_; }
+
+db_size_t TablePage::GetFreeSpaceSize() {
+  if (*upper_ < *lower_ + sizeof(Slot)) {
+    return 0;
+  } else {
+    return *upper_ - *lower_ - sizeof(Slot);
+  }
+}
 
 void TablePage::SetNextPageId(pageid_t page_id) {
   *next_page_id_ = page_id;
@@ -84,14 +94,6 @@ void TablePage::SetNextPageId(pageid_t page_id) {
 void TablePage::SetPageLSN(lsn_t page_lsn) {
   *page_lsn_ = page_lsn;
   page_->SetDirty();
-}
-
-db_size_t TablePage::GetFreeSpaceSize() {
-  if (*upper_ < *lower_ + sizeof(Item)) {
-    return 0;
-  } else {
-    return *upper_ - *lower_ - sizeof(Item);
-  }
 }
 
 }  // namespace huadb

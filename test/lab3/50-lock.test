@@ -1,8 +1,8 @@
 statement ok
-create table a_lock(id int);
+create table lock_test(id int);
 
 query
-insert into a_lock values(1), (2), (3);
+insert into lock_test values(1), (2), (3);
 ----
 3
 
@@ -10,7 +10,7 @@ statement ok C1
 begin;
 
 query C1
-delete from a_lock where id = 1;
+delete from lock_test where id = 1;
 ----
 1
 
@@ -19,7 +19,7 @@ begin;
 
 # C1 已经删除了 id = 1 的行，C2 不能修改
 statement error C2
-update a_lock set id = 5 where id = 1;
+update lock_test set id = 5 where id = 1;
 
 statement ok C2
 rollback;
@@ -31,7 +31,7 @@ statement ok C1
 begin;
 
 query C1
-update a_lock set id = 4 where id = 1;
+update lock_test set id = 4 where id = 1;
 ----
 1
 
@@ -40,7 +40,7 @@ begin;
 
 # C1 已经修改了 id = 1 的行，C2 不能修改
 statement error C2
-update a_lock set id = 5 where id = 1;
+update lock_test set id = 5 where id = 1;
 
 statement ok C2
 rollback;
@@ -52,7 +52,7 @@ statement ok C1
 rollback;
 
 query C2
-update a_lock set id = 5 where id = 1;
+update lock_test set id = 5 where id = 1;
 ----
 1
 
@@ -60,11 +60,201 @@ statement ok C2
 commit;
 
 query
-select * from a_lock;
+select * from lock_test;
 ----
 2
 3
 5
 
+# 表锁测试
+statement ok C1
+begin;
+
+statement ok C2
+begin;
+
+# IS 锁 (C1)
+query C1
+select * from lock_test;
+----
+2
+3
+5
+
+# IS 锁
+query C2
+select * from lock_test;
+----
+2
+3
+5
+
+# IX 锁
+query C2
+insert into lock_test values(6);
+----
+1
+
+# S 锁
+statement ok C2
+lock lock_test in share mode;
+
+# X 锁
+statement error C2
+lock lock_test in exclusive mode;
+
+statement ok C2
+rollback;
+
+statement ok C2
+begin;
+
+
+
+# IX 锁 (C1)
+query C1
+insert into lock_test values(6);
+----
+1
+
+# IS 锁
+query C2
+select * from lock_test;
+----
+2
+3
+5
+
+# IX 锁
+query C2
+delete from lock_test where id = 2;
+----
+1
+
+# S 锁
+statement error C2
+lock lock_test in share mode;
+
+# X 锁
+statement error C2
+lock lock_test in exclusive mode;
+
+statement ok C2
+rollback;
+
+statement ok C2
+begin;
+
+statement ok C1
+rollback;
+
+statement ok C1
+begin;
+
+
+
+# S 锁 (C1)
+statement ok C1
+lock lock_test in share mode;
+
+# IS 锁
+query C2
+select * from lock_test;
+----
+2
+3
+5
+
+# S 锁
+statement ok C2
+lock lock_test in share mode;
+
+# IX 锁
+statement error C2
+update lock_test set id = 6 where id = 2;
+
+# X 锁
+statement error C2
+lock lock_test in exclusive mode;
+
+statement ok C2
+rollback;
+
+statement ok C2
+begin;
+
+
+
+# SIX 锁 (C1)
+query C1
+insert into lock_test values(6);
+----
+1
+
+# IS 锁
+query C2
+select * from lock_test;
+----
+2
+3
+5
+
+# IX 锁
+statement error C2
+update lock_test set id = 6 where id = 2;
+
+# S 锁
+statement error C2
+lock lock_test in share mode;
+
+# X 锁
+statement error C2
+lock lock_test in exclusive mode;
+
+statement ok C2
+rollback;
+
+statement ok C2
+begin;
+
+
+
+# X 锁 (C1)
+statement ok C1
+lock lock_test in exclusive mode;
+
+# IS 锁
+statement error C2
+select * from lock_test;
+
+# IX 锁
+statement error C2
+insert into lock_test values(6);
+
+# IX 锁
+statement error C2
+delete from lock_test where id = 2;
+
+# S 锁
+statement error C2
+lock lock_test in share mode;
+
+# X 锁
+statement error C2
+lock lock_test in exclusive mode;
+
+statement ok C1
+rollback;
+
+query C2
+select * from lock_test;
+----
+2
+3
+5
+
+statement ok C2
+rollback;
+
 statement ok
-drop table a_lock;
+drop table lock_test;
