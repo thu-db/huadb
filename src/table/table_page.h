@@ -1,7 +1,5 @@
 #pragma once
 
-#include <cstdint>
-
 #include "common/typedefs.h"
 #include "log/log_manager.h"
 #include "storage/page.h"

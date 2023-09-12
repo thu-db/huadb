@@ -69,6 +69,10 @@ oid_t SimpleCatalog::GetDatabaseOid(const std::string &database_name) {
   throw DbException("GetDatabaseOid not implemented in SimpleCatalog");
 }
 
+oid_t SimpleCatalog::GetDatabaseOid(oid_t table_oid) {
+  throw DbException("GetDatabaseOid not implemented in SimpleCatalog");
+}
+
 void SimpleCatalog::ChangeDatabase(oid_t db_oid) {
   throw DbException("ChangeDatabase not implemented in SimpleCatalog");
 }

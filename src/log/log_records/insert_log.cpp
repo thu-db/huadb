@@ -2,26 +2,23 @@
 
 namespace huadb {
 
-InsertLog::InsertLog(xid_t xid, lsn_t prev_lsn, oid_t oid, oid_t db_oid, pageid_t page_id, slotid_t slot_id,
-                     db_size_t page_offset, db_size_t record_size, std::shared_ptr<char> record)
+InsertLog::InsertLog(xid_t xid, lsn_t prev_lsn, oid_t oid, pageid_t page_id, slotid_t slot_id, db_size_t page_offset,
+                     db_size_t record_size, std::shared_ptr<char> record)
     : LogRecord(LogType::INSERT, xid, prev_lsn),
       oid_(oid),
-      db_oid_(db_oid),
       page_id_(page_id),
       slot_id_(slot_id),
       page_offset_(page_offset),
       record_size_(record_size),
       record_(std::move(record)) {
-  size_ += sizeof(oid_) + sizeof(db_oid_) + sizeof(page_id_) + sizeof(slot_id_) + sizeof(page_offset_) +
-           sizeof(record_size_) + record_size_;
+  size_ +=
+      sizeof(oid_) + sizeof(page_id_) + sizeof(slot_id_) + sizeof(page_offset_) + sizeof(record_size_) + record_size_;
 }
 
 size_t InsertLog::SerializeTo(char *data) const {
   size_t offset = LogRecord::SerializeTo(data);
   memcpy(data + offset, &oid_, sizeof(oid_));
   offset += sizeof(oid_);
-  memcpy(data + offset, &db_oid_, sizeof(db_oid_));
-  offset += sizeof(db_oid_);
   memcpy(data + offset, &page_id_, sizeof(page_id_));
   offset += sizeof(page_id_);
   memcpy(data + offset, &slot_id_, sizeof(slot_id_));
@@ -39,7 +36,7 @@ size_t InsertLog::SerializeTo(char *data) const {
 std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(const char *data) {
   xid_t xid;
   lsn_t prev_lsn;
-  oid_t oid, db_oid;
+  oid_t oid;
   pageid_t page_id;
   slotid_t slot_id;
   db_size_t page_offset, record_size;
@@ -51,8 +48,6 @@ std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(const char *data) {
   offset += sizeof(prev_lsn);
   memcpy(&oid, data + offset, sizeof(oid));
   offset += sizeof(oid);
-  memcpy(&db_oid, data + offset, sizeof(db_oid));
-  offset += sizeof(db_oid);
   memcpy(&page_id, data + offset, sizeof(page_id));
   offset += sizeof(page_id);
   memcpy(&slot_id, data + offset, sizeof(slot_id));
@@ -64,7 +59,7 @@ std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(const char *data) {
   record = new char[record_size];
   memcpy(record, data + offset, record_size);
   offset += record_size;
-  return std::make_shared<InsertLog>(xid, prev_lsn, oid, db_oid, page_id, slot_id, page_offset, record_size,
+  return std::make_shared<InsertLog>(xid, prev_lsn, oid, page_id, slot_id, page_offset, record_size,
                                      std::shared_ptr<char>(record));
 }
 

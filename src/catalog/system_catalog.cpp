@@ -179,6 +179,22 @@ oid_t SystemCatalog::GetDatabaseOid(const std::string &database_name) {
   return oid_manager_.GetEntryOid(OidType::DATABASE, database_name);
 }
 
+oid_t SystemCatalog::GetDatabaseOid(oid_t table_oid) {
+  if (oid2table_.find(table_oid) != oid2table_.end()) {
+    return current_database_oid_;
+  }
+  auto table_meta = GetTable(TABLE_META_OID);
+  auto scan = std::make_shared<TableScan>(buffer_pool_, table_meta, Rid{table_meta->GetFirstPageId(), 0});
+  auto table_oid_idx = table_meta_schema.GetColumnIndex("table_oid");
+  auto db_oid_idx = table_meta_schema.GetColumnIndex("db_oid");
+  while (auto record = scan->GetNextRecord()) {
+    if (record->GetValue(table_oid_idx).GetValue<oid_t>() == table_oid) {
+      return record->GetValue(db_oid_idx).GetValue<oid_t>();
+    }
+  }
+  throw DbException("Table with oid " + std::to_string(table_oid) + " does not exist.");
+}
+
 oid_t SystemCatalog::GetCurrentDatabaseOid() const { return current_database_oid_; }
 
 void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList &column_list, oid_t oid, oid_t db_oid,

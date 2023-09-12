@@ -2,17 +2,15 @@
 
 namespace huadb {
 
-DeleteLog::DeleteLog(xid_t xid, lsn_t prev_lsn, oid_t oid, oid_t db_oid, pageid_t page_id, slotid_t slot_id)
-    : LogRecord(LogType::DELETE, xid, prev_lsn), oid_(oid), db_oid_(db_oid), page_id_(page_id), slot_id_(slot_id) {
-  size_ += sizeof(oid_) + sizeof(db_oid_) + sizeof(page_id_) + sizeof(slot_id_);
+DeleteLog::DeleteLog(xid_t xid, lsn_t prev_lsn, oid_t oid, pageid_t page_id, slotid_t slot_id)
+    : LogRecord(LogType::DELETE, xid, prev_lsn), oid_(oid), page_id_(page_id), slot_id_(slot_id) {
+  size_ += sizeof(oid_) + sizeof(page_id_) + sizeof(slot_id_);
 }
 
 size_t DeleteLog::SerializeTo(char *data) const {
   size_t offset = LogRecord::SerializeTo(data);
   memcpy(data + offset, &oid_, sizeof(oid_));
   offset += sizeof(oid_);
-  memcpy(data + offset, &db_oid_, sizeof(db_oid_));
-  offset += sizeof(db_oid_);
   memcpy(data + offset, &page_id_, sizeof(page_id_));
   offset += sizeof(page_id_);
   memcpy(data + offset, &slot_id_, sizeof(slot_id_));
@@ -24,7 +22,7 @@ size_t DeleteLog::SerializeTo(char *data) const {
 std::shared_ptr<DeleteLog> DeleteLog::DeserializeFrom(const char *data) {
   xid_t xid;
   lsn_t prev_lsn;
-  oid_t oid, db_oid;
+  oid_t oid;
   pageid_t page_id;
   slotid_t slot_id;
   size_t offset = 0;
@@ -34,13 +32,11 @@ std::shared_ptr<DeleteLog> DeleteLog::DeserializeFrom(const char *data) {
   offset += sizeof(prev_lsn);
   memcpy(&oid, data + offset, sizeof(oid));
   offset += sizeof(oid);
-  memcpy(&db_oid, data + offset, sizeof(db_oid));
-  offset += sizeof(db_oid);
   memcpy(&page_id, data + offset, sizeof(page_id));
   offset += sizeof(page_id);
   memcpy(&slot_id, data + offset, sizeof(slot_id));
   offset += sizeof(slot_id);
-  return std::make_shared<DeleteLog>(xid, prev_lsn, oid, db_oid, page_id, slot_id);
+  return std::make_shared<DeleteLog>(xid, prev_lsn, oid, page_id, slot_id);
 }
 
 void DeleteLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {

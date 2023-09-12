@@ -32,8 +32,10 @@ class SystemCatalog {
   // 切换当前数据库
   void ChangeDatabase(const std::string &database_name);
   void ChangeDatabase(oid_t db_oid);
-  // 获取数据库oid
+  // 根据数据库名获取数据库oid
   oid_t GetDatabaseOid(const std::string &database_name);
+  // 获取表所在的数据库的oid
+  oid_t GetDatabaseOid(oid_t table_oid);
   // 获取当前数据库oid
   oid_t GetCurrentDatabaseOid() const;
 

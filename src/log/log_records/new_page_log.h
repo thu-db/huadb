@@ -6,7 +6,7 @@ namespace huadb {
 
 class NewPageLog : public LogRecord {
  public:
-  NewPageLog(xid_t xid, lsn_t prev_lsn, oid_t oid, oid_t db_oid, pageid_t prev_page_id, pageid_t page_id);
+  NewPageLog(xid_t xid, lsn_t prev_lsn, oid_t oid, pageid_t prev_page_id, pageid_t page_id);
 
   size_t SerializeTo(char *data) const override;
   static std::shared_ptr<NewPageLog> DeserializeFrom(const char *data);
@@ -20,7 +20,6 @@ class NewPageLog : public LogRecord {
 
  private:
   oid_t oid_;
-  oid_t db_oid_;
   pageid_t prev_page_id_;
   pageid_t page_id_;
 };

@@ -13,7 +13,7 @@ Table::Table(BufferPool &buffer_pool, LogManager &log_manager, oid_t oid, oid_t 
       column_list_(std::move(column_list)) {
   std::shared_ptr<Page> page;
   if (new_table) {
-    auto table_page = std::make_unique<TablePage>(buffer_pool_.NewPage(oid_, db_oid_, 0));
+    auto table_page = std::make_unique<TablePage>(buffer_pool_.NewPage(db_oid_, oid_, 0));
     table_page->Init();
     if (oid >= PRESERVED_OID) {
       lsn_t lsn = log_manager_.AppendNewPageLog(DDL_XID, oid_, NULL_PAGE_ID, 0);

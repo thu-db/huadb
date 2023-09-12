@@ -36,8 +36,7 @@ lsn_t LogManager::AppendInsertLog(xid_t xid, oid_t oid, pageid_t page_id, slotid
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (In AppendInsertLog)");
   }
-  auto log = std::make_shared<InsertLog>(xid, att_[xid], oid, catalog_->GetCurrentDatabaseOid(), page_id, slot_id,
-                                         offset, size, std::move(new_record));
+  auto log = std::make_shared<InsertLog>(xid, att_[xid], oid, page_id, slot_id, offset, size, std::move(new_record));
   lsn_t lsn = next_lsn_;
   next_lsn_ += log->GetSize();
   log->SetLSN(lsn);
@@ -53,7 +52,7 @@ lsn_t LogManager::AppendDeleteLog(xid_t xid, oid_t oid, pageid_t page_id, slotid
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (In AppendDeleteLog)");
   }
-  auto log = std::make_shared<DeleteLog>(xid, att_[xid], oid, catalog_->GetCurrentDatabaseOid(), page_id, slot_id);
+  auto log = std::make_shared<DeleteLog>(xid, att_[xid], oid, page_id, slot_id);
   lsn_t lsn = next_lsn_;
   next_lsn_ += log->GetSize();
   log->SetLSN(lsn);
@@ -112,9 +111,9 @@ lsn_t LogManager::AppendNewPageLog(xid_t xid, oid_t oid, pageid_t prev_page_id, 
   }
   std::shared_ptr<NewPageLog> log;
   if (xid == DDL_XID) {
-    log = std::make_shared<NewPageLog>(xid, NULL_LSN, oid, catalog_->GetCurrentDatabaseOid(), prev_page_id, page_id);
+    log = std::make_shared<NewPageLog>(xid, NULL_LSN, oid, prev_page_id, page_id);
   } else {
-    log = std::make_shared<NewPageLog>(xid, att_[xid], oid, catalog_->GetCurrentDatabaseOid(), prev_page_id, page_id);
+    log = std::make_shared<NewPageLog>(xid, att_[xid], oid, prev_page_id, page_id);
   }
   lsn_t lsn = next_lsn_;
   next_lsn_ += log->GetSize();
