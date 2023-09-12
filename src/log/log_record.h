@@ -11,7 +11,17 @@
 
 namespace huadb {
 
-enum class LogType { BEGIN, COMMIT, ROLLBACK, INSERT, DELETE, UPDATE, NEW_PAGE, BEGIN_CHECKPOINT, END_CHECKPOINT };
+enum class LogType {
+  BEGIN,
+  COMMIT,
+  ROLLBACK,
+  INSERT,
+  DELETE,
+  UPDATE,
+  NEW_PAGE,
+  BEGIN_CHECKPOINT,
+  END_CHECKPOINT,
+};
 
 class LogRecord {
  public:

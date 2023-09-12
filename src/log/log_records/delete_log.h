@@ -17,6 +17,7 @@ class DeleteLog : public LogRecord {
   oid_t GetOid() const;
   pageid_t GetPageId() const;
 
+ private:
   oid_t oid_;
   pageid_t page_id_;
   slotid_t slot_id_;

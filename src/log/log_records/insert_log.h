@@ -3,9 +3,6 @@
 #include "log/log_record.h"
 
 namespace huadb {
-static constexpr size_t MAX_LOG_SIZE = sizeof(LogType) + sizeof(xid_t) + sizeof(lsn_t) + sizeof(oid_t) + sizeof(oid_t) +
-                                       sizeof(pageid_t) + sizeof(slotid_t) + sizeof(db_size_t) + sizeof(db_size_t) +
-                                       MAX_RECORD_SIZE;
 
 class InsertLog : public LogRecord {
  public:
