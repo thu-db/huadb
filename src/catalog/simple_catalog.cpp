@@ -65,13 +65,7 @@ void SimpleCatalog::DropDatabase(const std::string &database_name, bool missing_
 
 std::vector<std::string> SimpleCatalog::GetDatabaseNames() { return {"tmp"}; }
 
-oid_t SimpleCatalog::GetDatabaseOid(const std::string &database_name) {
-  throw DbException("GetDatabaseOid not implemented in SimpleCatalog");
-}
-
-oid_t SimpleCatalog::GetDatabaseOid(oid_t table_oid) {
-  throw DbException("GetDatabaseOid not implemented in SimpleCatalog");
-}
+oid_t SimpleCatalog::GetDatabaseOid(oid_t table_oid) { return TEMP_DATABASE_OID; }
 
 void SimpleCatalog::ChangeDatabase(oid_t db_oid) {
   throw DbException("ChangeDatabase not implemented in SimpleCatalog");
@@ -86,9 +80,8 @@ oid_t SimpleCatalog::GetCurrentDatabaseOid() const { return current_database_oid
 void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList &column_list, oid_t oid, oid_t db_oid,
                                 bool new_table) {
   // Step1. 约束检测
-  oid_t database_oid = db_oid;
   if (db_oid == INVALID_OID) {
-    database_oid = current_database_oid_;
+    db_oid = current_database_oid_;
   }
   if (oid_manager_.EntryExists(OidType::TABLE, table_name)) {
     throw DbException("Table " + table_name + " already exists.");
@@ -102,13 +95,13 @@ void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList 
 
   // Step3. 创建新的表
   if (oid > PRESERVED_OID) {
-    assert(database_oid != SYSTEM_DATABASE_OID);
+    assert(db_oid != SYSTEM_DATABASE_OID);
   }
   if (new_table) {
-    disk_.CreateFile(Disk::GetFilePath(database_oid, oid));
+    disk_.CreateFile(Disk::GetFilePath(db_oid, oid));
   }
   name2oid_[table_name] = oid;
-  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, database_oid, column_list, new_table);
+  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table);
 
   // 检查：非新表不需要添加到Meta中
   if (!new_table) {

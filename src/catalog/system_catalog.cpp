@@ -175,10 +175,6 @@ void SystemCatalog::ChangeDatabase(const std::string &database_name) {
   current_database_oid_ = db_oid;
 }
 
-oid_t SystemCatalog::GetDatabaseOid(const std::string &database_name) {
-  return oid_manager_.GetEntryOid(OidType::DATABASE, database_name);
-}
-
 oid_t SystemCatalog::GetDatabaseOid(oid_t table_oid) {
   if (oid2table_.find(table_oid) != oid2table_.end()) {
     return current_database_oid_;
@@ -200,10 +196,9 @@ oid_t SystemCatalog::GetCurrentDatabaseOid() const { return current_database_oid
 void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList &column_list, oid_t oid, oid_t db_oid,
                                 bool new_table) {
   // Step1. 约束检测
-  oid_t database_oid = db_oid;
   if (db_oid == INVALID_OID) {
     CheckUsingDatabase();
-    database_oid = current_database_oid_;
+    db_oid = current_database_oid_;
   }
   if (oid_manager_.EntryExists(OidType::TABLE, table_name)) {
     throw DbException("Table " + table_name + " already exists.");
@@ -216,13 +211,13 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
   }
 
   // Step3. 创建新的表
-  if (oid > PRESERVED_OID && database_oid == SYSTEM_DATABASE_OID) {
+  if (oid > PRESERVED_OID && db_oid == SYSTEM_DATABASE_OID) {
     throw DbException("Cannot create table in system database");
   }
   if (new_table) {
-    disk_.CreateFile(Disk::GetFilePath(database_oid, oid));
+    disk_.CreateFile(Disk::GetFilePath(db_oid, oid));
   }
-  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, database_oid, column_list, new_table);
+  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table);
 
   // 检查：非新表不需要添加到Meta中
   if (!new_table) {
@@ -230,10 +225,10 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
   }
 
   // Step4. TableMeta中添加对应记录
-  assert(database_oid != INVALID_OID);
+  assert(db_oid != INVALID_OID);
   std::vector<Value> values;
   values.emplace_back(oid);
-  values.emplace_back(database_oid);
+  values.emplace_back(db_oid);
   values.emplace_back(table_name);
   values.emplace_back(column_list.ToString());
   values.emplace_back(0);
