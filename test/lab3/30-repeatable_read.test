@@ -36,7 +36,7 @@ select * from rr;
 
 # Halloween problem
 query C2
-update rr set id = 2;
+update rr set id = id + 1;
 ----
 1
 
@@ -49,7 +49,11 @@ select * from rr;
 query C2
 select * from rr;
 ----
-2 a
+1 a
+
+# Lost Update
+statement error C1
+update rr set id = id + 1;
 
 statement ok C2
 commit;
@@ -63,7 +67,10 @@ select * from rr;
 query rowsort C2
 select * from rr;
 ----
-2 a
+1 a
+
+statement error C1
+update rr set id = id + 1;
 
 statement ok C1
 rollback;
@@ -71,12 +78,12 @@ rollback;
 query rowsort C1
 select * from rr;
 ----
-2 a
+1 a
 
 query rowsort C2
 select * from rr;
 ----
-2 a
+1 a
 
 statement ok
 drop table rr;
