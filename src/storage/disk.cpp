@@ -75,6 +75,9 @@ void Disk::ReadPage(const std::string &path, pageid_t page_id, char *data) {
 }
 
 void Disk::WritePage(const std::string &path, pageid_t page_id, const char *data) {
+  if (!FileExists(path)) {
+    return;
+  }
   if (hashmap_.count(path) == 0) {
     OpenFile(path);
   }

@@ -292,13 +292,13 @@ std::shared_ptr<OperatorExpression> Planner::PlanExpression(const Expression &ex
     }
     case ExpressionType::TYPE_CAST: {
       const auto &cast_expr = dynamic_cast<const TypeCastExpression &>(expr);
-      auto expr = PlanExpression(*cast_expr.arg_, children);
-      return std::make_shared<TypeCast>(cast_expr.cast_type_, std::move(expr));
+      auto arg = PlanExpression(*cast_expr.arg_, children);
+      return std::make_shared<TypeCast>(cast_expr.cast_type_, std::move(arg));
     }
     case ExpressionType::NULL_TEST: {
       const auto &null_expr = dynamic_cast<const NullTestExpression &>(expr);
-      auto expr = PlanExpression(*null_expr.arg_, children);
-      return std::make_shared<NullTest>(null_expr.is_null_, std::move(expr));
+      auto arg = PlanExpression(*null_expr.arg_, children);
+      return std::make_shared<NullTest>(null_expr.is_null_, std::move(arg));
     }
     default:
       throw DbException("Unsupported expression type in PlanExpression");

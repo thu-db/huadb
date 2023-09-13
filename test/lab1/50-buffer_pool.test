@@ -9,7 +9,7 @@ insert into buffer_1 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, '
 query
 show disk_access_count;
 ----
-1
+0
 
 statement ok
 create table buffer_2(id int, info varchar(20));
@@ -46,7 +46,7 @@ insert into buffer_5 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, '
 query
 show disk_access_count;
 ----
-5
+0
 
 statement ok
 create table buffer_6(id int, info varchar(20));
@@ -59,7 +59,7 @@ insert into buffer_6 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, '
 query
 show disk_access_count;
 ----
-7
+1
 
 statement ok
 create table buffer_7(id int, info varchar(20));
@@ -72,7 +72,7 @@ insert into buffer_7 values(1, 'aaa'), (2, 'bbb'), (3, 'ccc'), (4, 'ddd'), (5, '
 query
 show disk_access_count;
 ----
-11
+3
 
 query
 select * from buffer_6;
@@ -114,7 +114,7 @@ select * from buffer_7;
 query
 show disk_access_count;
 ----
-11
+3
 
 query
 select * from buffer_3;
@@ -128,7 +128,7 @@ select * from buffer_3;
 query
 show disk_access_count;
 ----
-13
+5
 
 statement ok
 drop table buffer_1;

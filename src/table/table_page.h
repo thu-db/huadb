@@ -34,7 +34,7 @@ class TablePage {
   // Lab 2: 回滚删除操作
   void UndoDeleteRecord(slotid_t slot_id);
   // Lab 2: 重做插入操作
-  void RedoInsertRecord(slotid_t slot_id, std::shared_ptr<char> raw_record, db_size_t page_offset,
+  void RedoInsertRecord(slotid_t slot_id, std::shared_ptr<char[]> raw_record, db_size_t page_offset,
                         db_size_t record_size);
 
   // 获取记录数目

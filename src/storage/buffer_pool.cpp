@@ -28,7 +28,6 @@ std::shared_ptr<Page> BufferPool::GetPage(oid_t db_oid, oid_t table_oid, pageid_
 }
 
 std::shared_ptr<Page> BufferPool::NewPage(oid_t db_oid, oid_t table_oid, pageid_t page_id) {
-  disk_.WritePage(Disk::GetFilePath(db_oid, table_oid), page_id, "NOT INITIALIZED");
   auto page = std::make_shared<Page>();
   AddToBuffer(db_oid, table_oid, page_id, page);
   return page;

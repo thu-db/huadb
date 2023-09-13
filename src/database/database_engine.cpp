@@ -48,11 +48,9 @@ DatabaseEngine::DatabaseEngine() {
   log_manager_->SetCatalog(catalog_);
 
   // 如果不存在 init 文件，创建系统表；如存在，则载入系统表
-  bool db_initing = false;
   if (!disk_->FileExists(INIT_NAME)) {
     catalog_->CreateSystemTables();
     disk_->CreateFile(INIT_NAME);
-    db_initing = true;
   } else {
     catalog_->LoadSystemTables();
   }
@@ -60,10 +58,6 @@ DatabaseEngine::DatabaseEngine() {
 
   if (!normal_shutdown) {
     Recover();
-  }
-  if (db_initing) {
-    // 保证数据库系统存在 master_record
-    log_manager_->Checkpoint();
   }
 }
 
@@ -309,7 +303,6 @@ void DatabaseEngine::ChangeDatabase(const std::string &db_name, ResultWriter &wr
   if (db_name != current_db_) {
     catalog_->ChangeDatabase(db_name);
     current_db_ = db_name;
-    Checkpoint();
   }
   WriteOneCell("Change to database " + db_name, writer);
 }
