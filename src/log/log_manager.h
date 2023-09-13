@@ -35,10 +35,10 @@ class LogManager {
   lsn_t AppendInsertLog(xid_t xid, oid_t oid, pageid_t page_id, slotid_t slot_id, db_size_t offset, db_size_t size,
                         std::shared_ptr<char> new_record);
   lsn_t AppendDeleteLog(xid_t xid, oid_t oid, pageid_t page_id, slotid_t slot_id);
+  lsn_t AppendNewPageLog(xid_t xid, oid_t oid, pageid_t prev_page_id, pageid_t page_id);
   lsn_t AppendBeginLog(xid_t xid);
   lsn_t AppendCommitLog(xid_t xid);
   lsn_t AppendRollbackLog(xid_t xid);
-  lsn_t AppendNewPageLog(xid_t xid, oid_t oid, pageid_t prev_page_id, pageid_t page_id);
 
   lsn_t Checkpoint();
 

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "operators/aggregate_operator.h"
 #include "operators/delete_operator.h"
 #include "operators/filter_operator.h"

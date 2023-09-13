@@ -34,7 +34,6 @@ std::shared_ptr<Page> BufferPool::NewPage(oid_t db_oid, oid_t table_oid, pageid_
   return page;
 }
 
-
 void BufferPool::Flush(bool regular_only) {
   for (size_t i = 0; i < buffers_.size(); i++) {
     FlushPage(i);

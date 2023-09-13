@@ -1,7 +1,7 @@
 statement ok
 create table aries(id int, name varchar(200));
 
-statement ok restart
+statement ok
 restart;
 
 statement ok C1
@@ -64,10 +64,10 @@ select * from aries;
 4 000111222333444555666777888999AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz
 5 000111222333444555666777888999AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz
 
-statement ok crash
+statement ok
 crash;
 
-statement ok restart
+statement ok
 restart;
 
 query rowsort

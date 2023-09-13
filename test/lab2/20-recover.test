@@ -13,7 +13,7 @@ select * from recover;
 2 info2
 
 # 重启，确保数据持久化
-statement ok restart
+statement ok
 restart;
 
 query rowsort
@@ -35,10 +35,10 @@ select * from recover;
 2 info2
 3 info3
 
-statement ok crash
+statement ok
 crash;
 
-statement ok restart
+statement ok
 restart;
 
 query rowsort
@@ -60,10 +60,10 @@ select * from recover;
 2 info2
 3 info3
 
-statement ok crash
+statement ok
 crash;
 
-statement ok restart
+statement ok
 restart;
 
 query rowsort
@@ -84,10 +84,10 @@ select * from recover;
 3 info2
 3 info3
 
-statement ok crash
+statement ok
 crash;
 
-statement ok restart
+statement ok
 restart;
 
 query rowsort
@@ -115,10 +115,10 @@ select * from recover;
 9 info9
 10 info10
 
-statement ok crash
+statement ok
 crash;
 
-statement ok restart
+statement ok
 restart;
 
 query rowsort

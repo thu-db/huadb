@@ -1,14 +1,7 @@
 #include "log/log_manager.h"
 
 #include "common/exceptions.h"
-#include "log/log_records/begin_checkpoint_log.h"
-#include "log/log_records/begin_log.h"
-#include "log/log_records/commit_log.h"
-#include "log/log_records/delete_log.h"
-#include "log/log_records/end_checkpoint_log.h"
-#include "log/log_records/insert_log.h"
-#include "log/log_records/new_page_log.h"
-#include "log/log_records/rollback_log.h"
+#include "log/log_records/log_records.h"
 
 namespace huadb {
 
@@ -64,6 +57,32 @@ lsn_t LogManager::AppendDeleteLog(xid_t xid, oid_t oid, pageid_t page_id, slotid
   return lsn;
 }
 
+lsn_t LogManager::AppendNewPageLog(xid_t xid, oid_t oid, pageid_t prev_page_id, pageid_t page_id) {
+  if (xid != DDL_XID && att_.find(xid) == att_.end()) {
+    throw DbException(std::to_string(xid) + " does not exist in att (In AppendNewPageLog)");
+  }
+  std::shared_ptr<NewPageLog> log;
+  if (xid == DDL_XID) {
+    log = std::make_shared<NewPageLog>(xid, NULL_LSN, oid, prev_page_id, page_id);
+  } else {
+    log = std::make_shared<NewPageLog>(xid, att_[xid], oid, prev_page_id, page_id);
+  }
+  lsn_t lsn = next_lsn_;
+  next_lsn_ += log->GetSize();
+  log->SetLSN(lsn);
+  if (xid != DDL_XID) {
+    att_[xid] = lsn;
+  }
+  log_buffer_.push_back(std::move(log));
+  if (dpt_.find({oid, page_id}) == dpt_.end()) {
+    dpt_[{oid, page_id}] = lsn;
+  }
+  if (prev_page_id != NULL_PAGE_ID && dpt_.find({oid, prev_page_id}) == dpt_.end()) {
+    dpt_[{oid, prev_page_id}] = lsn;
+  }
+  return lsn;
+}
+
 lsn_t LogManager::AppendBeginLog(xid_t xid) {
   if (att_.find(xid) != att_.end()) {
     throw DbException(std::to_string(xid) + " already exists in att");
@@ -102,32 +121,6 @@ lsn_t LogManager::AppendRollbackLog(xid_t xid) {
   log_buffer_.push_back(std::move(log));
   Flush(lsn);
   att_.erase(xid);
-  return lsn;
-}
-
-lsn_t LogManager::AppendNewPageLog(xid_t xid, oid_t oid, pageid_t prev_page_id, pageid_t page_id) {
-  if (xid != DDL_XID && att_.find(xid) == att_.end()) {
-    throw DbException(std::to_string(xid) + " does not exist in att (In AppendNewPageLog)");
-  }
-  std::shared_ptr<NewPageLog> log;
-  if (xid == DDL_XID) {
-    log = std::make_shared<NewPageLog>(xid, NULL_LSN, oid, prev_page_id, page_id);
-  } else {
-    log = std::make_shared<NewPageLog>(xid, att_[xid], oid, prev_page_id, page_id);
-  }
-  lsn_t lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
-  log->SetLSN(lsn);
-  if (xid != DDL_XID) {
-    att_[xid] = lsn;
-  }
-  log_buffer_.push_back(std::move(log));
-  if (dpt_.find({oid, page_id}) == dpt_.end()) {
-    dpt_[{oid, page_id}] = lsn;
-  }
-  if (prev_page_id != NULL_PAGE_ID && dpt_.find({oid, prev_page_id}) == dpt_.end()) {
-    dpt_[{oid, prev_page_id}] = lsn;
-  }
   return lsn;
 }
 

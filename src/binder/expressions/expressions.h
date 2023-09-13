@@ -1,3 +1,5 @@
+#pragma once
+
 #include "binder/expressions/aggregate_expression.h"
 #include "binder/expressions/alias_expression.h"
 #include "binder/expressions/binary_op_expression.h"

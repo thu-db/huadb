@@ -11,7 +11,8 @@ class DeleteLog : public LogRecord {
   size_t SerializeTo(char *data) const override;
   static std::shared_ptr<DeleteLog> DeserializeFrom(const char *data);
 
-  void Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) override;
+  void Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
+            lsn_t undo_next_lsn) override;
   void Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) override;
 
   oid_t GetOid() const;

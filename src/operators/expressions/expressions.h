@@ -1,3 +1,5 @@
+#pragma once
+
 #include "operators/expressions/arithmetic.h"
 #include "operators/expressions/column_value.h"
 #include "operators/expressions/comparison.h"

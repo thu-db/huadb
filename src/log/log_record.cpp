@@ -1,13 +1,6 @@
 #include "log/log_record.h"
 
-#include "log/log_records/begin_checkpoint_log.h"
-#include "log/log_records/begin_log.h"
-#include "log/log_records/commit_log.h"
-#include "log/log_records/delete_log.h"
-#include "log/log_records/end_checkpoint_log.h"
-#include "log/log_records/insert_log.h"
-#include "log/log_records/new_page_log.h"
-#include "log/log_records/rollback_log.h"
+#include "log/log_records/log_records.h"
 
 namespace huadb {
 
@@ -34,14 +27,14 @@ std::shared_ptr<LogRecord> LogRecord::DeserializeFrom(const char *data) {
       return InsertLog::DeserializeFrom(data + sizeof(type));
     case LogType::DELETE:
       return DeleteLog::DeserializeFrom(data + sizeof(type));
+    case LogType::NEW_PAGE:
+      return NewPageLog::DeserializeFrom(data + sizeof(type));
     case LogType::BEGIN:
       return BeginLog::DeserializeFrom(data + sizeof(type));
     case LogType::COMMIT:
       return CommitLog::DeserializeFrom(data + sizeof(type));
     case LogType::ROLLBACK:
       return RollbackLog::DeserializeFrom(data + sizeof(type));
-    case LogType::NEW_PAGE:
-      return NewPageLog::DeserializeFrom(data + sizeof(type));
     case LogType::BEGIN_CHECKPOINT:
       return BeginCheckpointLog::DeserializeFrom(data + sizeof(type));
     case LogType::END_CHECKPOINT:
@@ -51,7 +44,8 @@ std::shared_ptr<LogRecord> LogRecord::DeserializeFrom(const char *data) {
   }
 }
 
-void LogRecord::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {}
+void LogRecord::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
+                     lsn_t undo_next_lsn) {}
 
 void LogRecord::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {}
 

@@ -39,7 +39,8 @@ std::shared_ptr<DeleteLog> DeleteLog::DeserializeFrom(const char *data) {
   return std::make_shared<DeleteLog>(xid, prev_lsn, oid, page_id, slot_id);
 }
 
-void DeleteLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {
+void DeleteLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
+                     lsn_t undo_next_lsn) {
   // LAB 2 BEGIN
 }
 

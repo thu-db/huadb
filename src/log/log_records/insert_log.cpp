@@ -63,7 +63,8 @@ std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(const char *data) {
                                      std::shared_ptr<char>(record));
 }
 
-void InsertLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {
+void InsertLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
+                     lsn_t undo_next_lsn) {
   // 将插入的记录删除
   // LAB 2 BEGIN
 }

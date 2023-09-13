@@ -27,12 +27,12 @@ class LogRecord {
  public:
   LogRecord(LogType type, xid_t xid, lsn_t prev_lsn);
 
-  // 序列化
+  // 序列化和反序列化
   virtual size_t SerializeTo(char *data) const;
-  // 反序列化
   static std::shared_ptr<LogRecord> DeserializeFrom(const char *data);
 
-  virtual void Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn);
+  // 撤销和重做
+  virtual void Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn, lsn_t undo_next_lsn);
   virtual void Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn);
 
   // 设置 lsn

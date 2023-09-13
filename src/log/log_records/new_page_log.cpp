@@ -38,7 +38,8 @@ std::shared_ptr<NewPageLog> NewPageLog::DeserializeFrom(const char *data) {
   return std::make_shared<NewPageLog>(xid, prev_lsn, oid, prev_page_id, page_id);
 }
 
-void NewPageLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {
+void NewPageLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
+                      lsn_t undo_next_lsn) {
   // LAB 2 BEGIN
 }
 

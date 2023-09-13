@@ -1,3 +1,5 @@
+#pragma once
+
 #include "binder/statements/analyze_statement.h"
 #include "binder/statements/checkpoint_statement.h"
 #include "binder/statements/create_database_statement.h"
