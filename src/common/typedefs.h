@@ -10,7 +10,7 @@ typedef uint32_t xid_t;
 typedef uint32_t cid_t;
 typedef uint32_t oid_t;
 typedef uint32_t pageid_t;
-typedef uint32_t slotid_t;
+typedef uint16_t slotid_t;
 typedef uint16_t db_size_t;
 
 struct Rid {

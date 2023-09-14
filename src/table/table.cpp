@@ -52,6 +52,11 @@ void Table::DeleteRecord(const Rid &rid, xid_t xid, bool write_log) {
   // LAB 1 BEGIN
 }
 
+Rid Table::UpdateRecord(const Rid &rid, xid_t xid, cid_t cid, std::shared_ptr<Record> record, bool write_log) {
+  DeleteRecord(rid, xid, write_log);
+  return InsertRecord(record, xid, cid, write_log);
+}
+
 pageid_t Table::GetFirstPageId() const { return first_page_id_; }
 
 oid_t Table::GetOid() const { return oid_; }

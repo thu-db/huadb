@@ -18,6 +18,8 @@ class Table {
   Rid InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_t cid, bool write_log = true);
   // 删除记录
   void DeleteRecord(const Rid &rid, xid_t xid, bool write_log = true);
+  // 更新记录
+  Rid UpdateRecord(const Rid &rid, xid_t xid, cid_t cid, std::shared_ptr<Record> record, bool write_log = true);
 
   // 获取表的第一个页面的页面号
   pageid_t GetFirstPageId() const;

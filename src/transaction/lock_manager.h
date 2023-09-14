@@ -14,6 +14,9 @@ enum class LockType {
 
 enum class LockGranularity { TABLE, ROW };
 
+// 高级功能：死锁预防/检测类型
+enum class DeadlockType { NONE, WAIT_DIE, WOUND_WAIT, DETECTION };
+
 class LockManager {
  public:
   // 获取表级锁
@@ -24,11 +27,15 @@ class LockManager {
   // 释放事务申请的全部锁
   void ReleaseLocks(xid_t xid);
 
+  void SetDeadLockType(DeadlockType deadlock_type);
+
  private:
   // 判断锁的相容性
   bool Compatible(LockType type_a, LockType type_b);
   // 实现锁的升级
   LockType Upgrade(LockType self, LockType other);
+
+  DeadlockType deadlock_type_ = DeadlockType::NONE;
 };
 
 }  // namespace huadb

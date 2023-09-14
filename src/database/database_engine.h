@@ -70,8 +70,9 @@ class DatabaseEngine {
   void WriteOneCell(const std::string &str, ResultWriter &writer);
 
   static IsolationLevel String2IsolationLevel(const std::string &str);
-  static JoinOrderAlgorithm String2JoinOrderAlgorithm(const std::string &str);
   static ForceJoin String2ForceJoin(const std::string &str);
+  static JoinOrderAlgorithm String2JoinOrderAlgorithm(const std::string &str);
+  static DeadlockType String2DeadlockType(const std::string &str);
   static bool String2Bool(const std::string &str);
 
   std::string current_db_;

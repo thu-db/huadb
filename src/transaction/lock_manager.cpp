@@ -21,6 +21,8 @@ void LockManager::ReleaseLocks(xid_t xid) {
   // LAB 3 BEGIN
 }
 
+void LockManager::SetDeadLockType(DeadlockType deadlock_type) { deadlock_type_ = deadlock_type; }
+
 bool LockManager::Compatible(LockType type_a, LockType type_b) {
   // 判断锁是否相容
   // LAB 3 BEGIN

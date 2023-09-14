@@ -458,6 +458,8 @@ void DatabaseEngine::VariableSet(const Connection &connection, const VariableSet
     force_join_ = String2ForceJoin(stmt.value_);
   } else if (stmt.variable_ == "enable_optimizer") {
     enable_optimizer_ = String2Bool(stmt.value_);
+  } else if (stmt.variable_ == "deadlock") {
+    lock_manager_->SetDeadLockType(String2DeadlockType(stmt.value_));
   }
   client_variables_[&connection][stmt.variable_] = stmt.value_;
   WriteOneCell("SET", writer);
@@ -558,6 +560,18 @@ IsolationLevel DatabaseEngine::String2IsolationLevel(const std::string &str) {
   }
 }
 
+ForceJoin DatabaseEngine::String2ForceJoin(const std::string &str) {
+  if (str == "none") {
+    return ForceJoin::NONE;
+  } else if (str == "hash") {
+    return ForceJoin::HASH;
+  } else if (str == "merge") {
+    return ForceJoin::MERGE;
+  } else {
+    throw DbException("Unknown force join " + str);
+  }
+}
+
 JoinOrderAlgorithm DatabaseEngine::String2JoinOrderAlgorithm(const std::string &str) {
   if (str == "none") {
     return JoinOrderAlgorithm::NONE;
@@ -570,15 +584,15 @@ JoinOrderAlgorithm DatabaseEngine::String2JoinOrderAlgorithm(const std::string &
   }
 }
 
-ForceJoin DatabaseEngine::String2ForceJoin(const std::string &str) {
-  if (str == "none") {
-    return ForceJoin::NONE;
-  } else if (str == "hash") {
-    return ForceJoin::HASH;
-  } else if (str == "merge") {
-    return ForceJoin::MERGE;
+DeadlockType DatabaseEngine::String2DeadlockType(const std::string &str) {
+  if (str == "wait_die") {
+    return DeadlockType::WAIT_DIE;
+  } else if (str == "wound_wait") {
+    return DeadlockType::WOUND_WAIT;
+  } else if (str == "detection") {
+    return DeadlockType::DETECTION;
   } else {
-    throw DbException("Unknown force join " + str);
+    throw DbException("Unknown deadlock type " + str);
   }
 }
 
