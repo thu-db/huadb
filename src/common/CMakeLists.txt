@@ -3,7 +3,7 @@ add_library(
   OBJECT
   bitmap.cpp
   string_util.cpp
-  type.cpp
+  type_util.cpp
   value.cpp
 )
 

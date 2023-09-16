@@ -40,7 +40,8 @@ class LogManager {
   lsn_t AppendCommitLog(xid_t xid);
   lsn_t AppendRollbackLog(xid_t xid);
 
-  lsn_t Checkpoint();
+  // async: 是否异步刷盘（高级功能）
+  lsn_t Checkpoint(bool async = false);
 
   // 刷脏页，需维护脏页表
   void FlushPage(oid_t table_oid, pageid_t page_id, lsn_t page_lsn);

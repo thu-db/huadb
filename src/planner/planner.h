@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <tuple>
 
 #include "catalog/catalog.h"
 #include "catalog/column_list.h"
@@ -53,7 +54,7 @@ class Planner {
                                                    const std::vector<std::shared_ptr<Operator>> &children);
   std::shared_ptr<ColumnValue> PlanColumnRef(const ColumnRefExpression &expr,
                                              const std::vector<std::shared_ptr<Operator>> &children);
-  std::pair<AggregateType, std::shared_ptr<OperatorExpression>> PlanAggregate(
+  std::tuple<AggregateType, bool, std::shared_ptr<OperatorExpression>> PlanAggregate(
       const AggregateExpression &expr, const std::vector<std::shared_ptr<Operator>> &children);
 
   std::shared_ptr<Operator> PlanTableRef(const TableRef &ref, bool has_lock = false);

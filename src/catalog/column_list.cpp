@@ -66,7 +66,7 @@ void ColumnList::FromString(const std::string &str) {
     iss >> column.name_;
     std::string type;
     iss >> type;
-    column.type_ = String2Type(type);
+    column.type_ = TypeUtil::String2Type(type);
     iss >> column.max_size_;
   }
   for (auto i = 0; i < columns_.size(); ++i) {

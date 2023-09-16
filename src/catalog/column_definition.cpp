@@ -5,7 +5,7 @@
 namespace huadb {
 
 ColumnDefinition::ColumnDefinition(std::string name, Type type)
-    : name_(std::move(name)), type_(type), max_size_(TypeSize(type)) {}
+    : name_(std::move(name)), type_(type), max_size_(TypeUtil::TypeSize(type)) {}
 
 ColumnDefinition::ColumnDefinition(std::string name, Type type, db_size_t max_size)
     : name_(std::move(name)), type_(type), max_size_(max_size) {}
@@ -21,13 +21,13 @@ db_size_t ColumnDefinition::GetBytes() const {
 db_size_t ColumnDefinition::GetMaxSize() const { return max_size_; }
 
 std::string ColumnDefinition::ToString() const {
-  return name_ + " " + Type2String(type_) + " " + std::to_string(max_size_);
+  return name_ + " " + TypeUtil::Type2String(type_) + " " + std::to_string(max_size_);
 }
 
 std::vector<std::string> ColumnDefinition::ToStringVector() const {
   std::vector<std::string> str_vec;
   str_vec.emplace_back(name_);
-  str_vec.emplace_back(Type2String(type_));
+  str_vec.emplace_back(TypeUtil::Type2String(type_));
   str_vec.emplace_back(std::to_string(max_size_));
   return str_vec;
 }

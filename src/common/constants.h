@@ -28,7 +28,7 @@ static constexpr size_t DB_PAGE_SIZE = (1 << 8);
 static constexpr size_t MAX_RECORD_SIZE = 230;
 static constexpr size_t BUFFER_SIZE = 5;
 
-static constexpr lsn_t FIRST_LSN = 0;
+static constexpr lsn_t FIRST_LSN = 1;
 static constexpr lsn_t NULL_LSN = -1;
 
 static constexpr xid_t NULL_XID = -1;

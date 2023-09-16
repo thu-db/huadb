@@ -1,10 +1,10 @@
-#include "common/type.h"
+#include "common/type_util.h"
 
 #include "common/exceptions.h"
 
 namespace huadb {
 
-std::string Type2String(Type type) {
+std::string TypeUtil::Type2String(Type type) {
   switch (type) {
     case Type::BOOL:
       return "bool";
@@ -25,7 +25,7 @@ std::string Type2String(Type type) {
   }
 }
 
-Type String2Type(const std::string &str) {
+Type TypeUtil::String2Type(const std::string &str) {
   if (str == "bool") {
     return Type::BOOL;
   } else if (str == "int") {
@@ -45,7 +45,7 @@ Type String2Type(const std::string &str) {
   }
 }
 
-size_t TypeSize(Type type) {
+size_t TypeUtil::TypeSize(Type type) {
   switch (type) {
     case Type::NULL_TYPE:
       return 0;
@@ -62,6 +62,37 @@ size_t TypeSize(Type type) {
     default:
       throw DbException("Unknown type in TypeSize");
   }
+}
+
+bool TypeUtil::IsNumeric(Type type) {
+  switch (type) {
+    case Type::INT:
+    case Type::UINT:
+    case Type::DOUBLE:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool TypeUtil::IsString(Type type) {
+  switch (type) {
+    case Type::CHAR:
+    case Type::VARCHAR:
+      return true;
+    default:
+      return false;
+  }
+}
+
+bool TypeUtil::TypeCompatible(Type type1, Type type2) {
+  if (IsNumeric(type1) && IsNumeric(type2)) {
+    return true;
+  }
+  if (IsString(type1) && IsString(type2)) {
+    return true;
+  }
+  return type1 == type2;
 }
 
 }  // namespace huadb

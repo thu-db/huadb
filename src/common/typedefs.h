@@ -30,11 +30,11 @@ struct TablePageid {
 
 namespace std {
 
-static constexpr size_t UNIQUE_PAGE_HASH_OFFSET = 32;
 template <>
 struct hash<huadb::TablePageid> {
   uint64_t operator()(const huadb::TablePageid &other) const {
-    return (static_cast<uint64_t>(other.table_oid_) << UNIQUE_PAGE_HASH_OFFSET) | other.page_id_;
+    return (static_cast<uint64_t>(other.table_oid_) << 32) | other.page_id_;
   }
 };
+
 }  // namespace std

@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include "executors/executor.h"
 #include "operators/aggregate_operator.h"
 

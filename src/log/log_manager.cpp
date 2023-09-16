@@ -124,7 +124,7 @@ lsn_t LogManager::AppendRollbackLog(xid_t xid) {
   return lsn;
 }
 
-lsn_t LogManager::Checkpoint() {
+lsn_t LogManager::Checkpoint(bool async) {
   auto log = std::make_shared<BeginCheckpointLog>(NULL_XID, NULL_LSN);
   lsn_t begin_lsn = next_lsn_;
   next_lsn_ += log->GetSize();
@@ -186,9 +186,9 @@ void LogManager::Flush(lsn_t lsn) {
   }
   log_buffer_.erase(log_buffer_.begin(), iterator);
   std::ofstream out(NEXT_LSN_NAME);
-  if (lsn == NULL_LSN) {
+  if (lsn == NULL_LSN && last_log_lsn > flushed_lsn_) {
     flushed_lsn_ = last_log_lsn;
-  } else {
+  } else if (lsn > flushed_lsn_) {
     flushed_lsn_ = lsn;
   }
   out << (flushed_lsn_ + last_log_size);

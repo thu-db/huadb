@@ -11,13 +11,13 @@ Value::Value() : is_null_(true), type_(Type::NULL_TYPE), size_(0) {}
 
 Value::Value(Type type, db_size_t size) : type_(type), size_(size), is_null_(true) {}
 
-Value::Value(bool val) : type_(Type::BOOL), size_(TypeSize(Type::BOOL)) { val_.bool_ = val; }
+Value::Value(bool val) : type_(Type::BOOL), size_(TypeUtil::TypeSize(Type::BOOL)) { val_.bool_ = val; }
 
-Value::Value(int32_t val) : type_(Type::INT), size_(TypeSize(Type::INT)) { val_.int_ = val; }
+Value::Value(int32_t val) : type_(Type::INT), size_(TypeUtil::TypeSize(Type::INT)) { val_.int_ = val; }
 
-Value::Value(uint32_t val) : type_(Type::UINT), size_(TypeSize(Type::UINT)) { val_.uint_ = val; }
+Value::Value(uint32_t val) : type_(Type::UINT), size_(TypeUtil::TypeSize(Type::UINT)) { val_.uint_ = val; }
 
-Value::Value(double val) : type_(Type::DOUBLE), size_(TypeSize(Type::DOUBLE)) { val_.double_ = val; }
+Value::Value(double val) : type_(Type::DOUBLE), size_(TypeUtil::TypeSize(Type::DOUBLE)) { val_.double_ = val; }
 
 Value::Value(const char *val, Type type) : type_(type) {
   str_ = val;
@@ -159,7 +159,7 @@ double Value::GetValue<double>() const {
 
 template <>
 std::string Value::GetValue<std::string>() const {
-  if (type_ != Type::CHAR && type_ != Type::VARCHAR) {
+  if (!TypeUtil::IsString(type_)) {
     throw DbException("Type mismatch (expected char/varchar)");
   }
   return str_;
@@ -167,7 +167,7 @@ std::string Value::GetValue<std::string>() const {
 
 template <>
 const char *Value::GetValue<const char *>() const {
-  if (type_ != Type::CHAR && type_ != Type::VARCHAR) {
+  if (!TypeUtil::IsString(type_)) {
     throw DbException("Type mismatch (expected char/varchar)");
   }
   return str_.c_str();

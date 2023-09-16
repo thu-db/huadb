@@ -487,8 +487,9 @@ std::unique_ptr<Expression> Binder::BindFuncCallExpression(duckdb_libpgquery::PG
     }
   }
 
-  if (function_name == "count" || function_name == "sum" || function_name == "min" || function_name == "max") {
-    return std::make_unique<AggregateExpression>(std::move(function_name), std::move(args));
+  if (function_name == "avg" || function_name == "count" || function_name == "sum" || function_name == "min" ||
+      function_name == "max") {
+    return std::make_unique<AggregateExpression>(std::move(function_name), expr->agg_distinct, std::move(args));
   }
   throw DbException("Unsupported function call: " + function_name);
 }
@@ -561,7 +562,7 @@ std::unique_ptr<Expression> Binder::BindTypeCastExpression(duckdb_libpgquery::PG
   std::string type_name =
       reinterpret_cast<duckdb_libpgquery::PGValue *>(type_cast->typeName->names->tail->data.ptr_value)->val.str;
   auto arg = BindExpression(type_cast->arg);
-  return std::make_unique<TypeCastExpression>(String2Type(type_name), std::move(arg));
+  return std::make_unique<TypeCastExpression>(TypeUtil::String2Type(type_name), std::move(arg));
 }
 
 std::vector<std::unique_ptr<OrderBy>> Binder::BindOrderBy(duckdb_libpgquery::PGList *list) {

@@ -318,6 +318,7 @@ void DatabaseEngine::DropDatabase(const std::string &db_name, bool missing_ok, R
 void DatabaseEngine::CloseDatabase() {
   buffer_pool_->Flush();
   log_manager_->Flush();
+  log_manager_->Checkpoint();
 
   std::ofstream control(CONTROL_NAME);
   control << transaction_manager_->GetNextXid() << " " << log_manager_->GetNextLSN() << " " << catalog_->GetNextOid()
@@ -403,7 +404,7 @@ void DatabaseEngine::Rollback(Connection &connection) {
   }
 }
 
-void DatabaseEngine::Checkpoint() { log_manager_->Checkpoint(); }
+void DatabaseEngine::Checkpoint() { log_manager_->Checkpoint(true); }
 
 void DatabaseEngine::Recover() { log_manager_->Recover(); }
 
@@ -524,7 +525,7 @@ void DatabaseEngine::Analyze(const AnalyzeStatement &stmt, ResultWriter &writer)
     auto scan = std::make_unique<TableScan>(*buffer_pool_, table, Rid{table->GetFirstPageId(), 0});
     while (auto record = scan->GetNextRecord()) {
       for (const auto &column : columns) {
-        if (column.GetValueType() == Type::CHAR || column.GetValueType() == Type::VARCHAR) {
+        if (TypeUtil::IsString(column.GetValueType())) {
           continue;
         }
         auto value = record->GetValue(column.GetColumnIndex());

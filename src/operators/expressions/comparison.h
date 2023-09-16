@@ -99,8 +99,7 @@ class Comparison : public OperatorExpression {
         throw DbException("Unreachable code");
       }
     } else if (type_ == ComparisonType::LIKE || type_ == ComparisonType::NOT_LIKE) {
-      if ((lhs.GetType() != Type::CHAR && lhs.GetType() != Type::VARCHAR) ||
-          (rhs.GetType() != Type::CHAR && rhs.GetType() != Type::VARCHAR)) {
+      if (!TypeUtil::IsString(lhs.GetType()) || !TypeUtil::IsString(rhs.GetType())) {
         throw DbException("LIKE operator only supports CHAR and VARCHAR types");
       }
       // Inefficient implementation of LIKE operator with chinese support

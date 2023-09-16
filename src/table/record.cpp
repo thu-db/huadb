@@ -34,7 +34,7 @@ db_size_t Record::GetSize() const {
       continue;
     }
     size += value.GetSize();
-    if (value.GetType() == Type::CHAR || value.GetType() == Type::VARCHAR) {
+    if (TypeUtil::IsString(value.GetType())) {
       size += 2;
     }
   }
