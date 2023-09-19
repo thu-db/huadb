@@ -421,7 +421,18 @@ std::unique_ptr<Expression> Binder::BindConstExpression(duckdb_libpgquery::PGACo
 std::unique_ptr<Expression> Binder::BindResTargetExpression(duckdb_libpgquery::PGResTarget *expr) {
   auto bound_expr = BindExpression(expr->val);
   if (expr->name != nullptr) {
-    return std::make_unique<AliasExpression>(expr->name, std::move(bound_expr));
+    switch (bound_expr->type_) {
+      case ExpressionType::COLUMN_REF: {
+        auto &column_ref = dynamic_cast<ColumnRefExpression &>(*bound_expr);
+        assert(column_ref.col_name_.size() == 2);
+        column_aliases_[expr->name] = column_ref.col_name_[0];
+        return std::make_unique<AliasExpression>(column_ref.col_name_[0] + "." + expr->name, std::move(bound_expr));
+      }
+      case ExpressionType::AGGREGATE:
+        break;
+      default:
+        throw DbException("Unknown alias type");
+    }
   }
   return bound_expr;
 }
@@ -705,7 +716,10 @@ std::unique_ptr<ExpressionListRef> Binder::BindValuesList(duckdb_libpgquery::PGL
 std::unique_ptr<ColumnRefExpression> Binder::ResolveColumn(const std::vector<std::string> &column_name) {
   auto column = ResolveColumnInternal(*table_, column_name);
   if (column == nullptr) {
-    throw DbException(fmt::format("Column {} not found", fmt::join(column_name, ".")));
+    if (column_name.size() != 1 || column_aliases_.find(column_name[0]) == column_aliases_.end()) {
+      throw DbException(fmt::format("Column {} not found", fmt::join(column_name, ".")));
+    }
+    return std::make_unique<ColumnRefExpression>(std::vector{column_aliases_[column_name[0]], column_name[0]});
   }
   return column;
 }

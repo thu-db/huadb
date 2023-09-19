@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <optional>
+#include <string>
+#include <unordered_map>
 
 #include "catalog/catalog.h"
 #include "postgres_parser.hpp"
@@ -127,6 +129,7 @@ class Binder {
 
   Catalog &catalog_;
   const TableRef *table_ = nullptr;
+  std::unordered_map<std::string, std::string> column_aliases_;
 };
 
 }  // namespace huadb

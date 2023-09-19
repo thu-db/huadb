@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <tuple>
+#include <unordered_map>
+#include <vector>
 
 #include "catalog/catalog.h"
 #include "catalog/column_list.h"
@@ -80,6 +82,7 @@ class Planner {
   ForceJoin force_join_;
   std::vector<std::shared_ptr<OperatorExpression>> aggregate_exprs_;
   size_t next_aggregate_ = 0;
+  std::unordered_map<std::string, std::shared_ptr<OperatorExpression>> aliases_;
 };
 
 }  // namespace huadb

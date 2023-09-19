@@ -154,7 +154,14 @@ std::shared_ptr<Operator> Planner::PlanSelect(const SelectStatement &stmt) {
     }
     auto agg_begin = group_bys.size();
     size_t agg_index = 0;
+    std::vector<Expression *> agg_exprs;
     for (const auto &item : stmt.select_list_) {
+      agg_exprs.push_back(item.get());
+    }
+    for (const auto &item : stmt.order_by_) {
+      agg_exprs.push_back(item->expr_.get());
+    }
+    for (const auto *item : agg_exprs) {
       switch (item->type_) {
         case ExpressionType::AGGREGATE: {
           const auto &aggregate_expr = dynamic_cast<const AggregateExpression &>(*item);
@@ -173,6 +180,7 @@ std::shared_ptr<Operator> Planner::PlanSelect(const SelectStatement &stmt) {
           break;
         }
         case ExpressionType::COLUMN_REF:
+        case ExpressionType::CONST:
           break;
         default:
           throw DbException("Unknown Expression type in agg");
@@ -183,7 +191,8 @@ std::shared_ptr<Operator> Planner::PlanSelect(const SelectStatement &stmt) {
         std::move(group_bys), std::move(aggregates), std::move(is_distincts), std::move(aggregate_types));
     for (const auto &item : stmt.select_list_) {
       auto expr = PlanExpression(*item, {plan});
-      if (item->type_ != ExpressionType::AGGREGATE && group_by_names.find(expr->name_) == group_by_names.end()) {
+      if (item->type_ != ExpressionType::AGGREGATE && item->type_ != ExpressionType::CONST &&
+          group_by_names.find(expr->name_) == group_by_names.end()) {
         throw DbException(expr->name_ + " must appear in the GROUP BY clause or be used in an aggregate function");
       }
       column_names.push_back(expr->name_);
@@ -276,6 +285,7 @@ std::shared_ptr<OperatorExpression> Planner::PlanExpression(const Expression &ex
       const auto &alias_expr = dynamic_cast<const AliasExpression &>(expr);
       auto bound_expr = PlanExpression(*alias_expr.expr_, children);
       bound_expr->SetName(alias_expr.name_);
+      aliases_[alias_expr.name_] = bound_expr;
       return bound_expr;
     }
     case ExpressionType::AGGREGATE: {
@@ -337,10 +347,17 @@ std::shared_ptr<ColumnValue> Planner::PlanColumnRef(const ColumnRefExpression &e
   auto col_name = expr.ToString();
   if (children.size() == 1) {
     auto column_list = children[0]->OutputColumns();
-    auto col_idx = column_list.GetColumnIndex(col_name);
-    auto col_type = column_list.GetColumn(col_idx).type_;
-    auto col_size = column_list.GetColumn(col_idx).GetMaxSize();
-    return std::make_shared<ColumnValue>(col_idx, col_type, col_name, col_size, true);
+    if (column_list.TryGetColumnIndex(col_name)) {
+      auto col_idx = column_list.GetColumnIndex(col_name);
+      auto col_type = column_list.GetColumn(col_idx).type_;
+      auto col_size = column_list.GetColumn(col_idx).GetMaxSize();
+      return std::make_shared<ColumnValue>(col_idx, col_type, col_name, col_size, true);
+    } else if (aliases_.find(col_name) != aliases_.end()) {
+      if (aliases_[col_name]->GetExprType() == OperatorExpressionType::COLUMN_VALUE) {
+        return std::dynamic_pointer_cast<ColumnValue>(aliases_[col_name]);
+      }
+    }
+    throw DbException("Column " + col_name + " not found in planner");
   } else if (children.size() == 2) {
     auto column_list_left = children[0]->OutputColumns();
     auto column_list_right = children[1]->OutputColumns();
