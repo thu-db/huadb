@@ -60,8 +60,7 @@ void TablePage::UndoDeleteRecord(slotid_t slot_id) {
   // LAB 2 BEGIN
 }
 
-void TablePage::RedoInsertRecord(slotid_t slot_id, std::shared_ptr<char[]> raw_record, db_size_t page_offset,
-                                 db_size_t record_size) {
+void TablePage::RedoInsertRecord(slotid_t slot_id, char *raw_record, db_size_t page_offset, db_size_t record_size) {
   // 将 raw_record 写入 page data
   // 注意维护 lower 和 upper 指针，以及 slots 数组
   // 将页面设为 dirty

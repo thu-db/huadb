@@ -25,11 +25,11 @@ void LogManager::SetDirty(oid_t oid, pageid_t page_id, lsn_t lsn) {
 }
 
 lsn_t LogManager::AppendInsertLog(xid_t xid, oid_t oid, pageid_t page_id, slotid_t slot_id, db_size_t offset,
-                                  db_size_t size, std::shared_ptr<char[]> new_record) {
+                                  db_size_t size, char *new_record) {
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendInsertLog)");
   }
-  auto log = std::make_shared<InsertLog>(xid, att_[xid], oid, page_id, slot_id, offset, size, std::move(new_record));
+  auto log = std::make_shared<InsertLog>(xid, att_[xid], oid, page_id, slot_id, offset, size, new_record);
   lsn_t lsn = next_lsn_;
   next_lsn_ += log->GetSize();
   log->SetLSN(lsn);
