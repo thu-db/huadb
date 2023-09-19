@@ -120,7 +120,7 @@ class Binder {
   std::vector<std::unique_ptr<Expression>> BindSelectList(duckdb_libpgquery::PGList *list);
   std::unique_ptr<ExpressionListRef> BindValuesList(duckdb_libpgquery::PGList *list);
 
-  std::unique_ptr<ColumnRefExpression> ResolveColumn(const std::vector<std::string> &column_name);
+  std::unique_ptr<Expression> ResolveColumn(const std::vector<std::string> &column_name);
   std::unique_ptr<ColumnRefExpression> ResolveColumnFromBaseTable(const BaseTableRef &base_table,
                                                                   const std::vector<std::string> &column_name);
   std::unique_ptr<ColumnRefExpression> ResolveColumnInternal(const TableRef &table,

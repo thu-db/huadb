@@ -349,13 +349,12 @@ std::unique_ptr<Statement> Binder::BindVacuumStatement(duckdb_libpgquery::PGVacu
     std::vector<std::unique_ptr<ColumnRefExpression>> columns;
     if (stmt->relation != nullptr) {
       table = BindBaseTableRef(stmt->relation->relname, std::nullopt);
-      table_ = table.get();
       if (stmt->va_cols != nullptr) {
         for (auto *node = stmt->va_cols->head; node != nullptr; node = lnext(node)) {
           auto *pg_node = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);
           if (pg_node->type == duckdb_libpgquery::T_PGString) {
-            columns.emplace_back(
-                ResolveColumn({reinterpret_cast<duckdb_libpgquery::PGValue *>(node->data.ptr_value)->val.str}));
+            columns.emplace_back(ResolveColumnFromBaseTable(
+                *table, {reinterpret_cast<duckdb_libpgquery::PGValue *>(node->data.ptr_value)->val.str}));
           } else {
             throw DbException("Unknown node type in vacuum statement: " + NodeTagToString(pg_node->type));
           }
@@ -431,7 +430,7 @@ std::unique_ptr<Expression> Binder::BindResTargetExpression(duckdb_libpgquery::P
         return std::make_unique<AliasExpression>(column_ref.col_name_[0] + "." + expr->name, std::move(bound_expr));
       }
       case ExpressionType::AGGREGATE:
-        break;
+        return std::make_unique<AliasExpression>(expr->name, std::move(bound_expr));
       default:
         throw DbException("Unknown alias type");
     }
@@ -715,7 +714,7 @@ std::unique_ptr<ExpressionListRef> Binder::BindValuesList(duckdb_libpgquery::PGL
   return std::make_unique<ExpressionListRef>(std::move(values_list));
 }
 
-std::unique_ptr<ColumnRefExpression> Binder::ResolveColumn(const std::vector<std::string> &column_name) {
+std::unique_ptr<Expression> Binder::ResolveColumn(const std::vector<std::string> &column_name) {
   auto column = ResolveColumnInternal(*table_, column_name);
   if (column != nullptr && !adding_alias_ && column_name.size() == 1 &&
       aliases_.find(column_name[0]) != aliases_.end()) {

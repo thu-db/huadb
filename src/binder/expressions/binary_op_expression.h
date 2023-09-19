@@ -16,7 +16,6 @@ class BinaryOpExpression : public Expression {
         left_(std::move(left)),
         right_(std::move(right)) {}
   std::string ToString() const override { return fmt::format("{} {} {}", left_, op_name_, right_); }
-  bool HasAggregation() const override { return left_->HasAggregation() || right_->HasAggregation(); }
 
   std::string op_name_;
   std::unique_ptr<Expression> left_;

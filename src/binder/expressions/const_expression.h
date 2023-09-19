@@ -9,7 +9,6 @@ class ConstExpression : public Expression {
  public:
   explicit ConstExpression(Value value) : Expression(ExpressionType::CONST), value_(std::move(value)) {}
   std::string ToString() const override { return value_.ToString(); }
-  bool HasAggregation() const override { return false; }
   Value value_;
 };
 

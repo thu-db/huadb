@@ -12,7 +12,6 @@ class ListExpression : public Expression {
   ListExpression(std::vector<std::unique_ptr<Expression>> exprs)
       : Expression(ExpressionType::LIST), exprs_(std::move(exprs)) {}
   std::string ToString() const override { return fmt::format("{}", exprs_); }
-  bool HasAggregation() const override { return false; }
 
   std::vector<std::unique_ptr<Expression>> exprs_;
 };

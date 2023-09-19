@@ -28,7 +28,6 @@ class Expression {
   virtual ~Expression() = default;
 
   virtual std::string ToString() const { return ""; }
-  virtual bool HasAggregation() const { throw DbException("HasAggregation not implemented"); }
   ExpressionType type_;
 };
 
