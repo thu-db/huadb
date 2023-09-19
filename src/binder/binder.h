@@ -129,7 +129,8 @@ class Binder {
 
   Catalog &catalog_;
   const TableRef *table_ = nullptr;
-  std::unordered_map<std::string, std::string> column_aliases_;
+  std::unordered_multimap<std::string, std::string> aliases_;
+  bool adding_alias_ = true;
 };
 
 }  // namespace huadb

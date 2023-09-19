@@ -82,7 +82,7 @@ class Planner {
   ForceJoin force_join_;
   std::vector<std::shared_ptr<OperatorExpression>> aggregate_exprs_;
   size_t next_aggregate_ = 0;
-  std::unordered_map<std::string, std::shared_ptr<OperatorExpression>> aliases_;
+  std::unordered_multimap<std::string, std::shared_ptr<OperatorExpression>> aliases_;
 };
 
 }  // namespace huadb

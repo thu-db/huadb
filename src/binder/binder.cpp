@@ -209,11 +209,13 @@ std::unique_ptr<SelectStatement> Binder::BindSelectStatement(duckdb_libpgquery::
 
   bool distinct = stmt->distinctClause != nullptr;
 
-  auto select_list = BindSelectList(stmt->targetList);
   auto where = std::make_unique<Expression>();
   if (stmt->whereClause != nullptr) {
     where = BindExpression(stmt->whereClause);
   }
+
+  auto select_list = BindSelectList(stmt->targetList);
+  adding_alias_ = false;
 
   auto group_by = std::vector<std::unique_ptr<Expression>>();
   if (stmt->groupClause != nullptr) {
@@ -425,7 +427,7 @@ std::unique_ptr<Expression> Binder::BindResTargetExpression(duckdb_libpgquery::P
       case ExpressionType::COLUMN_REF: {
         auto &column_ref = dynamic_cast<ColumnRefExpression &>(*bound_expr);
         assert(column_ref.col_name_.size() == 2);
-        column_aliases_[expr->name] = column_ref.col_name_[0];
+        aliases_.emplace(expr->name, column_ref.col_name_[0]);
         return std::make_unique<AliasExpression>(column_ref.col_name_[0] + "." + expr->name, std::move(bound_expr));
       }
       case ExpressionType::AGGREGATE:
@@ -715,11 +717,18 @@ std::unique_ptr<ExpressionListRef> Binder::BindValuesList(duckdb_libpgquery::PGL
 
 std::unique_ptr<ColumnRefExpression> Binder::ResolveColumn(const std::vector<std::string> &column_name) {
   auto column = ResolveColumnInternal(*table_, column_name);
+  if (column != nullptr && !adding_alias_ && column_name.size() == 1 &&
+      aliases_.find(column_name[0]) != aliases_.end()) {
+    throw DbException(fmt::format("Column reference {} is ambiguous", column_name[0]));
+  }
   if (column == nullptr) {
-    if (column_name.size() != 1 || column_aliases_.find(column_name[0]) == column_aliases_.end()) {
+    if (column_name.size() != 1 || aliases_.find(column_name[0]) == aliases_.end()) {
       throw DbException(fmt::format("Column {} not found", fmt::join(column_name, ".")));
     }
-    return std::make_unique<ColumnRefExpression>(std::vector{column_aliases_[column_name[0]], column_name[0]});
+    if (aliases_.count(column_name[0]) > 1) {
+      throw DbException(fmt::format("Column reference {} is ambiguous", column_name[0]));
+    }
+    return std::make_unique<ColumnRefExpression>(std::vector{aliases_.find(column_name[0])->second, column_name[0]});
   }
   return column;
 }
@@ -753,7 +762,7 @@ std::unique_ptr<ColumnRefExpression> Binder::ResolveColumnInternal(const TableRe
       auto left = ResolveColumnInternal(*cross_join.left_, column_name);
       auto right = ResolveColumnInternal(*cross_join.right_, column_name);
       if (left && right) {
-        throw DbException(fmt::format("Column refrence {} is ambiguous", fmt::join(column_name, ".")));
+        throw DbException(fmt::format("Column reference {} is ambiguous", fmt::join(column_name, ".")));
       }
       if (left) {
         return left;
@@ -765,7 +774,7 @@ std::unique_ptr<ColumnRefExpression> Binder::ResolveColumnInternal(const TableRe
       auto left = ResolveColumnInternal(*join.left_, column_name);
       auto right = ResolveColumnInternal(*join.right_, column_name);
       if (left && right) {
-        throw DbException(fmt::format("Column refrence {} is ambiguous", fmt::join(column_name, ".")));
+        throw DbException(fmt::format("Column reference {} is ambiguous", fmt::join(column_name, ".")));
       }
       if (left) {
         return left;

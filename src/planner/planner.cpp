@@ -285,7 +285,7 @@ std::shared_ptr<OperatorExpression> Planner::PlanExpression(const Expression &ex
       const auto &alias_expr = dynamic_cast<const AliasExpression &>(expr);
       auto bound_expr = PlanExpression(*alias_expr.expr_, children);
       bound_expr->SetName(alias_expr.name_);
-      aliases_[alias_expr.name_] = bound_expr;
+      aliases_.emplace(alias_expr.name_, bound_expr);
       return bound_expr;
     }
     case ExpressionType::AGGREGATE: {
@@ -353,8 +353,11 @@ std::shared_ptr<ColumnValue> Planner::PlanColumnRef(const ColumnRefExpression &e
       auto col_size = column_list.GetColumn(col_idx).GetMaxSize();
       return std::make_shared<ColumnValue>(col_idx, col_type, col_name, col_size, true);
     } else if (aliases_.find(col_name) != aliases_.end()) {
-      if (aliases_[col_name]->GetExprType() == OperatorExpressionType::COLUMN_VALUE) {
-        return std::dynamic_pointer_cast<ColumnValue>(aliases_[col_name]);
+      if (aliases_.count(col_name) > 1) {
+        throw DbException("Column name " + col_name + " is ambiguous in PlanColumnRef");
+      }
+      if (aliases_.find(col_name)->second->GetExprType() == OperatorExpressionType::COLUMN_VALUE) {
+        return std::dynamic_pointer_cast<ColumnValue>(aliases_.find(col_name)->second);
       }
     }
     throw DbException("Column " + col_name + " not found in planner");
