@@ -13,6 +13,7 @@ class AggregateExpression : public Expression {
         is_distinct_(is_distinct),
         args_(std::move(args)) {}
   std::string ToString() const override { return fmt::format("{}({})", function_name_, args_); }
+  bool HasAggregation() const override { return true; }
 
   std::string function_name_;
   bool is_distinct_;

@@ -102,7 +102,7 @@ class Comparison : public OperatorExpression {
       if (!TypeUtil::IsString(lhs.GetType()) || !TypeUtil::IsString(rhs.GetType())) {
         throw DbException("LIKE operator only supports CHAR and VARCHAR types");
       }
-      // Inefficient implementation of LIKE operator with chinese support
+      // Inefficient implementation of LIKE operator with Chinese support
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wdeprecated-declarations"
       std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
@@ -123,9 +123,21 @@ class Comparison : public OperatorExpression {
     } else {
       switch (lhs.GetType()) {
         case Type::INT:
-          return Value(DoOperation(lhs.GetValue<int32_t>(), rhs.GetValue<int32_t>()));
+          if (rhs.GetType() == Type::INT) {
+            return Value(DoOperation(lhs.GetValue<int32_t>(), rhs.GetValue<int32_t>()));
+          } else if (rhs.GetType() == Type::DOUBLE) {
+            return Value(DoOperation(lhs.GetValue<int32_t>(), rhs.GetValue<double>()));
+          } else {
+            throw DbException("Type unsupported for comparison operation");
+          }
         case Type::DOUBLE:
-          return Value(DoOperation(lhs.GetValue<double>(), rhs.GetValue<double>()));
+          if (rhs.GetType() == Type::INT) {
+            return Value(DoOperation(lhs.GetValue<double>(), rhs.GetValue<int32_t>()));
+          } else if (rhs.GetType() == Type::DOUBLE) {
+            return Value(DoOperation(lhs.GetValue<double>(), rhs.GetValue<double>()));
+          } else {
+            throw DbException("Type unsupported for comparison operation");
+          }
         case Type::CHAR:
         case Type::VARCHAR:
           return Value(DoOperation(lhs.GetValue<std::string>(), rhs.GetValue<std::string>()));
@@ -135,8 +147,8 @@ class Comparison : public OperatorExpression {
     }
   }
 
-  template <typename T>
-  bool DoOperation(T lhs, T rhs) {
+  template <typename T, typename U>
+  bool DoOperation(T lhs, U rhs) {
     switch (type_) {
       case ComparisonType::EQUAL:
         return lhs == rhs;

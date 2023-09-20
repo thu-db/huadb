@@ -123,71 +123,32 @@ std::shared_ptr<Operator> Planner::PlanSelect(const SelectStatement &stmt) {
       plan = PlanTableRef(*stmt.table_, stmt.lock_type_ != SelectLockType::NOLOCK);
   }
 
-  if (stmt.where_->type_ != ExpressionType::INVALID) {
+  if (stmt.where_ != nullptr) {
     auto column_list = std::make_shared<ColumnList>(plan->OutputColumns());
     auto expr = PlanExpression(*stmt.where_, {plan});
     plan = std::make_shared<FilterOperator>(std::move(column_list), std::move(plan), std::move(expr));
   }
 
   bool has_agg = false;
+  for (const auto &item : stmt.select_list_) {
+    if (item->type_ == ExpressionType::ALIAS) {
+      const auto alias_expr = dynamic_cast<const AliasExpression &>(*item);
+      if (alias_expr.expr_->type_ != ExpressionType::AGGREGATE) {
+        PlanExpression(*item, {plan});  // Add alias
+      }
+    }
+    if (item->HasAggregation()) {
+      has_agg = true;
+    }
+  }
+
   std::vector<std::shared_ptr<OperatorExpression>> exprs;
   std::vector<std::string> column_names;
-  std::unordered_set<std::string> group_by_names;
-  std::vector<std::string> output_column_names;
-  std::vector<std::shared_ptr<OperatorExpression>> group_bys;
-  std::vector<std::shared_ptr<OperatorExpression>> aggregates;
-  std::vector<bool> is_distincts;
-  std::vector<AggregateType> aggregate_types;
-  for (const auto &item : stmt.group_by_) {
-    has_agg = true;
-    auto expr = PlanExpression(*item, {plan});
-    group_by_names.insert(expr->name_);
-    output_column_names.push_back(std::move(expr->name_));
-    group_bys.push_back(std::move(expr));
-  }
-  auto agg_begin = group_bys.size();
-  size_t agg_index = 0;
-  std::vector<Expression *> agg_exprs;
-  for (const auto &item : stmt.select_list_) {
-    agg_exprs.push_back(item.get());
-  }
-  for (const auto &item : stmt.order_by_) {
-    agg_exprs.push_back(item->expr_.get());
-  }
-  for (const auto *item : agg_exprs) {
-    switch (item->type_) {
-      case ExpressionType::AGGREGATE: {
-        has_agg = true;
-        const auto &aggregate_expr = dynamic_cast<const AggregateExpression &>(*item);
-        auto agg_tuple = PlanAggregate(aggregate_expr, {plan});
-        aggregate_exprs_.push_back(std::make_shared<ColumnValue>(
-            agg_begin + agg_index, Type::INT, aggregate_expr.function_name_, TypeUtil::TypeSize(Type::INT)));
-        agg_index++;
-        aggregate_types.push_back(std::get<0>(agg_tuple));
-        is_distincts.push_back(std::get<1>(agg_tuple));
-        if (std::get<0>(agg_tuple) == AggregateType::COUNT_STAR) {
-          aggregates.push_back(std::make_shared<Const>(Value(1)));
-        } else {
-          aggregates.push_back(std::get<2>(agg_tuple));
-        }
-        output_column_names.emplace_back(aggregate_expr.function_name_);
-        break;
-      }
-      default:
-        break;
-    }
-  }
-  if (has_agg || !group_bys.empty()) {
-    plan = std::make_shared<AggregateOperator>(
-        RenameColumnList(InferAggregateColumnList(group_bys, aggregates), output_column_names), std::move(plan),
-        std::move(group_bys), std::move(aggregates), std::move(is_distincts), std::move(aggregate_types));
+  if (has_agg || !stmt.group_by_.empty()) {
+    plan = PlanAggregate(stmt, std::move(plan));
   }
   for (const auto &item : stmt.select_list_) {
     auto expr = PlanExpression(*item, {plan});
-    if (has_agg && item->type_ != ExpressionType::AGGREGATE && item->type_ != ExpressionType::CONST &&
-        group_by_names.find(expr->name_) == group_by_names.end()) {
-      throw DbException(expr->name_ + " must appear in the GROUP BY clause or be used in an aggregate function");
-    }
     column_names.push_back(expr->name_);
     exprs.emplace_back(std::move(expr));
   }
@@ -202,17 +163,17 @@ std::shared_ptr<Operator> Planner::PlanSelect(const SelectStatement &stmt) {
     plan = std::make_shared<OrderByOperator>(column_list, std::move(plan), std::move(order_bys));
   }
 
-  if ((stmt.limit_count_->type_ != ExpressionType::INVALID) || (stmt.limit_offset_->type_ != ExpressionType::INVALID)) {
+  if ((stmt.limit_count_ != nullptr) || (stmt.limit_offset_ != nullptr)) {
     std::optional<int32_t> limit_count;
     std::optional<int32_t> limit_offset;
-    if (stmt.limit_count_->type_ != ExpressionType::INVALID) {
+    if (stmt.limit_count_ != nullptr) {
       auto expr = PlanExpression(*stmt.limit_count_, {plan});
       limit_count = expr->Evaluate(std::make_shared<Record>()).GetValue<int32_t>();
       if (limit_count < 0) {
         throw DbException("LIMIT must not be negative");
       }
     }
-    if (stmt.limit_offset_->type_ != ExpressionType::INVALID) {
+    if (stmt.limit_offset_ != nullptr) {
       auto expr = PlanExpression(*stmt.limit_offset_, {plan});
       limit_offset = expr->Evaluate(std::make_shared<Record>()).GetValue<int32_t>();
       if (limit_offset < 0) {
@@ -270,8 +231,18 @@ std::shared_ptr<OperatorExpression> Planner::PlanExpression(const Expression &ex
     case ExpressionType::ALIAS: {
       const auto &alias_expr = dynamic_cast<const AliasExpression &>(expr);
       auto bound_expr = PlanExpression(*alias_expr.expr_, children);
+      bool add_to_alias = true;
+      for (auto [it, range_end] = alias2colname_.equal_range(alias_expr.name_); it != range_end; it++) {
+        if (it->second == bound_expr->ToString()) {
+          add_to_alias = false;
+          break;
+        }
+      }
+      if (add_to_alias) {
+        aliases_.emplace(alias_expr.name_, bound_expr);
+        alias2colname_[alias_expr.name_] = bound_expr->name_;
+      }
       bound_expr->SetName(alias_expr.name_);
-      aliases_.emplace(alias_expr.name_, bound_expr);
       return bound_expr;
     }
     case ExpressionType::AGGREGATE: {
@@ -371,7 +342,7 @@ std::shared_ptr<ColumnValue> Planner::PlanColumnRef(const ColumnRefExpression &e
   }
 }
 
-std::tuple<AggregateType, bool, std::shared_ptr<OperatorExpression>> Planner::PlanAggregate(
+std::tuple<AggregateType, bool, std::shared_ptr<OperatorExpression>> Planner::GetAggregateType(
     const AggregateExpression &expr, const std::vector<std::shared_ptr<Operator>> &children) {
   if (expr.args_.size() == 0) {
     return {AggregateType::COUNT_STAR, expr.is_distinct_, std::make_shared<OperatorExpression>()};
@@ -393,6 +364,65 @@ std::tuple<AggregateType, bool, std::shared_ptr<OperatorExpression>> Planner::Pl
   } else {
     throw DbException("Unknown function name " + expr.function_name_);
   }
+}
+
+std::shared_ptr<Operator> Planner::PlanAggregate(const SelectStatement &stmt, std::shared_ptr<Operator> child) {
+  std::unordered_set<std::string> group_by_names;
+  std::vector<std::string> output_column_names;
+  std::vector<std::shared_ptr<OperatorExpression>> group_bys;
+  std::vector<std::shared_ptr<OperatorExpression>> aggregates;
+  std::vector<bool> is_distincts;
+  std::vector<AggregateType> aggregate_types;
+  for (const auto &item : stmt.group_by_) {
+    auto expr = PlanExpression(*item, {child});
+    group_by_names.insert(expr->name_);
+    if (aliases_.find(expr->name_) != aliases_.end()) {
+      output_column_names.push_back(alias2colname_[expr->name_]);
+    } else {
+      output_column_names.push_back(std::move(expr->name_));
+    }
+    group_bys.push_back(std::move(expr));
+  }
+  auto agg_begin = group_bys.size();
+  size_t agg_index = 0;
+  if (stmt.having_ != nullptr) {
+    AddAggregateExpression(*stmt.having_);
+  }
+  for (const auto &item : stmt.select_list_) {
+    AddAggregateExpression(*item);
+  }
+  for (const auto &item : stmt.order_by_) {
+    AddAggregateExpression(*item->expr_);
+  }
+  for (const auto &item : aggregates_) {
+    assert(item->type_ == ExpressionType::AGGREGATE);
+    const auto &aggregate_expr = dynamic_cast<const AggregateExpression &>(*item);
+    auto agg_tuple = GetAggregateType(aggregate_expr, {child});
+    aggregate_exprs_.push_back(std::make_shared<ColumnValue>(
+        agg_begin + agg_index, Type::INT, aggregate_expr.function_name_, TypeUtil::TypeSize(Type::INT)));
+    agg_index++;
+    aggregate_types.push_back(std::get<0>(agg_tuple));
+    is_distincts.push_back(std::get<1>(agg_tuple));
+    if (std::get<0>(agg_tuple) == AggregateType::COUNT_STAR) {
+      aggregates.push_back(std::make_shared<Const>(Value(1)));
+    } else {
+      aggregates.push_back(std::get<2>(agg_tuple));
+    }
+    output_column_names.emplace_back(aggregate_expr.function_name_);
+  }
+
+  for (const auto &item : stmt.select_list_) {
+    CheckAggregate(*item, group_by_names);
+  }
+  std::shared_ptr<Operator> plan = std::make_shared<AggregateOperator>(
+      RenameColumnList(InferAggregateColumnList(group_bys, aggregates), output_column_names), std::move(child),
+      std::move(group_bys), std::move(aggregates), std::move(is_distincts), std::move(aggregate_types));
+  if (stmt.having_ != nullptr) {
+    auto expr = PlanExpression(*stmt.having_, {plan});
+    plan = std::make_shared<FilterOperator>(std::make_shared<ColumnList>(plan->OutputColumns()), std::move(plan),
+                                            std::move(expr));
+  }
+  return plan;
 }
 
 std::shared_ptr<Operator> Planner::PlanTableRef(const TableRef &ref, bool has_lock) {
@@ -616,6 +646,65 @@ std::shared_ptr<ColumnList> Planner::RenameColumnList(std::shared_ptr<const Colu
     result->AddColumn(ColumnDefinition(col_names[idx++], column.GetType(), column.GetMaxSize()));
   }
   return result;
+}
+
+void Planner::AddAggregateExpression(Expression &expr) {
+  switch (expr.type_) {
+    case ExpressionType::AGGREGATE: {
+      auto &agg_expr = dynamic_cast<AggregateExpression &>(expr);
+      aggregates_.push_back(std::make_unique<AggregateExpression>(
+          std::exchange(agg_expr, AggregateExpression(agg_expr.function_name_, agg_expr.is_distinct_,
+                                                      std::vector<std::unique_ptr<Expression>>{}))));
+      return;
+    }
+    case ExpressionType::BINARY_OP: {
+      auto &binary_op_expr = dynamic_cast<BinaryOpExpression &>(expr);
+      AddAggregateExpression(*binary_op_expr.left_);
+      AddAggregateExpression(*binary_op_expr.right_);
+      return;
+    }
+    case ExpressionType::ALIAS: {
+      auto &alias_expr = dynamic_cast<AliasExpression &>(expr);
+      AddAggregateExpression(*alias_expr.expr_);
+      return;
+    }
+    case ExpressionType::COLUMN_REF:
+    case ExpressionType::CONST:
+      return;
+    default:
+      throw DbException("Unknown Expression type in agg");
+  }
+}
+
+void Planner::CheckAggregate(const Expression &expr, const std::unordered_set<std::string> group_by_names) {
+  switch (expr.type_) {
+    case ExpressionType::AGGREGATE:
+    case ExpressionType::CONST:
+      break;
+    case ExpressionType::COLUMN_REF: {
+      if (group_by_names.find(expr.ToString()) == group_by_names.end()) {
+        throw DbException(expr.ToString() + " must appear in the GROUP BY clause or be used in an aggregate function");
+      }
+      break;
+    }
+    case ExpressionType::BINARY_OP: {
+      const auto &binary_op_expr = dynamic_cast<const BinaryOpExpression &>(expr);
+      CheckAggregate(*binary_op_expr.left_, group_by_names);
+      CheckAggregate(*binary_op_expr.right_, group_by_names);
+      break;
+    }
+    case ExpressionType::ALIAS: {
+      const auto &alias_expr = dynamic_cast<const AliasExpression &>(expr);
+      if (alias_expr.expr_->type_ != ExpressionType::AGGREGATE &&
+          group_by_names.find(alias_expr.expr_->ToString()) == group_by_names.end() &&
+          group_by_names.find(alias_expr.name_) == group_by_names.end()) {
+        throw DbException(alias_expr.name_ + " must appear in the GROUP BY clause or be used in an aggregate function");
+      }
+      break;
+    }
+    default:
+      throw DbException("Unknown Expression type in CheckAggregate");
+  }
 }
 
 }  // namespace huadb

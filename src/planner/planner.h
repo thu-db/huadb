@@ -3,6 +3,7 @@
 #include <memory>
 #include <tuple>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "catalog/catalog.h"
@@ -56,9 +57,11 @@ class Planner {
                                                    const std::vector<std::shared_ptr<Operator>> &children);
   std::shared_ptr<ColumnValue> PlanColumnRef(const ColumnRefExpression &expr,
                                              const std::vector<std::shared_ptr<Operator>> &children);
-  std::tuple<AggregateType, bool, std::shared_ptr<OperatorExpression>> PlanAggregate(
+
+  std::tuple<AggregateType, bool, std::shared_ptr<OperatorExpression>> GetAggregateType(
       const AggregateExpression &expr, const std::vector<std::shared_ptr<Operator>> &children);
 
+  std::shared_ptr<Operator> PlanAggregate(const SelectStatement &stmt, std::shared_ptr<Operator> child);
   std::shared_ptr<Operator> PlanTableRef(const TableRef &ref, bool has_lock = false);
   std::shared_ptr<Operator> PlanBaseTable(const BaseTableRef &ref, bool has_lock);
   std::shared_ptr<Operator> PlanExpressionList(const ExpressionListRef &ref);
@@ -79,10 +82,14 @@ class Planner {
                                                       const std::vector<std::string> &col_names);
 
  private:
+  void AddAggregateExpression(Expression &expr);
+  void CheckAggregate(const Expression &expr, const std::unordered_set<std::string> group_by_names);
   ForceJoin force_join_;
+  std::vector<std::unique_ptr<Expression>> aggregates_;
   std::vector<std::shared_ptr<OperatorExpression>> aggregate_exprs_;
   size_t next_aggregate_ = 0;
   std::unordered_multimap<std::string, std::shared_ptr<OperatorExpression>> aliases_;
+  std::unordered_map<std::string, std::string> alias2colname_;
 };
 
 }  // namespace huadb

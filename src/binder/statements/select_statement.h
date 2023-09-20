@@ -16,22 +16,19 @@ class SelectStatement : public Statement {
  public:
   // Used for Insert Binder
   SelectStatement(std::unique_ptr<TableRef> table, std::vector<std::unique_ptr<Expression>> select_list)
-      : Statement(StatementType::SELECT_STATEMENT),
-        table_(std::move(table)),
-        select_list_(std::move(select_list)),
-        where_(std::make_unique<Expression>()),
-        limit_count_(std::make_unique<Expression>()),
-        limit_offset_(std::make_unique<Expression>()) {}
+      : Statement(StatementType::SELECT_STATEMENT), table_(std::move(table)), select_list_(std::move(select_list)) {}
 
   SelectStatement(std::unique_ptr<TableRef> table, std::vector<std::unique_ptr<Expression>> select_list,
                   std::unique_ptr<Expression> where, std::vector<std::unique_ptr<Expression>> group_by,
-                  std::vector<std::unique_ptr<OrderBy>> order_by, std::unique_ptr<Expression> limit_count,
-                  std::unique_ptr<Expression> limit_offset, SelectLockType lock_type, bool distinct)
+                  std::unique_ptr<Expression> having, std::vector<std::unique_ptr<OrderBy>> order_by,
+                  std::unique_ptr<Expression> limit_count, std::unique_ptr<Expression> limit_offset,
+                  SelectLockType lock_type, bool distinct)
       : Statement(StatementType::SELECT_STATEMENT),
         table_(std::move(table)),
         select_list_(std::move(select_list)),
         where_(std::move(where)),
         group_by_(std::move(group_by)),
+        having_(std::move(having)),
         order_by_(std::move(order_by)),
         limit_count_(std::move(limit_count)),
         limit_offset_(std::move(limit_offset)),
@@ -48,6 +45,7 @@ class SelectStatement : public Statement {
   std::vector<std::unique_ptr<Expression>> select_list_;
   std::unique_ptr<Expression> where_;
   std::vector<std::unique_ptr<Expression>> group_by_;
+  std::unique_ptr<Expression> having_;
   std::vector<std::unique_ptr<OrderBy>> order_by_;
   std::unique_ptr<Expression> limit_count_;
   std::unique_ptr<Expression> limit_offset_;

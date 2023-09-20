@@ -14,6 +14,7 @@ class ColumnRefExpression : public Expression {
   explicit ColumnRefExpression(std::vector<std::string> col_name)
       : Expression(ExpressionType::COLUMN_REF), col_name_(std::move(col_name)) {}
   std::string ToString() const override { return fmt::format("{}", fmt::join(col_name_, ".")); }
+  bool HasAggregation() const override { return false; }
   std::vector<std::string> col_name_;
 };
 
