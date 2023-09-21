@@ -684,7 +684,14 @@ std::unique_ptr<TableRef> Binder::BindJoin(duckdb_libpgquery::PGJoinExpr *ref) {
   if (ref->quals != nullptr) {
     condition = BindExpression(ref->quals);
   } else if (ref->usingClause != nullptr) {
-    throw DbException("Using clause is not supported now");
+    if (ref->usingClause->length != 1) {
+      throw DbException("Using clause only support one column now");
+    }
+    std::string column_name =
+        reinterpret_cast<duckdb_libpgquery::PGValue *>(ref->usingClause->head->data.ptr_value)->val.str;
+    condition = std::make_unique<BinaryOpExpression>(
+        "=", ResolveColumnInternal(*join_ref->left_, std::vector<std::string>{column_name}),
+        ResolveColumnInternal(*join_ref->right_, std::vector<std::string>{column_name}));
   } else {
     throw DbException("Join condition is not specified");
   }
