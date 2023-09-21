@@ -55,6 +55,12 @@ class SimpleCatalog {
   bool TableExists(oid_t oid);
   // 获取下一个 oid
   oid_t GetNextOid() const;
+  // 获取统计信息
+  uint32_t GetCardinality(const std::string &table_name);
+  uint32_t GetDistinct(const std::string &table_name, const std::string &column_name);
+  // 设置统计信息
+  void SetCardinality(const std::string &table_name, uint32_t cardinality);
+  void SetDistinct(const std::string &table_name, const std::string &column_name, uint32_t distinct);
 
  private:
   Disk &disk_;
@@ -65,6 +71,8 @@ class SimpleCatalog {
   // 对象映射表
   std::unordered_map<std::string, oid_t> name2oid_;
   std::unordered_map<oid_t, std::shared_ptr<Table>> oid2table_;
+  std::unordered_map<std::string, uint32_t> table2cardinality_;
+  std::unordered_map<std::string, uint32_t> col2distinct_;
 
   oid_t current_database_oid_ = INVALID_OID;
 };

@@ -51,6 +51,9 @@ static constexpr oid_t TABLE_META_OID = 501;
 static constexpr oid_t DATABASE_META_OID = 502;
 static constexpr oid_t STATISTIC_META_OID = 503;
 
+static constexpr uint32_t INVALID_CARDINALITY = -1;
+static constexpr uint32_t INVALID_DISTINCT = -1;
+
 static constexpr const char *SYSTEM_DATABASE_NAME = "system";
 
 static constexpr const char *TABLE_META_NAME = "huadb_table";

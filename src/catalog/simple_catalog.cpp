@@ -171,4 +171,14 @@ bool SimpleCatalog::TableExists(oid_t oid) { return !oid_manager_.OidExists(oid)
 
 oid_t SimpleCatalog::GetNextOid() const { return oid_manager_.GetNextOid(); }
 
+uint32_t SimpleCatalog::GetCardinality(const std::string &table_name) { return INVALID_CARDINALITY; }
+
+uint32_t SimpleCatalog::GetDistinct(const std::string &table_name, const std::string &column_name) {
+  return INVALID_DISTINCT;
+}
+
+void SimpleCatalog::SetCardinality(const std::string &table_name, uint32_t cardinality) {}
+
+void SimpleCatalog::SetDistinct(const std::string &table_name, const std::string &column_name, uint32_t distinct) {}
+
 }  // namespace huadb

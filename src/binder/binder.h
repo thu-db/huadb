@@ -4,6 +4,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 
 #include "catalog/catalog.h"
 #include "postgres_parser.hpp"
@@ -130,6 +131,7 @@ class Binder {
   Catalog &catalog_;
   const TableRef *table_ = nullptr;
   std::unordered_multimap<std::string, std::string> aliases_;
+  std::unordered_set<std::string> table_names_;
   bool adding_alias_ = true;
 };
 

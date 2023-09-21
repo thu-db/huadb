@@ -296,4 +296,28 @@ Value Value::CastAsBool() const {
   }
 }
 
+bool Value::operator==(const Value &other) const { return Equal(other); }
+
 }  // namespace huadb
+
+namespace std {
+
+uint64_t hash<huadb::Value>::operator()(const huadb::Value &other) const {
+  switch (other.GetType()) {
+    case huadb::Type::BOOL:
+      return std::hash<bool>()(other.GetValue<bool>());
+    case huadb::Type::INT:
+      return std::hash<int32_t>()(other.GetValue<int32_t>());
+    case huadb::Type::UINT:
+      return std::hash<uint32_t>()(other.GetValue<uint32_t>());
+    case huadb::Type::DOUBLE:
+      return std::hash<double>()(other.GetValue<double>());
+    case huadb::Type::VARCHAR:
+    case huadb::Type::CHAR:
+      return std::hash<std::string>()(other.GetValue<std::string>());
+    default:
+      throw huadb::DbException("Unknown value type in hash");
+  }
+};
+
+}  // namespace std

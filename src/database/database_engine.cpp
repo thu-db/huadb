@@ -497,7 +497,6 @@ void DatabaseEngine::VariableShow(const Connection &connection, const VariableSh
   writer.WriteRowCount(1);
 }
 
-// Not finished yet
 void DatabaseEngine::Analyze(const AnalyzeStatement &stmt, ResultWriter &writer) {
   std::vector<std::string> table_names;
   std::vector<uint32_t> column_idxs;
@@ -521,17 +520,29 @@ void DatabaseEngine::Analyze(const AnalyzeStatement &stmt, ResultWriter &writer)
     auto oid = catalog_->GetTableOid(table_name);
     auto table = catalog_->GetTable(oid);
     if (stmt.columns_.empty()) {
-    }
-    auto scan = std::make_unique<TableScan>(*buffer_pool_, table, Rid{table->GetFirstPageId(), 0});
-    while (auto record = scan->GetNextRecord()) {
-      for (const auto &column : columns) {
-        if (TypeUtil::IsString(column.GetValueType())) {
-          continue;
-        }
-        auto value = record->GetValue(column.GetColumnIndex());
+      auto column_list = catalog_->GetTableColumnList(stmt.table_->table_);
+      columns.clear();
+      for (size_t i = 0; i < column_list.Length(); i++) {
+        auto col_type = column_list.GetColumn(i).type_;
+        auto col_name = column_list.GetColumn(i).name_;
+        auto col_size = column_list.GetColumn(i).GetMaxSize();
+        columns.emplace_back(i, col_type, col_name, col_size, true);
       }
     }
-    columns.clear();
+    auto scan = std::make_unique<TableScan>(*buffer_pool_, table, Rid{table->GetFirstPageId(), 0});
+    uint32_t record_count = 0;
+    std::vector<std::unordered_set<Value>> value_set;
+    value_set.resize(columns.size());
+    while (auto record = scan->GetNextRecord()) {
+      for (size_t i = 0; i < columns.size(); i++) {
+        value_set[i].insert(record->GetValue(i));
+      }
+      record_count++;
+    }
+    catalog_->SetCardinality(table_name, record_count);
+    for (size_t i = 0; i < columns.size(); i++) {
+      catalog_->SetDistinct(table_name, columns[i].name_, value_set[i].size());
+    }
   }
   WriteOneCell("Analyze", writer);
 }

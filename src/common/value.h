@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -44,6 +45,8 @@ class Value {
 
   Value CastAsBool() const;
 
+  bool operator==(const Value &other) const;
+
  private:
   Type type_;
   bool is_null_ = false;
@@ -60,3 +63,12 @@ class Value {
 };
 
 }  // namespace huadb
+
+namespace std {
+
+template <>
+struct hash<huadb::Value> {
+  uint64_t operator()(const huadb::Value &other) const;
+};
+
+}  // namespace std

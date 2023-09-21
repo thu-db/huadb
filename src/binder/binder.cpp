@@ -694,6 +694,17 @@ std::unique_ptr<TableRef> Binder::BindJoin(duckdb_libpgquery::PGJoinExpr *ref) {
 }
 
 std::unique_ptr<BaseTableRef> Binder::BindBaseTableRef(std::string table_name, std::optional<std::string> alias) {
+  if (alias) {
+    if (table_names_.find(*alias) != table_names_.end()) {
+      throw DbException(fmt::format("Table name {} specified more than once", *alias));
+    }
+    table_names_.insert(*alias);
+  } else {
+    if (table_names_.find(table_name) != table_names_.end()) {
+      throw DbException(fmt::format("Table name {} specified more than once", table_name));
+    }
+    table_names_.insert(table_name);
+  }
   auto oid = catalog_.GetTableOid(table_name);
   auto column_list = catalog_.GetTableColumnList(table_name);
   return std::make_unique<BaseTableRef>(std::move(table_name), std::move(alias), oid, column_list);

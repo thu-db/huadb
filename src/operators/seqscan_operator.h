@@ -27,13 +27,14 @@ class SeqScanOperator : public Operator {
   }
 
   oid_t GetTableOid() const { return table_oid_; }
-  const std::string &GetTableName() const {
+  const std::string &GetTableNameOrAlias() const {
     if (alias_) {
       return *alias_;
     } else {
       return table_name_;
     }
   }
+  const std::string &GetTableName() const { return table_name_; }
   bool HasLock() const { return has_lock_; }
 
  private:

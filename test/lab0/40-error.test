@@ -4,6 +4,9 @@ create table error(id int, id double);
 statement ok
 create table error(id int, score double, info char(10), info2 varchar(10));
 
+statement ok
+create table error2(id int);
+
 statement error
 insert into error values(1, 1.1, 'hello');
 
@@ -30,6 +33,12 @@ select * from error limit -1 offset 1;
 
 statement error
 select * from error offset -1 limit 1;
+
+statement error
+select * from error, error2 error;
+
+statement error
+select * from error a, error2 a;
 
 statement ok
 drop table error;
