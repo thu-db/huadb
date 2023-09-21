@@ -14,6 +14,7 @@ enum class ExpressionType {
   TYPE_CAST,
   COLUMN_REF,
   CONST,
+  FUNC_CALL,
   INVALID,
   LIST,
   NULL_TEST,

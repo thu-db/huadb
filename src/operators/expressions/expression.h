@@ -18,6 +18,7 @@ enum class OperatorExpressionType {
   COLUMN_VALUE,
   COMPARISON,
   CONST,
+  FUNC_CALL,
   LIST,
   LOGIC,
   NULL_TEST

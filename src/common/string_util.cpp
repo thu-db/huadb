@@ -21,4 +21,16 @@ std::vector<std::string> StringUtil::Split(const std::string &str, char delim) {
   return result;
 }
 
+std::string StringUtil::Lower(const std::string &str) {
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::tolower);
+  return result;
+}
+
+std::string StringUtil::Upper(const std::string &str) {
+  std::string result = str;
+  std::transform(result.begin(), result.end(), result.begin(), ::toupper);
+  return result;
+}
+
 }  // namespace huadb

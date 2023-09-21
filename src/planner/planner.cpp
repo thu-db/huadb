@@ -269,6 +269,14 @@ std::shared_ptr<OperatorExpression> Planner::PlanExpression(const Expression &ex
       auto arg = PlanExpression(*null_expr.arg_, children);
       return std::make_shared<NullTest>(null_expr.is_null_, std::move(arg));
     }
+    case ExpressionType::FUNC_CALL: {
+      const auto &func_call_expr = dynamic_cast<const FuncCallExpression &>(expr);
+      std::vector<std::shared_ptr<OperatorExpression>> args;
+      for (const auto &arg : func_call_expr.args_) {
+        args.push_back(PlanExpression(*arg, children));
+      }
+      return std::make_shared<FuncCall>(func_call_expr.function_name_, std::move(args));
+    }
     default:
       throw DbException("Unsupported expression type in PlanExpression");
   }
@@ -592,7 +600,8 @@ std::shared_ptr<ColumnList> Planner::InferColumnList(const std::vector<std::shar
     auto type = expr->GetValueType();
     if (TypeUtil::IsString(type)) {
       assert(expr->GetExprType() == OperatorExpressionType::COLUMN_VALUE ||
-             expr->GetExprType() == OperatorExpressionType::CONST);
+             expr->GetExprType() == OperatorExpressionType::CONST ||
+             expr->GetExprType() == OperatorExpressionType::FUNC_CALL);
       column_list->AddColumn(ColumnDefinition("#" + std::to_string(idx), type, expr->GetSize()));
     } else {
       column_list->AddColumn(ColumnDefinition("#" + std::to_string(idx), type));

@@ -427,24 +427,17 @@ std::unique_ptr<Expression> Binder::BindConstExpression(duckdb_libpgquery::PGACo
 std::unique_ptr<Expression> Binder::BindResTargetExpression(duckdb_libpgquery::PGResTarget *expr) {
   auto bound_expr = BindExpression(expr->val);
   if (expr->name != nullptr) {
-    switch (bound_expr->type_) {
-      case ExpressionType::COLUMN_REF:
-      case ExpressionType::AGGREGATE: {
-        bool add_to_alias = true;
-        for (auto [it, range_end] = aliases_.equal_range(expr->name); it != range_end; it++) {
-          if (it->second == bound_expr->ToString()) {
-            add_to_alias = false;
-            break;
-          }
-        }
-        if (add_to_alias) {
-          aliases_.emplace(expr->name, bound_expr->ToString());
-        }
-        return std::make_unique<AliasExpression>(expr->name, std::move(bound_expr));
+    bool add_to_alias = true;
+    for (auto [it, range_end] = aliases_.equal_range(expr->name); it != range_end; it++) {
+      if (it->second == bound_expr->ToString()) {
+        add_to_alias = false;
+        break;
       }
-      default:
-        throw DbException("Unknown alias type");
     }
+    if (add_to_alias) {
+      aliases_.emplace(expr->name, bound_expr->ToString());
+    }
+    return std::make_unique<AliasExpression>(expr->name, std::move(bound_expr));
   }
   return bound_expr;
 }
@@ -513,6 +506,12 @@ std::unique_ptr<Expression> Binder::BindFuncCallExpression(duckdb_libpgquery::PG
   if (function_name == "avg" || function_name == "count" || function_name == "sum" || function_name == "min" ||
       function_name == "max") {
     return std::make_unique<AggregateExpression>(std::move(function_name), expr->agg_distinct, std::move(args));
+  }
+  if (function_name == "lower" || function_name == "upper" || function_name == "length") {
+    if (expr->agg_distinct) {
+      throw DbException(fmt::format("DISTINCT specified, but {} is not an aggregate function", function_name));
+    }
+    return std::make_unique<FuncCallExpression>(std::move(function_name), std::move(args));
   }
   throw DbException("Unsupported function call: " + function_name);
 }
