@@ -736,14 +736,26 @@ other			.
 					startlit();
 				}
 <xd>{xdstop}	{
-					char	   *ident;
+					// char	   *ident;
 
+					// BEGIN(INITIAL);
+					// if (yyextra->literallen == 0)
+					// 	yyerror("zero-length delimited identifier");
+					// ident = litbufdup(yyscanner);
+					// yylval->str = ident;
+					// return IDENT;
+					yyless(1);
 					BEGIN(INITIAL);
-					if (yyextra->literallen == 0)
-						yyerror("zero-length delimited identifier");
-					ident = litbufdup(yyscanner);
-					yylval->str = ident;
-					return IDENT;
+					/*
+					 * check that the data remains valid if it might have been
+					 * made invalid by unescaping any chars.
+					 */
+					if (yyextra->saw_non_ascii)
+						pg_verifymbstr(yyextra->literalbuf,
+									   yyextra->literallen,
+									   false);
+					yylval->str = litbufdup(yyscanner);
+					return SCONST;
 				}
 <xui>{dquote} {
 					yyless(1);

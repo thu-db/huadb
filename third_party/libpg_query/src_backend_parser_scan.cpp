@@ -2186,19 +2186,31 @@ case 51:
 YY_RULE_SETUP
 #line 738 "third_party/libpg_query/scan.l"
 {
-					char	   *ident;
+					// char	   *ident;
 
+					// BEGIN(INITIAL);
+					// if (yyextra->literallen == 0)
+					// 	yyerror("zero-length delimited identifier");
+					// ident = litbufdup(yyscanner);
+					// yylval->str = ident;
+					// return IDENT;
+					yyless(1);
 					BEGIN(INITIAL);
-					if (yyextra->literallen == 0)
-						yyerror("zero-length delimited identifier");
-					ident = litbufdup(yyscanner);
-					yylval->str = ident;
-					return IDENT;
+					/*
+					 * check that the data remains valid if it might have been
+					 * made invalid by unescaping any chars.
+					 */
+					if (yyextra->saw_non_ascii)
+						pg_verifymbstr(yyextra->literalbuf,
+									   yyextra->literallen,
+									   false);
+					yylval->str = litbufdup(yyscanner);
+					return SCONST;
 				}
 	YY_BREAK
 case 52:
 YY_RULE_SETUP
-#line 748 "third_party/libpg_query/scan.l"
+#line 760 "third_party/libpg_query/scan.l"
 {
 					yyless(1);
 					/* xuiend state looks for possible UESCAPE */
@@ -2208,20 +2220,20 @@ YY_RULE_SETUP
 case 53:
 /* rule 53 can match eol */
 YY_RULE_SETUP
-#line 753 "third_party/libpg_query/scan.l"
+#line 765 "third_party/libpg_query/scan.l"
 {
 					/* stay in xuiend state over whitespace */
 				}
 	YY_BREAK
 case YY_STATE_EOF(xuiend):
-#line 756 "third_party/libpg_query/scan.l"
+#line 768 "third_party/libpg_query/scan.l"
 case 54:
 /* rule 54 can match eol */
-#line 758 "third_party/libpg_query/scan.l"
+#line 770 "third_party/libpg_query/scan.l"
 case 55:
 /* rule 55 can match eol */
 YY_RULE_SETUP
-#line 758 "third_party/libpg_query/scan.l"
+#line 770 "third_party/libpg_query/scan.l"
 {
 					/* no UESCAPE after the quote, throw back everything */
 					char	   *ident;
@@ -2239,7 +2251,7 @@ YY_RULE_SETUP
 case 56:
 /* rule 56 can match eol */
 YY_RULE_SETUP
-#line 771 "third_party/libpg_query/scan.l"
+#line 783 "third_party/libpg_query/scan.l"
 {
 					/* found UESCAPE after the end quote */
 					char	   *ident;
@@ -2260,7 +2272,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 57:
 YY_RULE_SETUP
-#line 788 "third_party/libpg_query/scan.l"
+#line 800 "third_party/libpg_query/scan.l"
 {
 					addlitchar('"', yyscanner);
 				}
@@ -2268,19 +2280,19 @@ YY_RULE_SETUP
 case 58:
 /* rule 58 can match eol */
 YY_RULE_SETUP
-#line 791 "third_party/libpg_query/scan.l"
+#line 803 "third_party/libpg_query/scan.l"
 {
 					addlit(yytext, yyleng, yyscanner);
 				}
 	YY_BREAK
 case YY_STATE_EOF(xd):
 case YY_STATE_EOF(xui):
-#line 794 "third_party/libpg_query/scan.l"
+#line 806 "third_party/libpg_query/scan.l"
 { yyerror("unterminated quoted identifier"); }
 	YY_BREAK
 case 59:
 YY_RULE_SETUP
-#line 796 "third_party/libpg_query/scan.l"
+#line 808 "third_party/libpg_query/scan.l"
 {
 					char	   *ident;
 
@@ -2295,7 +2307,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 60:
 YY_RULE_SETUP
-#line 808 "third_party/libpg_query/scan.l"
+#line 820 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return TYPECAST;
@@ -2303,7 +2315,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 61:
 YY_RULE_SETUP
-#line 813 "third_party/libpg_query/scan.l"
+#line 825 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return DOT_DOT;
@@ -2311,7 +2323,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 62:
 YY_RULE_SETUP
-#line 818 "third_party/libpg_query/scan.l"
+#line 830 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return COLON_EQUALS;
@@ -2319,7 +2331,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 63:
 YY_RULE_SETUP
-#line 823 "third_party/libpg_query/scan.l"
+#line 835 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return LAMBDA_ARROW;
@@ -2327,7 +2339,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 64:
 YY_RULE_SETUP
-#line 828 "third_party/libpg_query/scan.l"
+#line 840 "third_party/libpg_query/scan.l"
 {
                     SET_YYLLOC();
                     return DOUBLE_ARROW;
@@ -2335,7 +2347,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 65:
 YY_RULE_SETUP
-#line 833 "third_party/libpg_query/scan.l"
+#line 845 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return POWER_OF;
@@ -2343,7 +2355,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 66:
 YY_RULE_SETUP
-#line 838 "third_party/libpg_query/scan.l"
+#line 850 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return EQUALS_GREATER;
@@ -2351,7 +2363,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 67:
 YY_RULE_SETUP
-#line 843 "third_party/libpg_query/scan.l"
+#line 855 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return LESS_EQUALS;
@@ -2359,7 +2371,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 68:
 YY_RULE_SETUP
-#line 848 "third_party/libpg_query/scan.l"
+#line 860 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return GREATER_EQUALS;
@@ -2367,7 +2379,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 69:
 YY_RULE_SETUP
-#line 853 "third_party/libpg_query/scan.l"
+#line 865 "third_party/libpg_query/scan.l"
 {
 					/* We accept both "<>" and "!=" as meaning NOT_EQUALS */
 					SET_YYLLOC();
@@ -2376,7 +2388,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 70:
 YY_RULE_SETUP
-#line 859 "third_party/libpg_query/scan.l"
+#line 871 "third_party/libpg_query/scan.l"
 {
 					/* We accept both "<>" and "!=" as meaning NOT_EQUALS */
 					SET_YYLLOC();
@@ -2385,7 +2397,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 71:
 YY_RULE_SETUP
-#line 865 "third_party/libpg_query/scan.l"
+#line 877 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return yytext[0];
@@ -2393,7 +2405,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 72:
 YY_RULE_SETUP
-#line 870 "third_party/libpg_query/scan.l"
+#line 882 "third_party/libpg_query/scan.l"
 {
 					/*
 					 * Check for embedded slash-star or dash-dash; those
@@ -2513,7 +2525,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 73:
 YY_RULE_SETUP
-#line 987 "third_party/libpg_query/scan.l"
+#line 999 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					yylval->ival = atol(yytext + 1);
@@ -2522,7 +2534,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 74:
 YY_RULE_SETUP
-#line 993 "third_party/libpg_query/scan.l"
+#line 1005 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					yylval->ival = atol(yytext + 1);
@@ -2531,7 +2543,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 75:
 YY_RULE_SETUP
-#line 999 "third_party/libpg_query/scan.l"
+#line 1011 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return process_integer_literal(yytext, yylval);
@@ -2539,7 +2551,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 76:
 YY_RULE_SETUP
-#line 1003 "third_party/libpg_query/scan.l"
+#line 1015 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					yylval->str = pstrdup(yytext);
@@ -2548,7 +2560,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 77:
 YY_RULE_SETUP
-#line 1008 "third_party/libpg_query/scan.l"
+#line 1020 "third_party/libpg_query/scan.l"
 {
 					/* throw back the .., and treat as integer */
 					yyless(yyleng - 2);
@@ -2558,7 +2570,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 78:
 YY_RULE_SETUP
-#line 1014 "third_party/libpg_query/scan.l"
+#line 1026 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					yylval->str = pstrdup(yytext);
@@ -2567,7 +2579,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 79:
 YY_RULE_SETUP
-#line 1019 "third_party/libpg_query/scan.l"
+#line 1031 "third_party/libpg_query/scan.l"
 {
 					/*
 					 * throw back the [Ee], and treat as {decimal}.  Note
@@ -2583,7 +2595,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 80:
 YY_RULE_SETUP
-#line 1031 "third_party/libpg_query/scan.l"
+#line 1043 "third_party/libpg_query/scan.l"
 {
 					/* throw back the [Ee][+-], and proceed as above */
 					yyless(yyleng - 2);
@@ -2594,7 +2606,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 81:
 YY_RULE_SETUP
-#line 1040 "third_party/libpg_query/scan.l"
+#line 1052 "third_party/libpg_query/scan.l"
 {
 					const PGScanKeyword *keyword;
 					char	   *ident;
@@ -2630,14 +2642,14 @@ YY_RULE_SETUP
 	YY_BREAK
 case 82:
 YY_RULE_SETUP
-#line 1073 "third_party/libpg_query/scan.l"
+#line 1085 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					return yytext[0];
 				}
 	YY_BREAK
 case YY_STATE_EOF(INITIAL):
-#line 1078 "third_party/libpg_query/scan.l"
+#line 1090 "third_party/libpg_query/scan.l"
 {
 					SET_YYLLOC();
 					yyterminate();
@@ -2645,10 +2657,10 @@ case YY_STATE_EOF(INITIAL):
 	YY_BREAK
 case 83:
 YY_RULE_SETUP
-#line 1083 "third_party/libpg_query/scan.l"
+#line 1095 "third_party/libpg_query/scan.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 2657 "third_party/libpg_query/src_backend_parser_scan.cpp"
+#line 2669 "third_party/libpg_query/src_backend_parser_scan.cpp"
 
 	case YY_END_OF_BUFFER:
 		{
@@ -3773,7 +3785,7 @@ static int yy_flex_strlen (const char * s , yyscan_t yyscanner)
 
 #define YYTABLES_NAME "yytables"
 
-#line 1083 "third_party/libpg_query/scan.l"
+#line 1095 "third_party/libpg_query/scan.l"
 
 
 /* LCOV_EXCL_STOP */
