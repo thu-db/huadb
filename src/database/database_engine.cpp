@@ -92,6 +92,8 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
       }
     } else if (sql[1] == '?' || sql[1] == 'h') {
       Help(writer);
+    } else {
+      throw DbException("Unknown command " + sql + "\nType \\? or \\h for help.");
     }
     return;
   }

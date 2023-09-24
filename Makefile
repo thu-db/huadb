@@ -44,6 +44,12 @@ lab%-only:
 shell:
 	./build/debug/bin/shell
 
+server:
+	./build/debug/bin/server
+
+client:
+	./build/debug/bin/client
+
 cloc:
 	@cloc $(shell find src test -name '*.h' -or -name '*.cpp' -not -name node_tag_to_string.cpp)
 

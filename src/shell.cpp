@@ -1,5 +1,6 @@
 #include <filesystem>
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -39,7 +40,6 @@ void PlainShell() {
 }
 
 void LinenoiseShell() {
-  bool keep_running = true;
   std::string history_file;
   auto *home_dir = getenv("HOME");
   if (home_dir != nullptr) {
@@ -52,7 +52,7 @@ void LinenoiseShell() {
   linenoiseSetMultiLine(1);
   auto database = std::make_unique<huadb::DatabaseEngine>();
   auto connection = std::make_unique<huadb::Connection>(*database);
-  while (keep_running) {
+  while (true) {
     auto prompt = database->GetCurrentDatabase() + "> ";
     std::string query;
     bool first_line = true;
@@ -60,11 +60,10 @@ void LinenoiseShell() {
       auto line_prompt = first_line ? prompt : "...-> ";
       auto *query_c_str = linenoise(line_prompt.c_str());
       if (query_c_str == nullptr || std::string(query_c_str) == "\\q") {
-        keep_running = false;
-        break;
+        return;
       }
       query += query_c_str;
-      if (query.back() == ';' || query[0] == '\\') {
+      if (!query.empty() && (query.back() == ';' || query[0] == '\\')) {
         break;
       }
       first_line = false;
