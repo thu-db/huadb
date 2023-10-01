@@ -51,6 +51,7 @@ int LinenoiseShell(int client_socket) {
       auto line_prompt = first_line ? prompt : "...-> ";
       auto *query_c_str = linenoise(line_prompt.c_str());
       if (query_c_str == nullptr || std::string(query_c_str) == "\\q") {
+        linenoiseHistorySave(history_file.c_str());
         return 0;
       }
       query += query_c_str;
@@ -65,12 +66,14 @@ int LinenoiseShell(int client_socket) {
 
     if (send(client_socket, query.c_str(), query.size(), 0) == -1) {
       std::cerr << "Failed to send query to the server" << std::endl;
+      linenoiseHistorySave(history_file.c_str());
       return 1;
     }
     char buffer[1 << 20];
     ssize_t bytes_read = recv(client_socket, buffer, sizeof(buffer), 0);
     if (bytes_read == -1) {
       std::cerr << "Failed to read from the server" << std::endl;
+      linenoiseHistorySave(history_file.c_str());
       return 1;
     } else {
       buffer[bytes_read] = '\0';
@@ -78,6 +81,7 @@ int LinenoiseShell(int client_socket) {
     }
   }
   linenoiseHistorySave(history_file.c_str());
+  return 0;
 }
 
 int main(int argc, char *argv[]) {

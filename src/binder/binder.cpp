@@ -24,6 +24,8 @@ std::unique_ptr<Statement> Binder::BindStatement(duckdb_libpgquery::PGNode *stmt
       return BindCreateDatabaseStatement(reinterpret_cast<duckdb_libpgquery::PGCreateDatabaseStmt *>(stmt));
     case duckdb_libpgquery::T_PGCreateStmt:
       return BindCreateTableStatement(reinterpret_cast<duckdb_libpgquery::PGCreateStmt *>(stmt));
+    case duckdb_libpgquery::T_PGIndexStmt:
+      return BindCreateIndexStatement(reinterpret_cast<duckdb_libpgquery::PGIndexStmt *>(stmt));
     case duckdb_libpgquery::T_PGDropStmt:
       return BindDropStatement(reinterpret_cast<duckdb_libpgquery::PGDropStmt *>(stmt));
 
@@ -92,6 +94,27 @@ std::unique_ptr<Statement> Binder::BindCreateTableStatement(duckdb_libpgquery::P
   return std::make_unique<CreateTableStatement>(std::move(table_name), std::move(columns));
 }
 
+std::unique_ptr<Statement> Binder::BindCreateIndexStatement(duckdb_libpgquery::PGIndexStmt *stmt) {
+  std::string index_name = "index";
+  if (stmt->idxname != nullptr) {
+    index_name = stmt->idxname;
+  }
+  std::vector<std::string> columns;
+  for (auto *node = stmt->indexParams->head; node != nullptr; node = lnext(node)) {
+    auto *pg_node = reinterpret_cast<duckdb_libpgquery::PGNode *>(node->data.ptr_value);
+    if (pg_node->type == duckdb_libpgquery::T_PGIndexElem) {
+      auto *index_elem = reinterpret_cast<duckdb_libpgquery::PGIndexElem *>(node->data.ptr_value);
+      if (index_elem->name != nullptr) {
+        columns.emplace_back(index_elem->name);
+      }
+    } else {
+      throw DbException("Unknown node type in index statement: " + NodeTagToString(pg_node->type));
+    }
+  }
+  return std::make_unique<CreateIndexStatement>(std::move(index_name), std::move(stmt->relation->relname),
+                                                std::move(columns));
+}
+
 ColumnDefinition Binder::BindColumnDefinition(duckdb_libpgquery::PGColumnDef *col_def) {
   std::string col_name = col_def->colname;
   std::string type_name =
@@ -132,6 +155,8 @@ std::unique_ptr<Statement> Binder::BindDropStatement(duckdb_libpgquery::PGDropSt
   switch (stmt->removeType) {
     case duckdb_libpgquery::PG_OBJECT_DATABASE:
       return std::make_unique<DropDatabaseStatement>(name, stmt->missing_ok);
+    case duckdb_libpgquery::PG_OBJECT_INDEX:
+      return std::make_unique<DropIndexStatement>(name, stmt->missing_ok);
     case duckdb_libpgquery::PG_OBJECT_TABLE:
       return std::make_unique<DropTableStatement>(name, stmt->missing_ok);
     default:

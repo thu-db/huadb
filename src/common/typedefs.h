@@ -26,6 +26,11 @@ struct TablePageid {
   }
 };
 
+struct Slot {
+  db_size_t offset_;
+  db_size_t size_;
+};
+
 }  // namespace huadb
 
 namespace std {

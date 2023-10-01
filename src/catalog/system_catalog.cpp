@@ -247,6 +247,17 @@ void SystemCatalog::DropTable(const std::string &table_name) {
   }
 }
 
+void SystemCatalog::CreateIndex(const std::string &index_name, const std::string &table_name) {
+  // if (oid_manager_.EntryExists(OidType::INDEX, index_name)) {
+  //   throw DbException("Index " + index_name + " already exists.");
+  // }
+  // auto oid = oid_manager_.CreateEntry(OidType::INDEX, index_name);
+  // disk_.CreateFile(Disk::GetFilePath(current_database_oid_, oid));
+  // oid2index_[oid] = std::make_shared<Index>(buffer_pool_, log_manager_, oid, current_database_oid_, table_name);
+}
+
+void SystemCatalog::DropIndex(const std::string &index_name) {}
+
 std::vector<std::string> SystemCatalog::GetTableNames() {
   if (current_database_oid_ == INVALID_OID) {
     throw DbException("Invalid database oid in GetDatabaseTableNames");

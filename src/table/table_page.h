@@ -10,11 +10,6 @@ namespace huadb {
 // page_lsn(8) + next_page(4) + page_lower(2) + page_upper(2) = 16
 static constexpr db_size_t PAGE_HEADER_SIZE = sizeof(lsn_t) + sizeof(pageid_t) + sizeof(db_size_t) + sizeof(db_size_t);
 
-struct Slot {
-  db_size_t offset_;
-  db_size_t size_;
-};
-
 class ColumnList;
 
 class TablePage {

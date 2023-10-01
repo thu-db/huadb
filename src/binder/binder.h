@@ -14,6 +14,7 @@ struct PGCreateDatabaseStmt;
 struct PGUseStmt;
 struct PGDropStmt;
 struct PGCreateStmt;
+struct PGIndexStmt;
 
 struct PGInsertStmt;
 struct PGDeleteStmt;
@@ -69,8 +70,9 @@ class Binder {
 
   std::unique_ptr<Statement> BindStatement(duckdb_libpgquery::PGNode *stmt);
 
-  std::unique_ptr<Statement> BindCreateTableStatement(duckdb_libpgquery::PGCreateStmt *stmt);
   std::unique_ptr<Statement> BindCreateDatabaseStatement(duckdb_libpgquery::PGCreateDatabaseStmt *stmt);
+  std::unique_ptr<Statement> BindCreateTableStatement(duckdb_libpgquery::PGCreateStmt *stmt);
+  std::unique_ptr<Statement> BindCreateIndexStatement(duckdb_libpgquery::PGIndexStmt *stmt);
   std::unique_ptr<Statement> BindDropStatement(duckdb_libpgquery::PGDropStmt *stmt);
 
   std::unique_ptr<Statement> BindInsertStatement(duckdb_libpgquery::PGInsertStmt *stmt);

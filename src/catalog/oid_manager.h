@@ -8,7 +8,7 @@
 
 namespace huadb {
 
-enum class OidType { DATABASE, TABLE };
+enum class OidType { DATABASE, TABLE, INDEX };
 
 // oid管理器，负责处理oid分配和查找功能
 class OidManager {

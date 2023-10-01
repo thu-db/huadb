@@ -7,8 +7,6 @@
 
 namespace huadb {
 
-class ColumnDefinition;
-
 class CreateTableStatement : public Statement {
  public:
   CreateTableStatement(std::string table, std::vector<ColumnDefinition> columns)

@@ -51,6 +51,10 @@ class DatabaseEngine {
   void ShowTables(ResultWriter &writer);
   void DropTable(const std::string &table_name, ResultWriter &writer);
 
+  void CreateIndex(const std::string &index_name, const std::string &table_name,
+                   const std::vector<std::string> &column_names, ResultWriter &writer);
+  void DropIndex(const std::string &index_name, ResultWriter &writer);
+
   void Begin(Connection &connection);
   void Commit(Connection &connection);
   void Rollback(Connection &connection);

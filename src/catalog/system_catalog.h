@@ -13,6 +13,7 @@ class Disk;
 class BufferPool;
 class LogManager;
 class Table;
+class Index;
 
 class SystemCatalog {
  public:
@@ -42,6 +43,10 @@ class SystemCatalog {
                    oid_t db_oid = INVALID_OID, bool new_table = true);
   // 删除表
   void DropTable(const std::string &table_name);
+  // 创建索引
+  void CreateIndex(const std::string &index_name, const std::string &table_name);
+  // 删除索引
+  void DropIndex(const std::string &index_name);
   // 获取当前数据库下所有表名
   std::vector<std::string> GetTableNames();
   // 获取表
@@ -85,6 +90,7 @@ class SystemCatalog {
   // 对象映射表
   std::unordered_map<std::string, oid_t> name2oid_;
   std::unordered_map<oid_t, std::shared_ptr<Table>> oid2table_;
+  std::unordered_map<oid_t, std::shared_ptr<Index>> oid2index_;
   std::unordered_map<std::string, uint32_t> table2cardinality_;
   std::unordered_map<std::string, uint32_t> col2distinct_;
 

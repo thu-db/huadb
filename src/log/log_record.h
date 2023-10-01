@@ -11,7 +11,7 @@
 
 namespace huadb {
 
-enum class LogType {
+enum class LogType : uint8_t {
   BEGIN,
   COMMIT,
   ROLLBACK,

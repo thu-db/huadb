@@ -60,6 +60,7 @@ void LinenoiseShell() {
       auto line_prompt = first_line ? prompt : "...-> ";
       auto *query_c_str = linenoise(line_prompt.c_str());
       if (query_c_str == nullptr || std::string(query_c_str) == "\\q") {
+        linenoiseHistorySave(history_file.c_str());
         return;
       }
       query += query_c_str;

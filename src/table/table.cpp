@@ -11,7 +11,6 @@ Table::Table(BufferPool &buffer_pool, LogManager &log_manager, oid_t oid, oid_t 
       oid_(oid),
       db_oid_(db_oid),
       column_list_(std::move(column_list)) {
-  std::shared_ptr<Page> page;
   if (new_table) {
     auto table_page = std::make_unique<TablePage>(buffer_pool_.NewPage(db_oid_, oid_, 0));
     table_page->Init();

@@ -156,6 +156,12 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
         CreateTable(create_table_statement.table_, ColumnList(create_table_statement.columns_), writer);
         break;
       }
+      case StatementType::CREATE_INDEX_STATEMENT: {
+        const auto &create_index_statement = dynamic_cast<CreateIndexStatement &>(*statement);
+        CreateIndex(create_index_statement.index_name_, create_index_statement.table_name_,
+                    create_index_statement.column_names_, writer);
+        break;
+      }
       case StatementType::DROP_DATABASE_STATEMENT: {
         const auto &drop_database_statement = dynamic_cast<DropDatabaseStatement &>(*statement);
         DropDatabase(drop_database_statement.database_, drop_database_statement.missing_ok_, writer);
@@ -164,6 +170,11 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
       case StatementType::DROP_TABLE_STATEMENT: {
         const auto &drop_table_statement = dynamic_cast<DropTableStatement &>(*statement);
         DropTable(drop_table_statement.table_, writer);
+        break;
+      }
+      case StatementType::DROP_INDEX_STATEMENT: {
+        const auto &drop_index_statement = dynamic_cast<DropIndexStatement &>(*statement);
+        DropIndex(drop_index_statement.index_name_, writer);
         break;
       }
       case StatementType::EXPLAIN_STATEMENT: {
@@ -373,6 +384,15 @@ void DatabaseEngine::ShowTables(ResultWriter &writer) {
 void DatabaseEngine::DropTable(const std::string &table_name, ResultWriter &writer) {
   catalog_->DropTable(table_name);
   WriteOneCell("DROP TABLE", writer);
+}
+
+void DatabaseEngine::CreateIndex(const std::string &index_name, const std::string &table_name,
+                                 const std::vector<std::string> &column_names, ResultWriter &writer) {
+  WriteOneCell("CREATE INDEX", writer);
+}
+
+void DatabaseEngine::DropIndex(const std::string &index_name, ResultWriter &writer) {
+  WriteOneCell("DROP INDEX", writer);
 }
 
 void DatabaseEngine::Begin(Connection &connection) {

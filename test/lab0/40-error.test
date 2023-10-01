@@ -8,6 +8,9 @@ statement ok
 create table error2(id int);
 
 statement error
+create table error2(id int, score double);
+
+statement error
 insert into error values(1, 1.1, 'hello');
 
 statement error

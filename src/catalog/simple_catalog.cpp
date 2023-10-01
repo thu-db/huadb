@@ -138,6 +138,14 @@ void SimpleCatalog::DropTable(const std::string &table_name) {
   db_out.close();
 }
 
+void SimpleCatalog::CreateIndex(const std::string &index_name, const std::string &table_name) {
+  throw DbException("ChangeIndex not implemented in SimpleCatalog");
+}
+
+void SimpleCatalog::DropIndex(const std::string &index_name) {
+  throw DbException("DropIndex not implemented in SimpleCatalog");
+}
+
 std::vector<std::string> SimpleCatalog::GetTableNames() {
   std::vector<std::string> table_names;
   for (const auto &entry : name2oid_) {
