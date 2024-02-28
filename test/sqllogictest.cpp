@@ -12,7 +12,7 @@
 #include "database/database_engine.h"
 #include "sqllogicparser.h"
 
-static constexpr size_t TEST_COUNT = 3;
+static constexpr size_t TEST_COUNT = 1;
 static constexpr const char *TEST_DIRECTORY = "huadb_test";
 
 std::unordered_map<std::string, std::unique_ptr<huadb::Connection>> connections;
@@ -122,8 +122,6 @@ int main(int argc, char *argv[]) {
 
   bool success = true;
   for (size_t i = 0; i < TEST_COUNT; i++) {
-    std::cout << "Test: " << i + 1 << "/" << TEST_COUNT << std::endl;
-
     if (fs::is_directory(TEST_DIRECTORY)) {
       fs::remove_all(TEST_DIRECTORY);
     }

@@ -31,7 +31,7 @@ release:
 	cmake --build .
 
 format:
-	@for file in $(shell find src test -name '*.h' -o -name '*.cpp' -not -name sql.tab.cpp); do \
+	@for file in $(shell find src test -name '*.h' -o -name '*.cpp'); do \
 		clang-format -style=file:.clang-format $$file -i; \
 	done
 
