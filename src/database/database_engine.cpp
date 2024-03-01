@@ -388,10 +388,12 @@ void DatabaseEngine::DropTable(const std::string &table_name, ResultWriter &writ
 
 void DatabaseEngine::CreateIndex(const std::string &index_name, const std::string &table_name,
                                  const std::vector<std::string> &column_names, ResultWriter &writer) {
+  // Not implemented yet
   WriteOneCell("CREATE INDEX", writer);
 }
 
 void DatabaseEngine::DropIndex(const std::string &index_name, ResultWriter &writer) {
+  // Not implemented yet
   WriteOneCell("DROP INDEX", writer);
 }
 

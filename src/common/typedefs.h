@@ -5,10 +5,10 @@
 
 namespace huadb {
 
-typedef uint64_t lsn_t;
-typedef uint32_t xid_t;
-typedef uint32_t cid_t;
-typedef uint32_t oid_t;
+typedef uint64_t lsn_t;  // log sequence number
+typedef uint32_t xid_t;  // transaction id
+typedef uint32_t cid_t;  // commit id
+typedef uint32_t oid_t;  // object id
 typedef uint32_t pageid_t;
 typedef uint16_t slotid_t;
 typedef uint16_t db_size_t;
