@@ -1,3 +1,5 @@
+#include <unistd.h>
+
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -12,7 +14,6 @@
 #include "database/database_engine.h"
 #include "sqllogicparser.h"
 
-static constexpr size_t TEST_COUNT = 1;
 static constexpr const char *TEST_DIRECTORY = "huadb_test";
 
 std::unordered_map<std::string, std::unique_ptr<huadb::Connection>> connections;
@@ -114,14 +115,58 @@ bool Run(const fs::path &path) {
   return true;
 }
 
+void ReportResult(const std::vector<std::string> &success_cases, const std::vector<std::string> &fail_cases) {
+  std::ofstream report("report.json");
+  report << "{\"success_cases\": [";
+  for (size_t i = 0; i < success_cases.size(); i++) {
+    report << "\"" << success_cases[i] << "\"";
+    if (i != success_cases.size() - 1) {
+      report << ", ";
+    }
+  }
+  report << "], \"fail_cases\": [";
+  for (size_t i = 0; i < fail_cases.size(); i++) {
+    report << "\"" << fail_cases[i] << "\"";
+    if (i != fail_cases.size() - 1) {
+      report << ", ";
+    }
+  }
+  report << "]}";
+  report.close();
+}
+
 int main(int argc, char *argv[]) {
+  bool report_result = false;
+  int opt;
+  size_t test_count = 1;
+  while ((opt = getopt(argc, argv, "c:o")) != -1) {
+    switch (opt) {
+      case 'c':
+        test_count = atoi(optarg);
+        if (optarg == NULL) {
+          std::cerr << "Usage: " << argv[0] << " [-c test_count] [-o] test_file1 test_file2 ..." << std::endl;
+          return 1;
+        }
+      case 'o':
+        report_result = true;
+        break;
+      default:
+        std::cerr << "Usage: " << argv[0] << " [-c test_count] [-o] test_file1 test_file2 ..." << std::endl;
+        return 1;
+    }
+  }
+
   std::vector<fs::path> paths;
-  for (int i = 1; i < argc; i++) {
+  for (int i = optind; i < argc; i++) {
     paths.emplace_back(fs::absolute(argv[i]));
   }
 
   bool success = true;
-  for (size_t i = 0; i < TEST_COUNT; i++) {
+  std::vector<std::string> success_cases;
+  std::vector<std::string> fail_cases;
+  for (size_t i = 0; i < test_count; i++) {
+    success_cases.clear();
+    fail_cases.clear();
     if (fs::is_directory(TEST_DIRECTORY)) {
       fs::remove_all(TEST_DIRECTORY);
     }
@@ -129,25 +174,34 @@ int main(int argc, char *argv[]) {
     fs::current_path(TEST_DIRECTORY);
 
     for (const auto &path : paths) {
-      std::cout << path.parent_path().filename().string() << "/" << path.filename().string() << " " << std::flush;
+      auto testcase_name = path.parent_path().filename().string() + "/" + path.filename().string();
+      std::cout << testcase_name << " " << std::flush;
       try {
         bool passed = Run(path);
         success &= passed;
         if (!passed) {
+          fail_cases.push_back(testcase_name);
           continue;
         }
       } catch (std::exception &e) {
         std::cerr << huadb::BOLD << huadb::RED << "ERROR\n" << huadb::RESET << e.what() << std::endl;
         success = false;
+        fail_cases.push_back(testcase_name);
         continue;
       }
       std::cout << huadb::BOLD << huadb::GREEN << "PASS" << huadb::RESET << std::endl;
+      success_cases.push_back(testcase_name);
     }
     fs::current_path("..");
     if (!success) {
       break;
     }
   }
+
+  if (report_result) {
+    ReportResult(success_cases, fail_cases);
+  }
+
   if (success) {
     return 0;
   } else {
