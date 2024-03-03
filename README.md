@@ -7,13 +7,13 @@ HuaDB 为清华大学数据库内核课程的实验框架，实验说明可参�
 运行如下命令进行编译：
 
 ```bash
-make
+make lab1-debug
 ```
 
 你也可以通过设置 CMAKE_BUILD_PARALLEL_LEVEL 环境变量来并行编译：
 
 ```bash
-CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) make
+CMAKE_BUILD_PARALLEL_LEVEL=$(nproc) make lab1-debug
 ```
 
 运行如下命令进入数据库交互界面：

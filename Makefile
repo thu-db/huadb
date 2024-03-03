@@ -2,7 +2,7 @@ SHELL=/usr/bin/env bash
 
 .PHONY: all clean destroy lab1-debug debug release format shell cloc
 
-all: lab1-debug
+all: debug
 
 # 清除编译产生的文件
 clean:

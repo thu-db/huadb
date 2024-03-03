@@ -22,7 +22,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: make
+      run: make lab1-debug
 
     - name: Test
       working-directory: ${{github.workspace}}
