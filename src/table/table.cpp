@@ -11,6 +11,7 @@ Table::Table(BufferPool &buffer_pool, LogManager &log_manager, oid_t oid, oid_t 
       oid_(oid),
       db_oid_(db_oid),
       column_list_(std::move(column_list)) {
+  // 新建表时初始化第一个页面
   if (new_table) {
     auto table_page = std::make_unique<TablePage>(buffer_pool_.NewPage(db_oid_, oid_, 0));
     table_page->Init();
@@ -38,6 +39,7 @@ Rid Table::InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_t cid, bo
   // 遍历表的页面，判断页面是否有足够的空间插入记录，如果没有则通过 buffer_pool_ 创建新页面
   // 创建新页面时需设置当前页面的 next_page_id，并将新页面初始化
   // 找到空间足够的页面后，通过 TablePage 插入记录
+  // 返回插入记录的 rid
   // LAB 1 BEGIN
   return {0, 0};
 }

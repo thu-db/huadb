@@ -98,6 +98,8 @@ void SQLLogicParser::Parse() {
       if (tokens.size() > 1) {
         if (tokens[1] == "rowsort") {
           sort_mode = SortMode::ROW_SORT;
+        } else if (tokens[1] == "nosort") {
+          sort_mode = SortMode::NO_SORT;
         } else {
           connection_name = tokens[1];
         }

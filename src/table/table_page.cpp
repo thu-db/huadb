@@ -33,6 +33,7 @@ slotid_t TablePage::InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_
   // 设置 slots 数组
   // 将 record 写入 page data
   // 将 page 标记为 dirty
+  // 返回插入的 slot id
   // LAB 1 BEGIN
   return 0;
 }
