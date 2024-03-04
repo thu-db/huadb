@@ -1,6 +1,5 @@
 ci:
   script:
     - git clone https://gitlab-ci-token:${TEST_REPO_TOKEN}@git.tsinghua.edu.cn/dbtrain/huadb-test.git
-    - cp -r .gitlab-ci.yml src third_party *.txt huadb-test
     - cd huadb-test
     - bash test.sh
