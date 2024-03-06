@@ -29,7 +29,7 @@ select score, info from test_insert;
 6.6 ffffff
 
 query
-insert into test_insert values(7, 7.7, 'ggggggg'), (8, 8.8, 'hhhhhhhh'), (9, 9.9, 'iiiiiiiii'), (10, 10.0, 'jjjjjjjjjj'), (11, 11.1, 'kkkkkkkkkkk');
+insert into test_insert values(7, 7.7, 'ggggggg'), (8, 8.8, 'hhhhhhhh'), (9, 9.9, 'iiiiiiiii'), (10, 10.1, 'jjjjjjjjjj'), (11, 11.1, 'kkkkkkkkkkk');
 ----
 5
 

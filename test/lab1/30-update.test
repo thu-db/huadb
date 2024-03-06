@@ -30,7 +30,7 @@ insert into test_update values(4, 4.4, 'dddd'), (5, 5.5, 'eeeee'), (6, 6.6, 'fff
 ----
 3
 
-query
+query rowsort
 select score, info from test_update;
 ----
 1.1 a
@@ -73,7 +73,7 @@ insert into test_update values(7, 7.7, 'ggggggg'), (8, 8.8, 'hhhhhhhh'), (9, 9.9
 ----
 5
 
-query
+query rowsort
 select id, info from test_update;
 ----
 1 a
@@ -91,7 +91,7 @@ update test_update set id = 1 where id < 0;
 ----
 0
 
-query
+query rowsort
 select id, info from test_update;
 ----
 1 a

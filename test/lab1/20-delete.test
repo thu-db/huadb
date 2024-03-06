@@ -99,6 +99,10 @@ delete from test_delete;
 7
 
 query
+select * from test_delete;
+----
+
+query
 insert into test_delete values(1, 1.1, 'a'), (2, 2.2, 'bb');
 ----
 2

@@ -6,7 +6,7 @@ insert into test_rollback values(1, 'info1'), (2, 'info2');
 ----
 2
 
-query
+query rowsort
 select * from test_rollback;
 ----
 1 info1
