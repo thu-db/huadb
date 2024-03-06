@@ -117,7 +117,7 @@ select merge_left_2.id, merge_left_2.info, merge_right_2.score from merge_left_2
 1 aaaaa 1.4
 1 aaaaa 1.5
 
-query rowsort
+query
 select * from merge_left_1 join merge_empty on merge_left_1.id = merge_empty.id;
 ----
 

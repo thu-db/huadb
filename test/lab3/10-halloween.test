@@ -32,5 +32,18 @@ select * from halloween;
 3000
 5500
 
+query
+update halloween set salary = salary * 2;
+----
+4
+
+query rowsort
+select * from halloween;
+----
+4000
+6000
+6000
+11000
+
 statement ok
 drop table halloween;

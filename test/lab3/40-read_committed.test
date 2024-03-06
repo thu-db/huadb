@@ -7,10 +7,10 @@ insert into rc values(0, 'a');
 1
 
 statement ok C1
-set isolation_level = read_committed;
+set isolation_level = 'read_committed';
 
 statement ok C2
-set isolation_level = read_committed;
+set isolation_level = 'read_committed';
 
 statement ok C1
 begin;

@@ -125,11 +125,11 @@ select nl_left_2.id, nl_left_2.info, nl_right_2.score from nl_left_2 join nl_rig
 1 aaaaa 1.4
 1 aaaaa 1.5
 
-query rowsort
+query
 select * from nl_left_1 join nl_empty on nl_left_1.id = nl_empty.id;
 ----
 
-query rowsort
+query
 select * from nl_empty join nl_left_1 on nl_left_1.id = nl_empty.id;
 ----
 

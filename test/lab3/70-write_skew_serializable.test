@@ -7,10 +7,10 @@ insert into write_skew_serializable values('A'), ('B');
 2
 
 statement ok C1
-set isolation_level = serializable;
+set isolation_level = 'serializable';
 
 statement ok C2
-set isolation_level = serializable;
+set isolation_level = 'serializable';
 
 statement ok C1
 begin;

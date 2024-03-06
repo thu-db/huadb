@@ -18,7 +18,7 @@ query
 select score from test_limit limit 0;
 ----
 
-query
+query rowsort
 select id from test_limit limit 5;
 ----
 1
@@ -27,7 +27,7 @@ select id from test_limit limit 5;
 4
 5
 
-query
+query rowsort
 select score from test_limit limit 10;
 ----
 1.1
@@ -52,7 +52,7 @@ select id from test_limit order by id offset 2;
 5
 
 # Offset 0
-query
+query rowsort
 select id from test_limit offset 0;
 ----
 1
@@ -62,7 +62,7 @@ select id from test_limit offset 0;
 5
 
 # Offset and limit
-query rowsort
+query
 select id, info from test_limit order by score limit 2 offset 1;
 ----
 2 bb

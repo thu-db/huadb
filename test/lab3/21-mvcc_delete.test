@@ -1,8 +1,8 @@
 statement ok
-create table a_mvcc(id int);
+create table b_mvcc(id int);
 
 query
-insert into a_mvcc values(1);
+insert into b_mvcc values(1);
 ----
 1
 
@@ -16,39 +16,40 @@ statement ok C1
 begin;
 
 query C1
-delete from a_mvcc where id = 1;
+delete from b_mvcc where id = 1;
 ----
 1
 
 query C1
-select * from a_mvcc;
+select * from b_mvcc;
 ----
-
-statement ok C2
-set isolation_level = 'repeatable_read';
 
 statement ok C2
 begin;
 
 query C2
-select * from a_mvcc;
+select * from b_mvcc;
 ----
 1
 
 statement ok C1
-commit
+commit;
 
 query C2
-select * from a_mvcc;
+select * from b_mvcc;
 ----
 1
 
 statement ok C2
-commit
+commit;
 
-query
-select * from a_mvcc;
+query C1
+select * from b_mvcc;
+----
+
+query C2
+select * from b_mvcc;
 ----
 
 statement ok
-drop table a_mvcc;
+drop table b_mvcc;

@@ -34,7 +34,7 @@ select * from c_mvcc;
 1
 
 statement ok C1
-commit
+commit;
 
 query C2
 select * from c_mvcc;
@@ -42,9 +42,14 @@ select * from c_mvcc;
 1
 
 statement ok C2
-commit
+commit;
 
-query
+query C1
+select * from c_mvcc;
+----
+2
+
+query C2
 select * from c_mvcc;
 ----
 2
