@@ -22,10 +22,10 @@ std::shared_ptr<Record> UpdateExecutor::Next() {
       values.push_back(expr->Evaluate(record));
     }
     auto new_record = std::make_shared<Record>(std::move(values));
-    // 获取正确的锁，加锁失败时抛出异常
+    // 通过 context_ 获取正确的锁，加锁失败时抛出异常
     // LAB 3 BEGIN
     auto rid = table_->UpdateRecord(record->GetRid(), context_.GetXid(), context_.GetCid(), new_record);
-    // 获取正确的锁，加锁失败时抛出异常
+    // 通过 context_ 获取正确的锁，加锁失败时抛出异常
     // LAB 3 BEGIN
     count++;
   }

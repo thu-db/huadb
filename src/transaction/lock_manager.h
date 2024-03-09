@@ -32,7 +32,7 @@ class LockManager {
  private:
   // 判断锁的相容性
   bool Compatible(LockType type_a, LockType type_b);
-  // 实现锁的升级
+  // 实现锁的升级，如共享锁升级为互斥锁
   LockType Upgrade(LockType self, LockType other);
 
   DeadlockType deadlock_type_ = DeadlockType::NONE;

@@ -72,6 +72,7 @@ std::shared_ptr<Operator> Optimizer::PushDownSeqScan(std::shared_ptr<Operator> p
 
 std::shared_ptr<Operator> Optimizer::ReorderJoin(std::shared_ptr<Operator> plan) {
   // 从系统表中读取表和列的元信息
+  // 可根据 join_order_algorithm_ 变量的值选择不同的连接顺序选择算法，默认为 None，表示不进行连接顺序优化
   // LAB 5 BEGIN
   return plan;
 }
