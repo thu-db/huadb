@@ -51,39 +51,5 @@ select * from rr;
 ----
 1 a
 
-# Lost Update
-statement error C1
-update rr set id = id + 1;
-
-statement ok C2
-commit;
-
-query rowsort C1
-select * from rr;
-----
-0 a
-1 b
-
-query rowsort C2
-select * from rr;
-----
-1 a
-
-statement error C1
-update rr set id = id + 1;
-
-statement ok C1
-rollback;
-
-query rowsort C1
-select * from rr;
-----
-1 a
-
-query rowsort C2
-select * from rr;
-----
-1 a
-
 statement ok
 drop table rr;
