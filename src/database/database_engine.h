@@ -7,7 +7,7 @@
 
 #include "catalog/catalog.h"
 #include "catalog/column_definition.h"
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "log/log_manager.h"
 #include "optimizer/optimizer.h"
 #include "planner/planner.h"

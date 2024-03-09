@@ -5,13 +5,14 @@
 
 namespace huadb {
 
-typedef uint64_t lsn_t;  // log sequence number
-typedef uint32_t xid_t;  // transaction id
-typedef uint32_t cid_t;  // commit id
-typedef uint32_t oid_t;  // object id
-typedef uint32_t pageid_t;
-typedef uint16_t slotid_t;
-typedef uint16_t db_size_t;
+using lsn_t = uint64_t;  // log sequence number
+using xid_t = uint32_t;  // transaction id
+using cid_t = uint32_t;  // commit id
+using oid_t = uint32_t;  // object id
+using pageid_t = uint32_t;
+using slotid_t = uint16_t;
+using db_size_t = uint16_t;
+using enum_t = uint8_t;
 
 struct Rid {
   pageid_t page_id_;

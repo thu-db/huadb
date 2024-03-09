@@ -1,7 +1,7 @@
 #pragma once
 
 #include "binder/statements/select_statement.h"
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "fmt/format.h"
 #include "operators/operator.h"
 

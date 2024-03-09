@@ -6,12 +6,12 @@
 
 #include "catalog/catalog.h"
 #include "common/exceptions.h"
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "storage/buffer_pool.h"
 
 namespace huadb {
 
-enum class LogType : uint8_t {
+enum class LogType : enum_t {
   BEGIN,
   COMMIT,
   ROLLBACK,

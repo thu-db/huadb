@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/typedefs.h"
+#include "common/types.h"
 
 // 通过 SIMPLE_CATALOG 宏来切换 Catalog 实现
 #ifndef SIMPLE_CATALOG
@@ -26,6 +26,9 @@ static constexpr const char *MASTER_RECORD_NAME = "master_record";
 static constexpr size_t LOG_SEGMENT_SIZE = (1 << 20);
 static constexpr size_t DB_PAGE_SIZE = (1 << 8);
 static constexpr size_t MAX_RECORD_SIZE = 230;
+static constexpr size_t MAX_LOG_SIZE = sizeof(enum_t) + sizeof(xid_t) + sizeof(lsn_t) + sizeof(oid_t) + sizeof(oid_t) +
+                                       sizeof(pageid_t) + sizeof(slotid_t) + sizeof(db_size_t) + sizeof(db_size_t) +
+                                       MAX_RECORD_SIZE + sizeof(lsn_t);
 static constexpr size_t BUFFER_SIZE = 5;
 
 static constexpr lsn_t FIRST_LSN = 1;

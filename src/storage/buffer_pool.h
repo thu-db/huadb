@@ -4,7 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "storage/disk.h"
 #include "storage/lru_buffer_strategy.h"
 #include "storage/page.h"

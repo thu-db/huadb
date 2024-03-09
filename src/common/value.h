@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "common/type_util.h"
-#include "common/typedefs.h"
+#include "common/types.h"
 
 namespace huadb {
 

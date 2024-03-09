@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "log/log_manager.h"
 #include "storage/page.h"
 #include "table/record.h"

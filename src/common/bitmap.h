@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "common/typedefs.h"
+#include "common/types.h"
 
 namespace huadb {
 

@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "storage/buffer_pool.h"
 #include "table/record.h"
 #include "table/table.h"

@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "log/log_record.h"
 
 namespace huadb {

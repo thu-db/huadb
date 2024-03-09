@@ -5,7 +5,7 @@
 
 #include "binder/table_ref.h"
 #include "catalog/column_list.h"
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "fmt/format.h"
 
 namespace huadb {

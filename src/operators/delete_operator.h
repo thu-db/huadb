@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "fmt/format.h"
 #include "operators/operator.h"
 #include "table/table.h"

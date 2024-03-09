@@ -1,7 +1,7 @@
 #pragma once
 
 #include "catalog/column_list.h"
-#include "common/typedefs.h"
+#include "common/types.h"
 #include "log/log_manager.h"
 #include "storage/buffer_pool.h"
 #include "table/record.h"
