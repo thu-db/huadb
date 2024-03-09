@@ -70,6 +70,9 @@ void Disk::ReadPage(const std::string &path, pageid_t page_id, char *data) {
     OpenFile(path);
   }
   auto &fs = hashmap_[path];
+  if (fs.fail()) {
+    throw DbException("fstream failed in Disk::ReadPage");
+  }
   fs.seekg(page_id * DB_PAGE_SIZE);
   fs.read(data, DB_PAGE_SIZE);
 }
@@ -85,17 +88,26 @@ void Disk::WritePage(const std::string &path, pageid_t page_id, const char *data
     access_count_++;
   }
   auto &fs = hashmap_[path];
+  if (fs.fail()) {
+    throw DbException("fstream failed in Disk::WritePage");
+  }
   fs.seekp(page_id * DB_PAGE_SIZE);
   fs.write(data, DB_PAGE_SIZE);
   fs.flush();
 }
 
 void Disk::ReadLog(uint32_t offset, uint32_t count, char *data) {
+  if (log_fs_.fail()) {
+    throw DbException("fstream failed in Disk::ReadLog");
+  }
   log_fs_.seekg(offset);
   log_fs_.read(data, count);
 }
 
 void Disk::WriteLog(uint32_t offset, uint32_t count, const char *data) {
+  if (log_fs_.fail()) {
+    throw DbException("fstream failed in Disk::WriteLog");
+  }
   log_fs_.seekp(offset);
   log_fs_.write(data, count);
   log_fs_.flush();
