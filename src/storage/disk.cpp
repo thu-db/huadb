@@ -67,6 +67,9 @@ void Disk::ReadPage(const std::string &path, pageid_t page_id, char *data) {
   }
   fs.seekg(page_id * DB_PAGE_SIZE);
   fs.read(data, DB_PAGE_SIZE);
+  if (fs.gcount() != DB_PAGE_SIZE) {
+    throw DbException("read page failed");
+  }
 }
 
 void Disk::WritePage(const std::string &path, pageid_t page_id, const char *data) {
@@ -94,6 +97,9 @@ void Disk::ReadLog(uint32_t offset, uint32_t count, char *data) {
   }
   log_fs_.seekg(offset);
   log_fs_.read(data, count);
+  if (log_fs_.gcount() != count) {
+    throw DbException("read log failed");
+  }
 }
 
 void Disk::WriteLog(uint32_t offset, uint32_t count, const char *data) {

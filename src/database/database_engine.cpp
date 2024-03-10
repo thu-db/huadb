@@ -30,11 +30,9 @@ DatabaseEngine::DatabaseEngine() {
     lsn_t lsn;
     // 当前最大事务id，lsn，oid，以及是否正常关闭
     in >> xid >> lsn >> oid >> normal_shutdown;
-    in.close();
     std::ofstream out(CONTROL_NAME);
     out.flush();
     out << xid << " " << lsn << " " << oid << " " << false << std::endl;
-    out.close();
     transaction_manager_ = std::make_unique<TransactionManager>(*lock_manager_, xid);
     log_manager_ = std::make_unique<LogManager>(*disk_, *transaction_manager_, lsn);
   } else {
@@ -336,7 +334,6 @@ void DatabaseEngine::CloseDatabase() {
   std::ofstream control(CONTROL_NAME);
   control << transaction_manager_->GetNextXid() << " " << log_manager_->GetNextLSN() << " " << catalog_->GetNextOid()
           << " " << true;
-  control.close();
 }
 
 void DatabaseEngine::CreateTable(const std::string &table_name, const ColumnList &column_list, ResultWriter &writer) {

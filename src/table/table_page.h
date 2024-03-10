@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "common/types.h"
 #include "log/log_manager.h"
 #include "storage/page.h"
@@ -49,6 +51,8 @@ class TablePage {
   void SetNextPageId(pageid_t page_id);
   // Lab 2: 设置 page lsn
   void SetPageLSN(lsn_t page_lsn);
+
+  std::string ToString() const;
 
  private:
   std::shared_ptr<Page> page_;

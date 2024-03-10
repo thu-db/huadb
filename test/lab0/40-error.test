@@ -45,3 +45,6 @@ select * from error a, error2 a;
 
 statement ok
 drop table error;
+
+statement ok
+drop table error2;

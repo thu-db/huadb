@@ -1,5 +1,7 @@
 #include "table/table_page.h"
 
+#include <sstream>
+
 namespace huadb {
 
 TablePage::TablePage(std::shared_ptr<Page> page) : page_(page) {
@@ -94,6 +96,21 @@ void TablePage::SetNextPageId(pageid_t page_id) {
 void TablePage::SetPageLSN(lsn_t page_lsn) {
   *page_lsn_ = page_lsn;
   page_->SetDirty();
+}
+
+std::string TablePage::ToString() const {
+  std::stringstream ss;
+  ss << "TablePage[" << std::endl;
+  ss << "  page_lsn: " << *page_lsn_ << std::endl;
+  ss << "  next_page_id: " << *next_page_id_ << std::endl;
+  ss << "  lower: " << *lower_ << std::endl;
+  ss << "  upper: " << *upper_ << std::endl;
+  ss << "  slots: " << std::endl;
+  for (size_t i = 0; i < GetRecordCount(); i++) {
+    ss << "    " << i << ": offset " << slots_[i].offset_ << ", size " << slots_[i].size_ << std::endl;
+  }
+  ss << "]\n";
+  return ss.str();
 }
 
 }  // namespace huadb
