@@ -36,7 +36,6 @@ void SimpleCatalog::LoadSystemTables() {
       table_names.insert(table_name);
     }
   }
-  db_in.close();
   for (const auto &table_name : table_names) {
     std::ifstream table_in(std::to_string(current_database_oid_) + "/" + table_name + ".meta");
     oid_t oid, db_oid;
@@ -51,7 +50,6 @@ void SimpleCatalog::LoadSystemTables() {
     ColumnList column_list;
     column_list.FromString(desc);
     CreateTable(name, column_list, oid, db_oid, false);
-    table_in.close();
   }
 }
 
@@ -111,10 +109,8 @@ void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList 
   // Step4. 写入到持久化文件table_name.meta
   std::ofstream out(std::to_string(current_database_oid_) + "/" + table_name + ".meta");
   out << oid << " " << current_database_oid_ << " " << table_name << " " << column_list.ToString();
-  out.close();
   std::ofstream db_out(std::to_string(current_database_oid_) + "/tables", std::ios::app);
   db_out << table_name << " ";
-  db_out.close();
 }
 
 void SimpleCatalog::DropTable(const std::string &table_name) {
@@ -135,7 +131,6 @@ void SimpleCatalog::DropTable(const std::string &table_name) {
   disk_.RemoveFile(std::to_string(current_database_oid_) + "/" + table_name + ".meta");
   std::ofstream db_out(std::to_string(current_database_oid_) + "/tables", std::ios::app);
   db_out << "~" << table_name << " ";
-  db_out.close();
 }
 
 void SimpleCatalog::CreateIndex(const std::string &index_name, const std::string &table_name) {

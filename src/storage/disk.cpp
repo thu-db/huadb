@@ -24,12 +24,7 @@ Disk::Disk() {
   std::filesystem::resize_file(LOG_NAME, LOG_SEGMENT_SIZE);
 }
 
-Disk::~Disk() {
-  for (auto &entry : hashmap_) {
-    entry.second.close();
-  }
-  ChangeDirectory("..");
-}
+Disk::~Disk() { ChangeDirectory(".."); }
 
 bool Disk::DirectoryExists(const std::string &path) { return std::filesystem::is_directory(path); }
 
@@ -46,10 +41,7 @@ void Disk::RemoveDirectory(const std::string &path) { std::filesystem::remove_al
 
 bool Disk::FileExists(const std::string &path) { return std::filesystem::is_regular_file(path); }
 
-void Disk::CreateFile(const std::string &path) {
-  std::ofstream ofs(path);
-  ofs.close();
-}
+void Disk::CreateFile(const std::string &path) { std::ofstream ofs(path); }
 
 void Disk::RemoveFile(const std::string &path) { std::filesystem::remove(path); }
 

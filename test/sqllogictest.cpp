@@ -29,19 +29,17 @@ bool CompareResult(const std::string &result, const std::string &expected_result
   if (!correct) {
     error_stream << "Your Result:" << std::endl;
     error_stream << result << std::endl;
-    std::fstream result_stream("../yours.log", std::fstream::out | std::fstream::trunc);
+    std::ofstream result_stream("../yours.log");
     for (const auto &line : result_lines) {
       result_stream << line << std::endl;
     }
-    result_stream.close();
 
     error_stream << "Expected Result:" << std::endl;
     error_stream << expected_result;
-    std::fstream expected_stream("../expected.log", std::fstream::out | std::fstream::trunc);
+    std::ofstream expected_stream("../expected.log");
     for (const auto &line : expected_lines) {
       expected_stream << line << std::endl;
     }
-    expected_stream.close();
   }
   return correct;
 }
@@ -131,7 +129,6 @@ void ReportResult(const std::vector<std::string> &success_cases, const std::vect
     }
   }
   report << "]}";
-  report.close();
 }
 
 int main(int argc, char *argv[]) {

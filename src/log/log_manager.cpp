@@ -139,7 +139,6 @@ lsn_t LogManager::Checkpoint(bool async) {
   Flush(end_lsn);
   std::ofstream out(MASTER_RECORD_NAME);
   out << begin_lsn;
-  out.close();
   return end_lsn;
 }
 
@@ -204,13 +203,11 @@ void LogManager::Analyze() {
   in >> next_lsn;
   next_lsn_ = next_lsn;
   flushed_lsn_ = next_lsn_ - 1;
-  in.close();
   lsn_t checkpoint_lsn = 0;
 
   if (disk_.FileExists(MASTER_RECORD_NAME)) {
     std::ifstream in(MASTER_RECORD_NAME);
     in >> checkpoint_lsn;
-    in.close();
   }
   // 根据 Checkpoint 日志恢复脏页表、活跃事务表等元信息
   // LAB 2 BEGIN

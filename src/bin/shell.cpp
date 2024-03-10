@@ -103,4 +103,5 @@ int main(int argc, char *argv[]) {
   } else {
     LinenoiseShell();
   }
+  return 0;
 }
