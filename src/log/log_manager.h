@@ -77,7 +77,9 @@ class LogManager {
   std::unordered_map<xid_t, lsn_t> att_;        // 活跃事务表
   std::unordered_map<TablePageid, lsn_t> dpt_;  // 脏页表
 
+  // 下一条日志的 lsn
   std::atomic<lsn_t> next_lsn_;
+  // 已经刷到磁盘的最大 lsn
   lsn_t flushed_lsn_;
   std::vector<std::shared_ptr<LogRecord>> log_buffer_;
   uint32_t redo_count_ = 0;

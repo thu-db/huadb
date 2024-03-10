@@ -17,6 +17,7 @@ project(HuaDB
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 set(THIRD_PARTY_INCLUDE_DIR
+  ${PROJECT_SOURCE_DIR}/third_party/argparse/include
   ${PROJECT_SOURCE_DIR}/third_party/fmt/include
   ${PROJECT_SOURCE_DIR}/third_party/libfort/lib
   ${PROJECT_SOURCE_DIR}/third_party/libpg_query/include

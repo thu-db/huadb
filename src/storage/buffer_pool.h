@@ -24,7 +24,9 @@ class BufferPool {
  public:
   BufferPool(Disk &disk, LogManager &log_manager);
 
+  // 新建一个页面
   std::shared_ptr<Page> GetPage(oid_t db_oid, oid_t table_oid, pageid_t page_id);
+  // 获取一个已经存在的页面
   std::shared_ptr<Page> NewPage(oid_t db_oid, oid_t table_oid, pageid_t page_id);
   // 将所有页面刷到磁盘
   void Flush(bool regular_only = false);

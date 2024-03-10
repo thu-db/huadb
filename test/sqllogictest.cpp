@@ -1,11 +1,10 @@
-#include <unistd.h>
-
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "argparse/argparse.hpp"
 #include "common/constants.h"
 #include "common/exceptions.h"
 #include "common/result_writer.h"
@@ -136,35 +135,36 @@ void ReportResult(const std::vector<std::string> &success_cases, const std::vect
 }
 
 int main(int argc, char *argv[]) {
-  bool report_result = false;
-  int opt;
-  size_t test_count = 1;
-  while ((opt = getopt(argc, argv, "c:o")) != -1) {
-    switch (opt) {
-      case 'c':
-        test_count = atoi(optarg);
-        if (optarg == NULL) {
-          std::cerr << "Usage: " << argv[0] << " [-c test_count] [-o] test_file1 test_file2 ..." << std::endl;
-          return 1;
-        }
-      case 'o':
-        report_result = true;
-        break;
-      default:
-        std::cerr << "Usage: " << argv[0] << " [-c test_count] [-o] test_file1 test_file2 ..." << std::endl;
-        return 1;
-    }
+  argparse::ArgumentParser program("sqllogictest");
+  program.add_argument("-c", "--count")
+      .help("Number of times to run the tests")
+      .default_value(1u)
+      .metavar("COUNT")
+      .scan<'u', unsigned>();
+  program.add_argument("-o", "--output").help("Report the result of the test").flag();
+  program.add_argument("test_files").help("Test files to run").nargs(argparse::nargs_pattern::at_least_one);
+
+  try {
+    program.parse_args(argc, argv);
+  } catch (const std::exception &err) {
+    std::cerr << err.what() << std::endl;
+    std::cerr << program;
+    std::exit(1);
   }
 
+  bool report_result = program.get<bool>("-o");
+  int test_count = program.get<unsigned>("-c");
+  auto test_files = program.get<std::vector<std::string>>("test_files");
+
   std::vector<fs::path> paths;
-  for (int i = optind; i < argc; i++) {
-    paths.emplace_back(fs::absolute(argv[i]));
+  for (const auto &file : test_files) {
+    paths.emplace_back(fs::absolute(file));
   }
 
   bool success = true;
   std::vector<std::string> success_cases;
   std::vector<std::string> fail_cases;
-  for (size_t i = 0; i < test_count; i++) {
+  for (unsigned i = 0; i < test_count; i++) {
     success_cases.clear();
     fail_cases.clear();
     if (fs::is_directory(TEST_DIRECTORY)) {
