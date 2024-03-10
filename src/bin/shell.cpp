@@ -28,7 +28,7 @@ void PlainShell() {
         connection = std::make_unique<huadb::Connection>(*database);
         std::cout << "RESTART" << std::endl;
       } else {
-        std::stringstream result;
+        std::ostringstream result;
         auto writer = huadb::SimpleWriter(result);
         connection->SendQuery(query, writer);
         std::cout << result.str();

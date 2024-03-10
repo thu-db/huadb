@@ -11,10 +11,10 @@ void StringUtil::RTrim(std::string &str) {
 }
 
 std::vector<std::string> StringUtil::Split(const std::string &str, char delim) {
-  std::stringstream ss(str);
+  std::istringstream iss(str);
   std::vector<std::string> result;
   std::string token;
-  while (std::getline(ss, token, delim)) {
+  while (std::getline(iss, token, delim)) {
     RTrim(token);
     result.push_back(token);
   }

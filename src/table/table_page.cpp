@@ -99,18 +99,18 @@ void TablePage::SetPageLSN(lsn_t page_lsn) {
 }
 
 std::string TablePage::ToString() const {
-  std::stringstream ss;
-  ss << "TablePage[" << std::endl;
-  ss << "  page_lsn: " << *page_lsn_ << std::endl;
-  ss << "  next_page_id: " << *next_page_id_ << std::endl;
-  ss << "  lower: " << *lower_ << std::endl;
-  ss << "  upper: " << *upper_ << std::endl;
-  ss << "  slots: " << std::endl;
+  std::ostringstream oss;
+  oss << "TablePage[" << std::endl;
+  oss << "  page_lsn: " << *page_lsn_ << std::endl;
+  oss << "  next_page_id: " << *next_page_id_ << std::endl;
+  oss << "  lower: " << *lower_ << std::endl;
+  oss << "  upper: " << *upper_ << std::endl;
+  oss << "  slots: " << std::endl;
   for (size_t i = 0; i < GetRecordCount(); i++) {
-    ss << "    " << i << ": offset " << slots_[i].offset_ << ", size " << slots_[i].size_ << std::endl;
+    oss << "    " << i << ": offset " << slots_[i].offset_ << ", size " << slots_[i].size_ << std::endl;
   }
-  ss << "]\n";
-  return ss.str();
+  oss << "]\n";
+  return oss.str();
 }
 
 }  // namespace huadb

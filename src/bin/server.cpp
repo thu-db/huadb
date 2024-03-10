@@ -35,9 +35,9 @@ void client_handler(int client_socket, huadb::DatabaseEngine &database) {
       }
       send(client_socket, ("R" + result).c_str(), result.size() + 1, 0);
     } catch (std::exception &e) {
-      std::stringstream ss;
-      ss << huadb::BOLD << huadb::RED << "Error: " << huadb::RESET << e.what() << "\n";
-      send(client_socket, ("R" + ss.str()).c_str(), ss.str().size() + 1, 0);
+      std::ostringstream oss;
+      oss << huadb::BOLD << huadb::RED << "Error: " << huadb::RESET << e.what() << "\n";
+      send(client_socket, ("R" + oss.str()).c_str(), oss.str().size() + 1, 0);
     }
   }
   close(client_socket);

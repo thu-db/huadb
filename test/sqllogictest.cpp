@@ -18,7 +18,7 @@ static constexpr const char *TEST_DIRECTORY = "huadb_test";
 std::unordered_map<std::string, std::unique_ptr<huadb::Connection>> connections;
 
 bool CompareResult(const std::string &result, const std::string &expected_result, SortMode sort_mode,
-                   std::stringstream &error_stream) {
+                   std::ostringstream &error_stream) {
   auto result_lines = huadb::StringUtil::Split(result, '\n');
   auto expected_lines = huadb::StringUtil::Split(expected_result, '\n');
   if (sort_mode == SortMode::ROW_SORT) {
@@ -59,7 +59,7 @@ bool Run(const fs::path &path) {
     switch (record->type_) {
       case RecordType::STATEMENT: {
         const auto &statement = dynamic_cast<const StatementRecord &>(*record);
-        std::stringstream result;
+        std::ostringstream result;
         auto writer = huadb::SimpleWriter(result, true);
         try {
           if (connections.find(statement.connection_name_) == connections.end()) {
@@ -88,14 +88,14 @@ bool Run(const fs::path &path) {
       }
       case RecordType::QUERY: {
         const auto &query = dynamic_cast<const QueryRecord &>(*record);
-        std::stringstream result;
+        std::ostringstream result;
         auto writer = huadb::SimpleWriter(result, true);
         try {
           if (connections.find(query.connection_name_) == connections.end()) {
             connections[query.connection_name_] = std::make_unique<huadb::Connection>(*database);
           }
           connections[query.connection_name_]->SendQuery(query.sql_, writer);
-          std::stringstream error_stream;
+          std::ostringstream error_stream;
           if (!CompareResult(result.str(), query.expected_result_, query.sort_mode_, error_stream)) {
             throw huadb::DbException("Wrong Result\n" + error_stream.str());
           }

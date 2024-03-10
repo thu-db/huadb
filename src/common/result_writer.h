@@ -56,7 +56,7 @@ class FortWriter : public ResultWriter {
 // Used in sqllogictest and SimpleShell
 class SimpleWriter : public ResultWriter {
  public:
-  explicit SimpleWriter(std::stringstream &stream, bool disable_header = false, std::string separator = " ")
+  explicit SimpleWriter(std::ostringstream &stream, bool disable_header = false, std::string separator = " ")
       : stream_(stream), disable_header_(disable_header), separator_(std::move(separator)) {}
   void WriteCell(const std::string &cell) override { stream_ << cell << separator_; }
   void WriteHeaderCell(const std::string &cell) override {
@@ -78,14 +78,14 @@ class SimpleWriter : public ResultWriter {
 
  private:
   bool disable_header_;
-  std::stringstream &stream_;
+  std::ostringstream &stream_;
   std::string separator_;
 };
 
 // Used in web shell
 class HtmlWriter : public ResultWriter {
  public:
-  explicit HtmlWriter(std::stringstream &stream) : stream_(stream) {}
+  explicit HtmlWriter(std::ostringstream &stream) : stream_(stream) {}
   void WriteCell(const std::string &cell) override { stream_ << "<td>" << cell << "</td>"; }
   void WriteHeaderCell(const std::string &cell) override { stream_ << "<td>" << cell << "</td>"; }
   void BeginTable(bool simplified = false) override { stream_ << "<table>"; }
@@ -103,7 +103,7 @@ class HtmlWriter : public ResultWriter {
   }
 
  private:
-  std::stringstream &stream_;
+  std::ostringstream &stream_;
 };
 
 }  // namespace huadb
