@@ -97,7 +97,7 @@ void LinenoiseShell() {
 }
 
 int main(int argc, char *argv[]) {
-  std::cout << R"(Welcome to huadb. Type "\?" or "\h" for help)" << std::endl;
+  std::cout << R"(Welcome to HuaDB. Type "\?" or "\h" for help)" << std::endl;
   if (argc > 1 && strcmp(argv[1], "-s") == 0) {
     PlainShell();
   } else {
