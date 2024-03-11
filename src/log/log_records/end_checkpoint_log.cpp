@@ -72,4 +72,6 @@ const std::unordered_map<xid_t, lsn_t> &EndCheckpointLog::GetATT() { return att_
 
 const std::unordered_map<TablePageid, lsn_t> &EndCheckpointLog::GetDPT() { return dpt_; }
 
+std::string EndCheckpointLog::ToString() const { return fmt::format("EndCheckpointLog\t[{}]", LogRecord::ToString()); }
+
 }  // namespace huadb

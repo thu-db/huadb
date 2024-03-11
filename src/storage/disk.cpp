@@ -17,11 +17,20 @@ Disk::Disk() {
 
   if (!FileExists(LOG_NAME)) {
     CreateFile(LOG_NAME);
-    log_fs_ = std::fstream(LOG_NAME, std::fstream::in | std::fstream::out | std::fstream::trunc);
+    log_fs_ = std::fstream(LOG_NAME, std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
+    std::filesystem::resize_file(LOG_NAME, LOG_SEGMENT_SIZE);
+    log_segments = 1;
   } else {
-    log_fs_ = std::fstream(LOG_NAME, std::fstream::in | std::fstream::out);
+    log_fs_ = std::fstream(LOG_NAME, std::fstream::in | std::fstream::out | std::fstream::binary);
+    auto log_file_size = std::filesystem::file_size(LOG_NAME);
+    if (log_file_size / LOG_SEGMENT_SIZE == 0 || log_file_size % LOG_SEGMENT_SIZE != 0) {
+      throw DbException("log file size is not a multiple of segment size");
+    }
+    log_segments = log_file_size / LOG_SEGMENT_SIZE;
   }
-  std::filesystem::resize_file(LOG_NAME, LOG_SEGMENT_SIZE);
+  if (log_fs_.fail()) {
+    throw DbException("fstream failed in Disk::Disk");
+  }
 }
 
 Disk::~Disk() { ChangeDirectory(".."); }
@@ -46,7 +55,7 @@ void Disk::CreateFile(const std::string &path) { std::ofstream ofs(path); }
 void Disk::RemoveFile(const std::string &path) { std::filesystem::remove(path); }
 
 void Disk::OpenFile(const std::string &path) {
-  hashmap_[path] = std::fstream(path, std::fstream::in | std::fstream::out);
+  hashmap_[path] = std::fstream(path, std::fstream::in | std::fstream::out | std::fstream::binary);
   if (!hashmap_[path]) {
     throw DbException("file " + path + " does not exist");
   }
@@ -105,6 +114,10 @@ void Disk::ReadLog(uint32_t offset, uint32_t count, char *data) {
 void Disk::WriteLog(uint32_t offset, uint32_t count, const char *data) {
   if (log_fs_.fail()) {
     throw DbException("fstream failed in Disk::WriteLog");
+  }
+  if (offset + count > log_segments * LOG_SEGMENT_SIZE) {
+    log_segments++;
+    std::filesystem::resize_file(LOG_NAME, log_segments * LOG_SEGMENT_SIZE);
   }
   log_fs_.seekp(offset);
   log_fs_.write(data, count);

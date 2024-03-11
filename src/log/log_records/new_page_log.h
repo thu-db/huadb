@@ -19,6 +19,8 @@ class NewPageLog : public LogRecord {
   pageid_t GetPageId() const;
   pageid_t GetPrevPageId() const;
 
+  std::string ToString() const override;
+
  private:
   oid_t oid_;
   pageid_t prev_page_id_;

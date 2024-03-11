@@ -40,6 +40,7 @@ class Disk {
   std::fstream log_fs_;
 
   uint32_t access_count_ = 0;  // 磁盘访问次数
+  uint32_t log_segments = 0;   // 日志段数
 };
 
 }  // namespace huadb

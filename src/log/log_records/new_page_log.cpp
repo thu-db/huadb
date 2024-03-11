@@ -54,4 +54,9 @@ pageid_t NewPageLog::GetPageId() const { return page_id_; }
 
 pageid_t NewPageLog::GetPrevPageId() const { return prev_page_id_; }
 
+std::string NewPageLog::ToString() const {
+  return fmt::format("NewPageLog\t\t[{}\toid: {}\tprev_page_id: {}\tpage_id: {}]", LogRecord::ToString(), oid_,
+                     prev_page_id_, page_id_);
+}
+
 }  // namespace huadb

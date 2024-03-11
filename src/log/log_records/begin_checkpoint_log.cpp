@@ -22,4 +22,8 @@ std::shared_ptr<BeginCheckpointLog> BeginCheckpointLog::DeserializeFrom(const ch
   return std::make_shared<BeginCheckpointLog>(xid, prev_lsn);
 }
 
+std::string BeginCheckpointLog::ToString() const {
+  return fmt::format("BeginCheckpointLog\t[{}]", LogRecord::ToString());
+}
+
 }  // namespace huadb

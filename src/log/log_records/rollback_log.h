@@ -10,6 +10,8 @@ class RollbackLog : public LogRecord {
 
   size_t SerializeTo(char *data) const override;
   static std::shared_ptr<RollbackLog> DeserializeFrom(const char *data);
+
+  std::string ToString() const override;
 };
 
 }  // namespace huadb

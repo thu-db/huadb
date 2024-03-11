@@ -21,4 +21,6 @@ std::shared_ptr<CommitLog> CommitLog::DeserializeFrom(const char *data) {
   return std::make_shared<CommitLog>(xid, prev_lsn);
 }
 
+std::string CommitLog::ToString() const { return fmt::format("CommitLog\t\t[{}]", LogRecord::ToString()); }
+
 }  // namespace huadb

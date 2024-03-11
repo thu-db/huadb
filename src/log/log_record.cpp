@@ -61,4 +61,6 @@ lsn_t LogRecord::GetPrevLSN() const { return prev_lsn_; }
 
 size_t LogRecord::GetSize() const { return size_; }
 
+std::string LogRecord::ToString() const { return fmt::format("lsn: {}\txid: {}\tprev_lsn: {}", lsn_, xid_, prev_lsn_); }
+
 }  // namespace huadb

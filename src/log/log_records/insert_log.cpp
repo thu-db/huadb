@@ -79,4 +79,9 @@ oid_t InsertLog::GetOid() const { return oid_; }
 
 pageid_t InsertLog::GetPageId() const { return page_id_; }
 
+std::string InsertLog::ToString() const {
+  return fmt::format("InsertLog\t\t[{}\toid: {}\tpage_id: {}\tslot_id: {}\tpage_offset: {}\trecord_size: {}]",
+                     LogRecord::ToString(), oid_, page_id_, slot_id_, page_offset_, record_size_);
+}
+
 }  // namespace huadb

@@ -18,6 +18,7 @@
 #include "binder/binder.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cctype>
 #include <unordered_set>
 

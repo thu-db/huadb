@@ -18,6 +18,8 @@ class EndCheckpointLog : public LogRecord {
   const std::unordered_map<xid_t, lsn_t> &GetATT();
   const std::unordered_map<TablePageid, lsn_t> &GetDPT();
 
+  std::string ToString() const override;
+
  private:
   std::unordered_map<xid_t, lsn_t> att_;
   std::unordered_map<TablePageid, lsn_t> dpt_;

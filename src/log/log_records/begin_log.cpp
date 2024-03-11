@@ -21,4 +21,6 @@ std::shared_ptr<BeginLog> BeginLog::DeserializeFrom(const char *data) {
   return std::make_shared<BeginLog>(xid, prev_lsn);
 }
 
+std::string BeginLog::ToString() const { return fmt::format("BeginLog\t\t[{}]", LogRecord::ToString()); }
+
 }  // namespace huadb

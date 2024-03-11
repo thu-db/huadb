@@ -21,4 +21,6 @@ std::shared_ptr<RollbackLog> RollbackLog::DeserializeFrom(const char *data) {
   return std::make_shared<RollbackLog>(xid, prev_lsn);
 }
 
+std::string RollbackLog::ToString() const { return fmt::format("RollbackLog\t[{}]", LogRecord::ToString()); }
+
 }  // namespace huadb

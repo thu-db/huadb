@@ -53,4 +53,9 @@ oid_t DeleteLog::GetOid() const { return oid_; }
 
 pageid_t DeleteLog::GetPageId() const { return page_id_; }
 
+std::string DeleteLog::ToString() const {
+  return fmt::format("DeleteLog\t\t[{} oid: {}\tpage_id: {}\tslot_id: {}]", LogRecord::ToString(), oid_, page_id_,
+                     slot_id_);
+}
+
 }  // namespace huadb

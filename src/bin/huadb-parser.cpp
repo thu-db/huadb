@@ -12,12 +12,113 @@ namespace fs = std::filesystem;
 
 enum class ParseMode { CONTROL, DATA, LOG };
 
+void parse_control(const fs::path &path) {
+  auto filename = path / huadb::CONTROL_NAME;
+  if (!fs::is_regular_file(filename)) {
+    std::cerr << "File not found: " << filename << std::endl;
+    std::exit(1);
+  }
+  std::ifstream file(filename);
+  if (file.fail()) {
+    std::cerr << "Failed to open file: " << filename << std::endl;
+    std::exit(1);
+  }
+  huadb::xid_t xid;
+  huadb::lsn_t lsn;
+  huadb::oid_t oid;
+  bool normal_shutdown;
+  file >> xid >> lsn >> oid >> normal_shutdown;
+  std::cout << "xid: " << xid << std::endl;
+  std::cout << "lsn: " << lsn << std::endl;
+  std::cout << "oid: " << oid << std::endl;
+  std::cout << "normal_shutdown: " << normal_shutdown << std::endl;
+}
+
+void parse_data(const fs::path &path) {
+  if (!fs::is_regular_file(path)) {
+    std::cerr << "File not found: " << path << std::endl;
+    std::exit(1);
+  }
+  std::ifstream file(path, std::fstream::binary);
+  if (file.fail()) {
+    std::cerr << "Failed to open file: " << path << std::endl;
+    std::exit(1);
+  }
+  char buffer[huadb::DB_PAGE_SIZE];
+  huadb::pageid_t page_id = 0;
+  while (!file.eof()) {
+    file.read(buffer, huadb::DB_PAGE_SIZE);
+    if (file.gcount() == 0) {
+      break;
+    }
+    if (file.gcount() != huadb::DB_PAGE_SIZE) {
+      std::cerr << "Incorrect page size" << std::endl;
+      std::exit(1);
+    }
+    auto page = std::make_unique<huadb::Page>();
+    memcpy(page->GetData(), buffer, huadb::DB_PAGE_SIZE);
+    huadb::TablePage table_page(std::move(page));
+    std::cout << "page id: " << page_id << std::endl;
+    std::cout << table_page.ToString() << std::endl;
+    page_id++;
+  }
+}
+
+void parse_log(const fs::path &path) {
+  auto control_name = path / huadb::CONTROL_NAME;
+  auto log_name = path / huadb::LOG_NAME;
+  if (!fs::is_regular_file(control_name)) {
+    std::cerr << "File not found: " << control_name << std::endl;
+    std::exit(1);
+  }
+  std::ifstream file(control_name);
+  if (file.fail()) {
+    std::cerr << "Failed to open file: " << control_name << std::endl;
+    std::exit(1);
+  }
+  huadb::xid_t xid;
+  huadb::lsn_t next_lsn;
+  file >> xid >> next_lsn;
+  file.close();
+  file.clear();
+
+  if (!fs::is_regular_file(log_name)) {
+    std::cerr << "File not found: " << log_name << std::endl;
+    std::exit(1);
+  }
+  file.open(log_name, std::fstream::binary);
+  if (file.fail()) {
+    std::cerr << "Failed to open file: " << log_name << std::endl;
+    std::exit(1);
+  }
+  char buffer[huadb::LOG_SEGMENT_SIZE];
+  huadb::lsn_t lsn = huadb::FIRST_LSN;
+  while (!file.eof()) {
+    file.read(buffer, huadb::LOG_SEGMENT_SIZE);
+    if (file.gcount() == 0) {
+      break;
+    }
+    if (file.gcount() != huadb::LOG_SEGMENT_SIZE) {
+      std::cerr << "Incorrect log segment size" << std::endl;
+      std::exit(1);
+    }
+    while (lsn < next_lsn) {
+      auto log = huadb::LogRecord::DeserializeFrom(buffer + lsn);
+      std::cout << log->ToString() << std::endl;
+      lsn += log->GetSize();
+    }
+    if (lsn >= next_lsn) {
+      break;
+    }
+  }
+}
+
 int main(int argc, char *argv[]) {
   argparse::ArgumentParser program("huadb-parser");
   program.add_argument("-c", "--control").flag();
   program.add_argument("-d", "--data").flag();
   program.add_argument("-l", "--log").flag();
-  program.add_argument("filename").nargs(1);
+  program.add_argument("path").nargs(1).default_value(std::string(huadb::BASE_PATH));
   try {
     program.parse_args(argc, argv);
   } catch (const std::exception &err) {
@@ -39,53 +140,14 @@ int main(int argc, char *argv[]) {
     mode = ParseMode::LOG;
   }
 
-  auto filename = program.get<std::string>("filename");
-  if (!fs::is_regular_file(filename)) {
-    std::cerr << "File not found: " << filename << std::endl;
-    std::exit(1);
-  }
-  std::ifstream file(filename, std::fstream::binary);
-  if (file.fail()) {
-    std::cerr << "Failed to open file: " << filename << std::endl;
-    std::exit(1);
-  }
+  fs::path path = program.get<std::string>("path");
 
   if (mode == ParseMode::CONTROL) {
-    huadb::xid_t xid;
-    huadb::lsn_t lsn;
-    huadb::oid_t oid;
-    bool normal_shutdown;
-    file >> xid >> lsn >> oid >> normal_shutdown;
-    std::cout << "xid: " << xid << std::endl;
-    std::cout << "lsn: " << lsn << std::endl;
-    std::cout << "oid: " << oid << std::endl;
-    std::cout << "normal_shutdown: " << normal_shutdown << std::endl;
+    parse_control(path);
   } else if (mode == ParseMode::DATA) {
-    char buffer[huadb::DB_PAGE_SIZE];
-    huadb::pageid_t page_id = 0;
-    while (!file.eof()) {
-      file.read(buffer, huadb::DB_PAGE_SIZE);
-      if (file.gcount() == 0) {
-        break;
-      }
-      if (file.gcount() != huadb::DB_PAGE_SIZE) {
-        std::cerr << "Incorrect page size" << std::endl;
-        std::exit(1);
-      }
-      auto page = std::make_unique<huadb::Page>();
-      memcpy(page->GetData(), buffer, huadb::DB_PAGE_SIZE);
-      huadb::TablePage table_page(std::move(page));
-      std::cout << "page id: " << page_id << std::endl;
-      std::cout << table_page.ToString() << std::endl;
-      page_id++;
-    }
+    parse_data(path);
   } else {
-    std::string line;
-    while (std::getline(file, line)) {
-      if (line[0] == 'L') {
-        std::cout << line << std::endl;
-      }
-    }
+    parse_log(path);
   }
 
   return 0;

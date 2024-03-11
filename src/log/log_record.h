@@ -3,10 +3,12 @@
 #include <cassert>
 #include <cstring>
 #include <memory>
+#include <string>
 
 #include "catalog/catalog.h"
 #include "common/exceptions.h"
 #include "common/types.h"
+#include "fmt/format.h"
 #include "storage/buffer_pool.h"
 
 namespace huadb {
@@ -47,6 +49,8 @@ class LogRecord {
 
   // 获取日志大小
   size_t GetSize() const;
+
+  virtual std::string ToString() const;
 
  protected:
   LogType type_;

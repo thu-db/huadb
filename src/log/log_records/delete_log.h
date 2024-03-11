@@ -18,6 +18,8 @@ class DeleteLog : public LogRecord {
   oid_t GetOid() const;
   pageid_t GetPageId() const;
 
+  std::string ToString() const override;
+
  private:
   oid_t oid_;
   pageid_t page_id_;
