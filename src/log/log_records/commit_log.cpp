@@ -2,7 +2,7 @@
 
 namespace huadb {
 
-CommitLog::CommitLog(xid_t xid, lsn_t prev_lsn) : LogRecord(LogType::COMMIT, xid, prev_lsn) {}
+CommitLog::CommitLog(lsn_t lsn, xid_t xid, lsn_t prev_lsn) : LogRecord(LogType::COMMIT, lsn, xid, prev_lsn) {}
 
 size_t CommitLog::SerializeTo(char *data) const {
   size_t offset = LogRecord::SerializeTo(data);
@@ -10,7 +10,7 @@ size_t CommitLog::SerializeTo(char *data) const {
   return offset;
 }
 
-std::shared_ptr<CommitLog> CommitLog::DeserializeFrom(const char *data) {
+std::shared_ptr<CommitLog> CommitLog::DeserializeFrom(lsn_t lsn, const char *data) {
   xid_t xid;
   lsn_t prev_lsn;
   size_t offset = 0;
@@ -18,7 +18,7 @@ std::shared_ptr<CommitLog> CommitLog::DeserializeFrom(const char *data) {
   offset += sizeof(xid);
   memcpy(&prev_lsn, data + offset, sizeof(prev_lsn));
   offset += sizeof(prev_lsn);
-  return std::make_shared<CommitLog>(xid, prev_lsn);
+  return std::make_shared<CommitLog>(lsn, xid, prev_lsn);
 }
 
 std::string CommitLog::ToString() const { return fmt::format("CommitLog\t\t[{}]", LogRecord::ToString()); }

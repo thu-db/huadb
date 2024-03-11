@@ -29,9 +29,8 @@ lsn_t LogManager::AppendInsertLog(xid_t xid, oid_t oid, pageid_t page_id, slotid
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendInsertLog)");
   }
-  auto log = std::make_shared<InsertLog>(xid, att_[xid], oid, page_id, slot_id, offset, size, new_record);
-  lsn_t lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
+  auto log = std::make_shared<InsertLog>(NULL_LSN, xid, att_[xid], oid, page_id, slot_id, offset, size, new_record);
+  lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   att_[xid] = lsn;
   log_buffer_.push_back(std::move(log));
@@ -45,9 +44,8 @@ lsn_t LogManager::AppendDeleteLog(xid_t xid, oid_t oid, pageid_t page_id, slotid
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendDeleteLog)");
   }
-  auto log = std::make_shared<DeleteLog>(xid, att_[xid], oid, page_id, slot_id);
-  lsn_t lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
+  auto log = std::make_shared<DeleteLog>(NULL_LSN, xid, att_[xid], oid, page_id, slot_id);
+  lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   att_[xid] = lsn;
   log_buffer_.push_back(std::move(log));
@@ -61,15 +59,16 @@ lsn_t LogManager::AppendNewPageLog(xid_t xid, oid_t oid, pageid_t prev_page_id, 
   if (xid != DDL_XID && att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendNewPageLog)");
   }
-  std::shared_ptr<NewPageLog> log;
+  xid_t log_xid;
   if (xid == DDL_XID) {
-    log = std::make_shared<NewPageLog>(xid, NULL_LSN, oid, prev_page_id, page_id);
+    log_xid = NULL_XID;
   } else {
-    log = std::make_shared<NewPageLog>(xid, att_[xid], oid, prev_page_id, page_id);
+    log_xid = att_[xid];
   }
-  lsn_t lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
+  auto log = std::make_shared<NewPageLog>(NULL_LSN, xid, log_xid, oid, prev_page_id, page_id);
+  lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
+
   if (xid != DDL_XID) {
     att_[xid] = lsn;
   }
@@ -87,11 +86,10 @@ lsn_t LogManager::AppendBeginLog(xid_t xid) {
   if (att_.find(xid) != att_.end()) {
     throw DbException(std::to_string(xid) + " already exists in att");
   }
-  auto log = std::make_shared<BeginLog>(xid, NULL_LSN);
-  lsn_t lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
-  att_[xid] = lsn;
+  auto log = std::make_shared<BeginLog>(NULL_LSN, xid, NULL_LSN);
+  lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
+  att_[xid] = lsn;
   log_buffer_.push_back(std::move(log));
   return lsn;
 }
@@ -100,9 +98,8 @@ lsn_t LogManager::AppendCommitLog(xid_t xid) {
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendCommitLog)");
   }
-  auto log = std::make_shared<CommitLog>(xid, att_[xid]);
-  lsn_t lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
+  auto log = std::make_shared<CommitLog>(NULL_LSN, xid, att_[xid]);
+  lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   log_buffer_.push_back(std::move(log));
   Flush(lsn);
@@ -114,9 +111,8 @@ lsn_t LogManager::AppendRollbackLog(xid_t xid) {
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendRollbackLog)");
   }
-  auto log = std::make_shared<RollbackLog>(xid, att_[xid]);
-  lsn_t lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
+  auto log = std::make_shared<RollbackLog>(NULL_LSN, xid, att_[xid]);
+  lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   log_buffer_.push_back(std::move(log));
   Flush(lsn);
@@ -125,15 +121,13 @@ lsn_t LogManager::AppendRollbackLog(xid_t xid) {
 }
 
 lsn_t LogManager::Checkpoint(bool async) {
-  auto log = std::make_shared<BeginCheckpointLog>(NULL_XID, NULL_LSN);
-  lsn_t begin_lsn = next_lsn_;
-  next_lsn_ += log->GetSize();
-  log->SetLSN(begin_lsn);
-  log_buffer_.push_back(std::move(log));
+  auto begin_checkpoint_log = std::make_shared<BeginCheckpointLog>(NULL_LSN, NULL_XID, NULL_LSN);
+  lsn_t begin_lsn = next_lsn_.fetch_add(begin_checkpoint_log->GetSize(), std::memory_order_relaxed);
+  begin_checkpoint_log->SetLSN(begin_lsn);
+  log_buffer_.push_back(std::move(begin_checkpoint_log));
 
-  auto end_checkpoint_log = std::make_shared<EndCheckpointLog>(NULL_XID, NULL_LSN, att_, dpt_);
-  lsn_t end_lsn = next_lsn_;
-  next_lsn_ += end_checkpoint_log->GetSize();
+  auto end_checkpoint_log = std::make_shared<EndCheckpointLog>(NULL_LSN, NULL_XID, NULL_LSN, att_, dpt_);
+  lsn_t end_lsn = next_lsn_.fetch_add(end_checkpoint_log->GetSize(), std::memory_order_relaxed);
   end_checkpoint_log->SetLSN(end_lsn);
   log_buffer_.push_back(std::move(end_checkpoint_log));
   Flush(end_lsn);

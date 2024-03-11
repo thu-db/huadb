@@ -4,7 +4,9 @@
 
 namespace huadb {
 
-LogRecord::LogRecord(LogType type, xid_t xid, lsn_t prev_lsn) : type_(type), xid_(xid), prev_lsn_(prev_lsn) {
+LogRecord::LogRecord(LogType type, lsn_t lsn, xid_t xid, lsn_t prev_lsn)
+    : type_(type), lsn_(lsn), xid_(xid), prev_lsn_(prev_lsn) {
+  // LSN 为日志记录在日志文件中的位置，无需占用空间
   size_ = sizeof(type_) + sizeof(xid_) + sizeof(prev_lsn_);
 }
 
@@ -19,26 +21,26 @@ size_t LogRecord::SerializeTo(char *data) const {
   return offset;
 }
 
-std::shared_ptr<LogRecord> LogRecord::DeserializeFrom(const char *data) {
+std::shared_ptr<LogRecord> LogRecord::DeserializeFrom(lsn_t lsn, const char *data) {
   LogType type;
   memcpy(&type, data, sizeof(type));
   switch (type) {
     case LogType::INSERT:
-      return InsertLog::DeserializeFrom(data + sizeof(type));
+      return InsertLog::DeserializeFrom(lsn, data + sizeof(type));
     case LogType::DELETE:
-      return DeleteLog::DeserializeFrom(data + sizeof(type));
+      return DeleteLog::DeserializeFrom(lsn, data + sizeof(type));
     case LogType::NEW_PAGE:
-      return NewPageLog::DeserializeFrom(data + sizeof(type));
+      return NewPageLog::DeserializeFrom(lsn, data + sizeof(type));
     case LogType::BEGIN:
-      return BeginLog::DeserializeFrom(data + sizeof(type));
+      return BeginLog::DeserializeFrom(lsn, data + sizeof(type));
     case LogType::COMMIT:
-      return CommitLog::DeserializeFrom(data + sizeof(type));
+      return CommitLog::DeserializeFrom(lsn, data + sizeof(type));
     case LogType::ROLLBACK:
-      return RollbackLog::DeserializeFrom(data + sizeof(type));
+      return RollbackLog::DeserializeFrom(lsn, data + sizeof(type));
     case LogType::BEGIN_CHECKPOINT:
-      return BeginCheckpointLog::DeserializeFrom(data + sizeof(type));
+      return BeginCheckpointLog::DeserializeFrom(lsn, data + sizeof(type));
     case LogType::END_CHECKPOINT:
-      return EndCheckpointLog::DeserializeFrom(data + sizeof(type));
+      return EndCheckpointLog::DeserializeFrom(lsn, data + sizeof(type));
     default:
       throw DbException("Unknown log type in DeserializeFrom");
   }

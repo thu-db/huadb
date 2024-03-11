@@ -103,7 +103,7 @@ void parse_log(const fs::path &path) {
       std::exit(1);
     }
     while (lsn < next_lsn) {
-      auto log = huadb::LogRecord::DeserializeFrom(buffer + lsn);
+      auto log = huadb::LogRecord::DeserializeFrom(lsn, buffer + lsn);
       std::cout << log->ToString() << std::endl;
       lsn += log->GetSize();
     }

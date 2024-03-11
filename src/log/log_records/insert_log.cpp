@@ -2,9 +2,9 @@
 
 namespace huadb {
 
-InsertLog::InsertLog(xid_t xid, lsn_t prev_lsn, oid_t oid, pageid_t page_id, slotid_t slot_id, db_size_t page_offset,
-                     db_size_t record_size, char *record)
-    : LogRecord(LogType::INSERT, xid, prev_lsn),
+InsertLog::InsertLog(lsn_t lsn, xid_t xid, lsn_t prev_lsn, oid_t oid, pageid_t page_id, slotid_t slot_id,
+                     db_size_t page_offset, db_size_t record_size, char *record)
+    : LogRecord(LogType::INSERT, lsn, xid, prev_lsn),
       oid_(oid),
       page_id_(page_id),
       slot_id_(slot_id),
@@ -35,7 +35,7 @@ size_t InsertLog::SerializeTo(char *data) const {
   return offset;
 }
 
-std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(const char *data) {
+std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(lsn_t lsn, const char *data) {
   xid_t xid;
   lsn_t prev_lsn;
   oid_t oid;
@@ -61,7 +61,7 @@ std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(const char *data) {
   record = new char[record_size];
   memcpy(record, data + offset, record_size);
   offset += record_size;
-  return std::make_shared<InsertLog>(xid, prev_lsn, oid, page_id, slot_id, page_offset, record_size, record);
+  return std::make_shared<InsertLog>(lsn, xid, prev_lsn, oid, page_id, slot_id, page_offset, record_size, record);
 }
 
 void InsertLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,

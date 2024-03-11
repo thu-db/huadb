@@ -2,7 +2,7 @@
 
 namespace huadb {
 
-BeginLog::BeginLog(xid_t xid, lsn_t prev_lsn) : LogRecord(LogType::BEGIN, xid, prev_lsn) {}
+BeginLog::BeginLog(lsn_t lsn, xid_t xid, lsn_t prev_lsn) : LogRecord(LogType::BEGIN, lsn, xid, prev_lsn) {}
 
 size_t BeginLog::SerializeTo(char *data) const {
   size_t offset = LogRecord::SerializeTo(data);
@@ -10,7 +10,7 @@ size_t BeginLog::SerializeTo(char *data) const {
   return offset;
 }
 
-std::shared_ptr<BeginLog> BeginLog::DeserializeFrom(const char *data) {
+std::shared_ptr<BeginLog> BeginLog::DeserializeFrom(lsn_t lsn, const char *data) {
   xid_t xid;
   lsn_t prev_lsn;
   size_t offset = 0;
@@ -18,7 +18,7 @@ std::shared_ptr<BeginLog> BeginLog::DeserializeFrom(const char *data) {
   offset += sizeof(xid);
   memcpy(&prev_lsn, data + offset, sizeof(prev_lsn));
   offset += sizeof(prev_lsn);
-  return std::make_shared<BeginLog>(xid, prev_lsn);
+  return std::make_shared<BeginLog>(lsn, xid, prev_lsn);
 }
 
 std::string BeginLog::ToString() const { return fmt::format("BeginLog\t\t[{}]", LogRecord::ToString()); }

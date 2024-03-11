@@ -1,10 +1,12 @@
 #include "log/log_records/end_checkpoint_log.h"
 
+#include <sstream>
+
 namespace huadb {
 
-EndCheckpointLog::EndCheckpointLog(xid_t xid, lsn_t prev_lsn, const std::unordered_map<xid_t, lsn_t> &att,
+EndCheckpointLog::EndCheckpointLog(lsn_t lsn, xid_t xid, lsn_t prev_lsn, const std::unordered_map<xid_t, lsn_t> &att,
                                    const std::unordered_map<TablePageid, lsn_t> &dpt)
-    : LogRecord(LogType::END_CHECKPOINT, xid, prev_lsn), att_(att), dpt_(dpt) {
+    : LogRecord(LogType::END_CHECKPOINT, lsn, xid, prev_lsn), att_(att), dpt_(dpt) {
   size_ += sizeof(size_t) + att_.size() * (sizeof(xid_t) + sizeof(lsn_t)) + sizeof(size_t) +
            dpt_.size() * (sizeof(TablePageid) + sizeof(lsn_t));
 }
@@ -33,7 +35,7 @@ size_t EndCheckpointLog::SerializeTo(char *data) const {
   return offset;
 }
 
-std::shared_ptr<EndCheckpointLog> EndCheckpointLog::DeserializeFrom(const char *data) {
+std::shared_ptr<EndCheckpointLog> EndCheckpointLog::DeserializeFrom(lsn_t lsn, const char *data) {
   xid_t xid;
   lsn_t prev_lsn;
   size_t offset = 0;
@@ -45,13 +47,13 @@ std::shared_ptr<EndCheckpointLog> EndCheckpointLog::DeserializeFrom(const char *
   memcpy(&att_size, data + offset, sizeof(att_size));
   offset += sizeof(att_size);
   std::unordered_map<xid_t, lsn_t> att;
-  lsn_t lsn;
+  lsn_t temp_lsn;
   for (size_t i = 0; i < att_size; i++) {
     memcpy(&xid, data + offset, sizeof(xid));
     offset += sizeof(xid);
-    memcpy(&lsn, data + offset, sizeof(lsn));
-    offset += sizeof(lsn);
-    att[xid] = lsn;
+    memcpy(&temp_lsn, data + offset, sizeof(temp_lsn));
+    offset += sizeof(temp_lsn);
+    att[xid] = temp_lsn;
   }
   size_t dpt_size;
   memcpy(&dpt_size, data + offset, sizeof(dpt_size));
@@ -61,17 +63,29 @@ std::shared_ptr<EndCheckpointLog> EndCheckpointLog::DeserializeFrom(const char *
   for (size_t i = 0; i < dpt_size; i++) {
     memcpy(&unique_page_id, data + offset, sizeof(TablePageid));
     offset += sizeof(TablePageid);
-    memcpy(&lsn, data + offset, sizeof(lsn));
-    offset += sizeof(lsn);
-    dpt[unique_page_id] = lsn;
+    memcpy(&temp_lsn, data + offset, sizeof(temp_lsn));
+    offset += sizeof(temp_lsn);
+    dpt[unique_page_id] = temp_lsn;
   }
-  return std::make_shared<EndCheckpointLog>(xid, prev_lsn, std::move(att), std::move(dpt));
+  return std::make_shared<EndCheckpointLog>(lsn, xid, prev_lsn, std::move(att), std::move(dpt));
 }
 
 const std::unordered_map<xid_t, lsn_t> &EndCheckpointLog::GetATT() { return att_; }
 
 const std::unordered_map<TablePageid, lsn_t> &EndCheckpointLog::GetDPT() { return dpt_; }
 
-std::string EndCheckpointLog::ToString() const { return fmt::format("EndCheckpointLog\t[{}]", LogRecord::ToString()); }
+std::string EndCheckpointLog::ToString() const {
+  std::ostringstream oss;
+  oss << "EndCheckpointLog\t[" << LogRecord::ToString() << " att: {";
+  for (const auto &entry : att_) {
+    oss << "(" << entry.first << ": " << entry.second << ") ";
+  }
+  oss << "} dpt: {";
+  for (const auto &entry : dpt_) {
+    oss << "(" << entry.first.table_oid_ << ", " << entry.first.page_id_ << ": " << entry.second << ") ";
+  }
+  oss << "}]";
+  return oss.str();
+}
 
 }  // namespace huadb
