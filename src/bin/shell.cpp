@@ -53,11 +53,17 @@ void LinenoiseShell() {
   auto database = std::make_unique<huadb::DatabaseEngine>();
   auto connection = std::make_unique<huadb::Connection>(*database);
   while (true) {
-    auto prompt = database->GetCurrentDatabase() + "> ";
+    auto current_db = database->GetCurrentDatabase();
+    std::string in_transaction;
+    if (connection->InTransaction()) {
+      in_transaction = "*";
+    }
+    auto fresh_prompt = current_db + "=" + in_transaction + "> ";
+    auto continue_prompt = current_db + "-" + in_transaction + "> ";
     std::string query;
     bool first_line = true;
     while (true) {
-      auto line_prompt = first_line ? prompt : "...-> ";
+      auto line_prompt = first_line ? fresh_prompt : continue_prompt;
       auto *query_c_str = linenoise(line_prompt.c_str());
       if (query_c_str == nullptr || std::string(query_c_str) == "\\q") {
         linenoiseHistorySave(history_file.c_str());

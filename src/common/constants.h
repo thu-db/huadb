@@ -31,7 +31,7 @@ static constexpr size_t MAX_LOG_SIZE = sizeof(enum_t) + sizeof(xid_t) + sizeof(l
                                        MAX_RECORD_SIZE + sizeof(lsn_t);
 static constexpr size_t BUFFER_SIZE = 5;
 
-static constexpr lsn_t FIRST_LSN = 1;
+static constexpr lsn_t FIRST_LSN = 0;
 static constexpr lsn_t NULL_LSN = -1;
 
 static constexpr xid_t NULL_XID = -1;

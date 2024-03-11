@@ -33,6 +33,7 @@ class DatabaseEngine {
   ~DatabaseEngine();
 
   const std::string &GetCurrentDatabase() const;
+  bool InTransaction(Connection &connection) const;
   void ExecuteSql(const std::string &sql, ResultWriter &writer, Connection &connection);
 
   void Crash();
@@ -71,7 +72,7 @@ class DatabaseEngine {
   void Analyze(const AnalyzeStatement &stmt, ResultWriter &writer);
   void Vacuum(const VacuumStatement &stmt, ResultWriter &writer);
 
-  void WriteOneCell(const std::string &str, ResultWriter &writer);
+  void WriteOneCell(const std::string &str, ResultWriter &writer) const;
 
   static IsolationLevel String2IsolationLevel(const std::string &str);
   static ForceJoin String2ForceJoin(const std::string &str);

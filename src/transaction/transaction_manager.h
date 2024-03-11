@@ -18,7 +18,7 @@ static constexpr IsolationLevel DEFAULT_ISOLATION_LEVEL = IsolationLevel::READ_C
 
 class TransactionManager {
  public:
-  explicit TransactionManager(LockManager &lock_manager, xid_t next_xid = FIRST_XID);
+  explicit TransactionManager(LockManager &lock_manager, xid_t next_xid);
 
   // 获取 cid 并递增
   cid_t GetCidAndIncrement(xid_t xid);

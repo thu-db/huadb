@@ -15,7 +15,7 @@ namespace huadb {
 
 class LogManager {
  public:
-  LogManager(Disk &disk, TransactionManager &transaction_manager, lsn_t next_lsn = FIRST_LSN);
+  LogManager(Disk &disk, TransactionManager &transaction_manager, lsn_t next_lsn);
 
   void SetBufferPool(std::shared_ptr<BufferPool> buffer_pool);
   void SetCatalog(std::shared_ptr<Catalog> catalog);

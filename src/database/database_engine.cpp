@@ -36,8 +36,10 @@ DatabaseEngine::DatabaseEngine() {
     transaction_manager_ = std::make_unique<TransactionManager>(*lock_manager_, xid);
     log_manager_ = std::make_unique<LogManager>(*disk_, *transaction_manager_, lsn);
   } else {
-    transaction_manager_ = std::make_unique<TransactionManager>(*lock_manager_);
-    log_manager_ = std::make_unique<LogManager>(*disk_, *transaction_manager_);
+    std::ofstream out(CONTROL_NAME);
+    out << FIRST_XID << " " << FIRST_LSN << " " << PRESERVED_OID << " " << false;
+    transaction_manager_ = std::make_unique<TransactionManager>(*lock_manager_, FIRST_XID);
+    log_manager_ = std::make_unique<LogManager>(*disk_, *transaction_manager_, FIRST_LSN);
   }
   buffer_pool_ = std::make_shared<BufferPool>(*disk_, *log_manager_);
   log_manager_->SetBufferPool(buffer_pool_);
@@ -67,6 +69,8 @@ DatabaseEngine::~DatabaseEngine() {
 }
 
 const std::string &DatabaseEngine::GetCurrentDatabase() const { return current_db_; }
+
+bool DatabaseEngine::InTransaction(Connection &connection) const { return xids_.find(&connection) != xids_.end(); }
 
 void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Connection &connection) {
   if (!sql.empty() && sql[0] == '\\') {
@@ -121,18 +125,22 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Co
       switch (transaction_statement.type_) {
         case TransactionType::BEGIN:
           Begin(connection);
+          WriteOneCell("BEGIN", writer);
           break;
         case TransactionType::COMMIT:
           Commit(connection);
+          WriteOneCell("COMMIT", writer);
           break;
         case TransactionType::ROLLBACK:
           Rollback(connection);
+          WriteOneCell("ROLLBACK", writer);
           break;
       }
       continue;
     }
     if (statement->type_ == StatementType::CHECKPOINT_STATEMENT) {
       Checkpoint();
+      WriteOneCell("CHECKPOINT", writer);
       continue;
     }
 
@@ -573,7 +581,7 @@ void DatabaseEngine::Vacuum(const VacuumStatement &stmt, ResultWriter &writer) {
   WriteOneCell("Vacuum", writer);
 }
 
-void DatabaseEngine::WriteOneCell(const std::string &str, ResultWriter &writer) {
+void DatabaseEngine::WriteOneCell(const std::string &str, ResultWriter &writer) const {
   writer.BeginTable(true);
   writer.BeginRow();
   writer.WriteCell(str);

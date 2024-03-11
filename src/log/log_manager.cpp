@@ -162,40 +162,43 @@ void LogManager::IncrementRedoCount() { redo_count_++; }
 uint32_t LogManager::GetRedoCount() const { return redo_count_; }
 
 void LogManager::Flush(lsn_t lsn) {
-  size_t last_log_size = 0;
-  lsn_t last_log_lsn = flushed_lsn_;
+  size_t max_log_size = 0;
+  lsn_t max_lsn = 0;
   auto iterator = log_buffer_.cbegin();
   for (; iterator != log_buffer_.cend(); iterator++) {
     const auto &log_record = *iterator;
     if (lsn != NULL_LSN && log_record->GetLSN() > lsn) {
       break;
     }
-    last_log_size = log_record->GetSize();
-    char *log = new char[last_log_size];
+    auto log_size = log_record->GetSize();
+    char *log = new char[log_size];
     log_record->SerializeTo(log);
-    disk_.WriteLog(log_record->GetLSN(), last_log_size, log);
+    disk_.WriteLog(log_record->GetLSN(), log_size, log);
     delete[] log;
-    last_log_lsn = log_record->GetLSN();
+    if (log_record->GetLSN() > max_lsn) {
+      max_lsn = log_record->GetLSN();
+      max_log_size = log_size;
+    }
   }
   log_buffer_.erase(log_buffer_.begin(), iterator);
-  std::ofstream out(NEXT_LSN_NAME);
-  if (lsn == NULL_LSN && last_log_lsn > flushed_lsn_) {
-    flushed_lsn_ = last_log_lsn;
-  } else if (lsn > flushed_lsn_) {
-    flushed_lsn_ = lsn;
+  if (flushed_lsn_ == NULL_LSN || max_lsn > flushed_lsn_) {
+    flushed_lsn_ = max_lsn;
   }
-  out << (flushed_lsn_ + last_log_size);
-  out.flush();
+  std::ofstream out(NEXT_LSN_NAME);
+  out << (flushed_lsn_ + max_log_size);
 }
 
 void LogManager::Analyze() {
   // 恢复 Master Record 等元信息
   // 恢复故障时正在使用的数据库
-
   std::ifstream in(NEXT_LSN_NAME);
-  lsn_t next_lsn;
-  in >> next_lsn;
-  next_lsn_ = next_lsn;
+  if (in.fail()) {
+    next_lsn_ = FIRST_LSN;
+  } else {
+    lsn_t next_lsn;
+    in >> next_lsn;
+    next_lsn_ = next_lsn;
+  }
   flushed_lsn_ = next_lsn_ - 1;
   lsn_t checkpoint_lsn = 0;
 
