@@ -25,7 +25,7 @@ select * from test_update;
 2 2.2 bb
 3 3.4 ccc
 
-# 新建页面
+# New page
 query
 insert into test_update values(4, 4.4, 'dddd'), (5, 5.5, 'eeeee'), (6, 6.6, 'ffffff');
 ----
@@ -69,7 +69,7 @@ select * from test_update;
 100 3.4 ccc
 100 4.4 dddd
 
-# 新建页面
+# New page
 query
 insert into test_update values(7, 7.7, 'ggggggg'), (8, 8.8, 'hhhhhhhh'), (9, 9.9, 'iiiiiiiii'), (10, 10.1, 'jjjjjjjjjj'), (11, 11.1, 'kkkkkkkkkkk');
 ----
@@ -106,7 +106,7 @@ select id, info from test_update;
 10 jjjjjjjjjj
 11 kkkkkkkkkkk
 
-# 新建页面
+# New page
 query
 update test_update set score = 99.9 where score < 4.0 or id = 11;
 ----

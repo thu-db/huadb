@@ -12,7 +12,7 @@ select * from recover;
 1 info1
 2 info2
 
-# 重启，确保数据持久化
+# Restart to ensure data is written to disk
 statement ok
 restart;
 
@@ -22,7 +22,7 @@ select * from recover;
 1 info1
 2 info2
 
-# 插入恢复测试
+# Insert recovery test
 query
 insert into recover values(3, 'info3');
 ----
@@ -48,7 +48,7 @@ select * from recover;
 2 info2
 3 info3
 
-# 删除恢复测试
+# Delete recovery test
 query
 delete from recover where id = 1;
 ----
@@ -72,7 +72,7 @@ select * from recover;
 2 info2
 3 info3
 
-# 更新恢复测试
+# Update recovery test
 query
 update recover set id = 3 where id < 3;
 ----
@@ -96,7 +96,7 @@ select * from recover;
 3 info2
 3 info3
 
-# 新页恢复测试
+# New page recovery test
 query
 insert into recover values(4, 'info4'), (5, 'info5'), (6, 'info6'), (7, 'info7'), (8, 'info8'), (9, 'info9'), (10, 'info10');
 ----

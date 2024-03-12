@@ -12,7 +12,7 @@ select * from test_rollback;
 1 info1
 2 info2
 
-# 插入回滚测试
+# Insert rollback test
 statement ok
 begin;
 
@@ -37,7 +37,7 @@ select * from test_rollback;
 1 info1
 2 info2
 
-# 删除回滚测试
+# Delete rollback test
 statement ok
 begin;
 
@@ -60,7 +60,7 @@ select * from test_rollback;
 1 info1
 2 info2
 
-# 更新回滚测试
+# Update rollback test
 statement ok
 begin;
 
@@ -84,7 +84,7 @@ select * from test_rollback;
 1 info1
 2 info2
 
-# 新页回滚测试
+# New page rollback test
 statement ok
 begin;
 

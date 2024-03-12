@@ -81,7 +81,7 @@ show disk_access_count;
 3
 
 # lru list is: 4 5 7 7 6
-query
+query rowsort
 select * from buffer_6;
 ----
 1 aaa
@@ -91,7 +91,7 @@ select * from buffer_6;
 5 eee
 
 # lru list is: 4 5 6 7 7
-query
+query rowsort
 select * from buffer_7;
 ----
 1 aaa
@@ -106,7 +106,7 @@ select * from buffer_7;
 10 jjj
 
 # lru list is: 4 5 7 7 6
-query
+query rowsort
 select * from buffer_6;
 ----
 1 aaa
@@ -121,7 +121,7 @@ show disk_access_count;
 3
 
 # lru list is: 5 7 7 6 3, disk_access_count + 2 (Write page 4, Read Page 3)
-query
+query rowsort
 select * from buffer_3;
 ----
 1 aaa
@@ -136,7 +136,7 @@ show disk_access_count;
 5
 
 # lru list is: 7 7 6 3 5
-query
+query rowsort
 select * from buffer_5;
 ----
 1 aaa
@@ -146,7 +146,7 @@ select * from buffer_5;
 5 eee
 
 # lru list is: 7 6 3 5 4, disk_access_count + 2 (Write page 7, Read page 4)
-query
+query rowsort
 select * from buffer_4;
 ----
 1 aaa
@@ -161,7 +161,7 @@ show disk_access_count;
 7
 
 # lru list is: 6 3 5 4 2, disk_access_count + 2 (Write page 7, Read page 2)
-query
+query rowsort
 select * from buffer_2;
 ----
 1 aaa
@@ -177,7 +177,7 @@ show disk_access_count;
 
 # lru list is: 5 4 2 7 7, disk_access_count + 3 (Read page 7, 7, Write page 6)
 # Note that page 3 write does not increment disk_access_count because it is not dirty
-query
+query rowsort
 select * from buffer_7;
 ----
 1 aaa
