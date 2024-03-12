@@ -10,8 +10,8 @@ class DatabaseEngine;
 class Connection {
  public:
   explicit Connection(DatabaseEngine &database);
-  void SendQuery(const std::string &sql, ResultWriter &writer);
-  bool InTransaction();
+  void SendQuery(const std::string &sql, ResultWriter &writer) const;
+  bool InTransaction() const;
 
  private:
   DatabaseEngine &database_;

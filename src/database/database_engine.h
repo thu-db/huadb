@@ -33,32 +33,32 @@ class DatabaseEngine {
   ~DatabaseEngine();
 
   const std::string &GetCurrentDatabase() const;
-  bool InTransaction(Connection &connection) const;
-  void ExecuteSql(const std::string &sql, ResultWriter &writer, Connection &connection);
+  bool InTransaction(const Connection &connection) const;
+  void ExecuteSql(const std::string &sql, ResultWriter &writer, const Connection &connection);
 
   void Crash();
 
  private:
-  void Help(ResultWriter &writer);
+  void Help(ResultWriter &writer) const;
 
   void CreateDatabase(const std::string &db_name, bool exists_ok, ResultWriter &writer);
-  void ShowDatabases(ResultWriter &writer);
+  void ShowDatabases(ResultWriter &writer) const;
   void ChangeDatabase(const std::string &db_name, ResultWriter &writer);
   void DropDatabase(const std::string &db_name, bool missing_ok, ResultWriter &writer);
   void CloseDatabase();
 
   void CreateTable(const std::string &table_name, const ColumnList &column_list, ResultWriter &writer);
-  void DescribeTable(const std::string &table_name, ResultWriter &writer);
-  void ShowTables(ResultWriter &writer);
+  void DescribeTable(const std::string &table_name, ResultWriter &writer) const;
+  void ShowTables(ResultWriter &writer) const;
   void DropTable(const std::string &table_name, ResultWriter &writer);
 
   void CreateIndex(const std::string &index_name, const std::string &table_name,
                    const std::vector<std::string> &column_names, ResultWriter &writer);
   void DropIndex(const std::string &index_name, ResultWriter &writer);
 
-  void Begin(Connection &connection);
-  void Commit(Connection &connection);
-  void Rollback(Connection &connection);
+  void Begin(const Connection &connection);
+  void Commit(const Connection &connection);
+  void Rollback(const Connection &connection);
 
   void Checkpoint();
   void Recover();
@@ -67,7 +67,7 @@ class DatabaseEngine {
   void Lock(xid_t xid, const LockStatement &stmt, ResultWriter &writer);
 
   void VariableSet(const Connection &connection, const VariableSetStatement &stmt, ResultWriter &writer);
-  void VariableShow(const Connection &connection, const VariableShowStatement &stmt, ResultWriter &writer);
+  void VariableShow(const Connection &connection, const VariableShowStatement &stmt, ResultWriter &writer) const;
 
   void Analyze(const AnalyzeStatement &stmt, ResultWriter &writer);
   void Vacuum(const VacuumStatement &stmt, ResultWriter &writer);
@@ -90,9 +90,9 @@ class DatabaseEngine {
   std::unique_ptr<LockManager> lock_manager_;
 
   std::unordered_map<const Connection *, std::unordered_map<std::string, std::string>> client_variables_;
-  std::unordered_map<Connection *, xid_t> xids_;
+  std::unordered_map<const Connection *, xid_t> xids_;
   std::unordered_map<const Connection *, IsolationLevel> isolation_levels_;
-  std::unordered_set<Connection *> auto_transaction_set_;
+  std::unordered_set<const Connection *> auto_transaction_set_;
 
   ForceJoin force_join_ = ForceJoin::NONE;
   JoinOrderAlgorithm join_order_algorithm_ = DEFAULT_JOIN_ORDER_ALGORITHM;

@@ -70,9 +70,11 @@ DatabaseEngine::~DatabaseEngine() {
 
 const std::string &DatabaseEngine::GetCurrentDatabase() const { return current_db_; }
 
-bool DatabaseEngine::InTransaction(Connection &connection) const { return xids_.find(&connection) != xids_.end(); }
+bool DatabaseEngine::InTransaction(const Connection &connection) const {
+  return xids_.find(&connection) != xids_.end();
+}
 
-void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, Connection &connection) {
+void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, const Connection &connection) {
   if (!sql.empty() && sql[0] == '\\') {
     if (sql[1] == 'l') {
       ShowDatabases(writer);
@@ -285,7 +287,7 @@ void DatabaseEngine::Crash() {
   crashed_ = true;
 }
 
-void DatabaseEngine::Help(ResultWriter &writer) {
+void DatabaseEngine::Help(ResultWriter &writer) const {
   std::string help = R"(
   \? or \h              show help message
   \c [database_name]    change database
@@ -302,7 +304,7 @@ void DatabaseEngine::CreateDatabase(const std::string &db_name, bool exists_ok, 
   WriteOneCell("CREATE DATABASE", writer);
 }
 
-void DatabaseEngine::ShowDatabases(ResultWriter &writer) {
+void DatabaseEngine::ShowDatabases(ResultWriter &writer) const {
   writer.BeginTable();
   writer.BeginHeader();
   writer.WriteHeaderCell("database_name");
@@ -349,7 +351,7 @@ void DatabaseEngine::CreateTable(const std::string &table_name, const ColumnList
   WriteOneCell("CREATE TABLE", writer);
 }
 
-void DatabaseEngine::DescribeTable(const std::string &table_name, ResultWriter &writer) {
+void DatabaseEngine::DescribeTable(const std::string &table_name, ResultWriter &writer) const {
   auto column_list = catalog_->GetTableColumnList(table_name);
   writer.BeginTable();
   writer.BeginHeader();
@@ -370,7 +372,7 @@ void DatabaseEngine::DescribeTable(const std::string &table_name, ResultWriter &
   writer.WriteRowCount(column_count);
 }
 
-void DatabaseEngine::ShowTables(ResultWriter &writer) {
+void DatabaseEngine::ShowTables(ResultWriter &writer) const {
   writer.BeginTable();
   writer.BeginHeader();
   writer.WriteHeaderCell("table_name");
@@ -402,7 +404,7 @@ void DatabaseEngine::DropIndex(const std::string &index_name, ResultWriter &writ
   WriteOneCell("DROP INDEX", writer);
 }
 
-void DatabaseEngine::Begin(Connection &connection) {
+void DatabaseEngine::Begin(const Connection &connection) {
   if (xids_.find(&connection) != xids_.end()) {
     throw DbException("There is already a transaction in progress");
   } else {
@@ -412,7 +414,7 @@ void DatabaseEngine::Begin(Connection &connection) {
   }
 }
 
-void DatabaseEngine::Commit(Connection &connection) {
+void DatabaseEngine::Commit(const Connection &connection) {
   if (xids_.find(&connection) == xids_.end()) {
     throw DbException("There is no transaction in process");
   } else {
@@ -422,7 +424,7 @@ void DatabaseEngine::Commit(Connection &connection) {
   }
 }
 
-void DatabaseEngine::Rollback(Connection &connection) {
+void DatabaseEngine::Rollback(const Connection &connection) {
   if (xids_.find(&connection) == xids_.end()) {
     throw DbException("There is no transaction in process");
   } else {
@@ -496,7 +498,7 @@ void DatabaseEngine::VariableSet(const Connection &connection, const VariableSet
 }
 
 void DatabaseEngine::VariableShow(const Connection &connection, const VariableShowStatement &stmt,
-                                  ResultWriter &writer) {
+                                  ResultWriter &writer) const {
   std::string result;
   if (stmt.variable_ == "tables") {
     ShowTables(writer);
@@ -510,10 +512,10 @@ void DatabaseEngine::VariableShow(const Connection &connection, const VariableSh
     result = std::to_string(log_manager_->GetRedoCount());
   } else {
     if (client_variables_.find(&connection) == client_variables_.end() ||
-        client_variables_[&connection].find(stmt.variable_) == client_variables_[&connection].end()) {
+        client_variables_.at(&connection).find(stmt.variable_) == client_variables_.at(&connection).end()) {
       throw DbException("Variable not found");
     }
-    result = client_variables_[&connection][stmt.variable_];
+    result = client_variables_.at(&connection).at(stmt.variable_);
   }
   writer.BeginTable();
   writer.BeginHeader();
