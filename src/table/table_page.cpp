@@ -105,9 +105,19 @@ std::string TablePage::ToString() const {
   oss << "  next_page_id: " << *next_page_id_ << std::endl;
   oss << "  lower: " << *lower_ << std::endl;
   oss << "  upper: " << *upper_ << std::endl;
+  if (*lower_ > *upper_) {
+    oss << "***Error: lower > upper***" << std::endl;
+  }
   oss << "  slots: " << std::endl;
   for (size_t i = 0; i < GetRecordCount(); i++) {
-    oss << "    " << i << ": offset " << slots_[i].offset_ << ", size " << slots_[i].size_ << std::endl;
+    oss << "    " << i << ": offset " << slots_[i].offset_ << ", size " << slots_[i].size_ << " ";
+    if (slots_[i].size_ <= RECORD_HEADER_SIZE) {
+      oss << "***Error: record size smaller than header size***" << std::endl;
+    } else {
+      RecordHeader header;
+      header.DeserializeFrom(page_data_ + slots_[i].offset_);
+      oss << header.ToString() << std::endl;
+    }
   }
   oss << "]\n";
   return oss.str();

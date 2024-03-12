@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <cstring>
+#include <sstream>
 
 namespace huadb {
 
@@ -31,6 +32,17 @@ db_size_t RecordHeader::DeserializeFrom(const char *data) {
   offset += sizeof(cid_);
   assert(offset == RECORD_HEADER_SIZE);
   return offset;
+}
+
+std::string RecordHeader::ToString() const {
+  std::ostringstream oss;
+  oss << "Header[";
+  oss << "deleted: " << deleted_;
+  oss << ", xmin: " << xmin_;
+  oss << ", xmax: " << xmax_;
+  oss << ", cid: " << cid_;
+  oss << "]";
+  return oss.str();
 }
 
 }  // namespace huadb
