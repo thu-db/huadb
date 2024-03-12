@@ -16,6 +16,7 @@ jobs:
     # You can convert this to a matrix build if you need cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-22.04
+    timeout-minutes: 5
 
     steps:
     - uses: actions/checkout@v3
@@ -31,6 +32,8 @@ jobs:
       run: make lab0
   sync-gitee:
     runs-on: ubuntu-22.04
+    timeout-minutes: 2
+    
     steps:
       - name: Sync to Gitee
         uses: wearerequired/git-mirror-action@master
@@ -41,6 +44,8 @@ jobs:
           destination-repo: git@gitee.com:thu-db/huadb.git
   sync-gitlab:
     runs-on: ubuntu-22.04
+    timeout-minutes: 2
+    
     steps:
       - name: Sync to GitLab
         uses: wearerequired/git-mirror-action@master
