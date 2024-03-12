@@ -65,20 +65,19 @@ void parse_data(const fs::path &path) {
 }
 
 void parse_log(const fs::path &path) {
-  auto control_name = path / huadb::CONTROL_NAME;
+  auto next_lsn_name = path / huadb::NEXT_LSN_NAME;
   auto log_name = path / huadb::LOG_NAME;
-  if (!fs::is_regular_file(control_name)) {
-    std::cerr << "File not found: " << control_name << std::endl;
+  if (!fs::is_regular_file(next_lsn_name)) {
+    std::cerr << "File not found: " << next_lsn_name << std::endl;
     std::exit(1);
   }
-  std::ifstream file(control_name);
+  std::ifstream file(next_lsn_name);
   if (file.fail()) {
-    std::cerr << "Failed to open file: " << control_name << std::endl;
+    std::cerr << "Failed to open file: " << next_lsn_name << std::endl;
     std::exit(1);
   }
-  huadb::xid_t xid;
   huadb::lsn_t next_lsn;
-  file >> xid >> next_lsn;
+  file >> next_lsn;
   file.close();
   file.clear();
 

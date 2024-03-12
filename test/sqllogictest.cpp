@@ -67,6 +67,8 @@ bool Run(const fs::path &path) {
           }
           if (statement.sql_.substr(0, 5) == "crash") {
             database->Crash();
+          } else if (statement.sql_.substr(0, 5) == "flush") {
+            database->Flush();
           } else if (statement.sql_.substr(0, 7) == "restart") {
             database.reset();
             database = std::make_unique<huadb::DatabaseEngine>();

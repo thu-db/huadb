@@ -37,6 +37,7 @@ class DatabaseEngine {
   void ExecuteSql(const std::string &sql, ResultWriter &writer, const Connection &connection);
 
   void Crash();
+  void Flush();
 
  private:
   void Help(ResultWriter &writer) const;

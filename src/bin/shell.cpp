@@ -21,6 +21,9 @@ void PlainShell() {
       if (query.substr(0, 5) == "crash") {
         database->Crash();
         std::cout << "CRASH" << std::endl;
+      } else if (query.substr(0, 5) == "flush") {
+        database->Flush();
+        std::cout << "FLUSH" << std::endl;
       } else if (query.substr(0, 7) == "restart") {
         database.reset();
         database = std::make_unique<huadb::DatabaseEngine>();
@@ -82,6 +85,9 @@ void LinenoiseShell() {
       if (query.substr(0, 5) == "crash") {
         database->Crash();
         std::cout << "CRASH" << std::endl;
+      } else if (query.substr(0, 5) == "flush") {
+        database->Flush();
+        std::cout << "FLUSH" << std::endl;
       } else if (query.substr(0, 7) == "restart") {
         database.reset();
         database = std::make_unique<huadb::DatabaseEngine>();

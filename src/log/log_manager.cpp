@@ -190,12 +190,13 @@ uint32_t LogManager::GetRedoCount() const { return redo_count_; }
 
 void LogManager::Flush(lsn_t lsn) {
   size_t max_log_size = 0;
-  lsn_t max_lsn = 0;
+  lsn_t max_lsn = NULL_LSN;
   {
     std::unique_lock lock(log_buffer_mutex_);
     for (auto iterator = log_buffer_.cbegin(); iterator != log_buffer_.cend();) {
       const auto &log_record = *iterator;
-      if (log_record->GetLSN() > lsn && lsn != NULL_LSN) {
+      // 如果 lsn 为 NULL_LSN，表示 log_buffer_ 中所有日志都需要刷盘
+      if (lsn != NULL_LSN && log_record->GetLSN() > lsn) {
         iterator++;
         continue;
       }
@@ -204,18 +205,27 @@ void LogManager::Flush(lsn_t lsn) {
       log_record->SerializeTo(log);
       disk_.WriteLog(log_record->GetLSN(), log_size, log);
       delete[] log;
-      if (log_record->GetLSN() > max_lsn) {
+      if (max_lsn == NULL_LSN || log_record->GetLSN() > max_lsn) {
         max_lsn = log_record->GetLSN();
         max_log_size = log_size;
       }
       iterator = log_buffer_.erase(iterator);
     }
   }
-  if (flushed_lsn_ == NULL_LSN || max_lsn > flushed_lsn_) {
+  // 如果 max_lsn 为 NULL_LSN，表示没有日志刷盘
+  // 如果 flushed_lsn_ 为 NULL_LSN，表示还没有日志刷过盘
+  if (max_lsn != NULL_LSN && (flushed_lsn_ == NULL_LSN || max_lsn > flushed_lsn_)) {
     flushed_lsn_ = max_lsn;
+    lsn_t next_lsn = FIRST_LSN;
+    if (disk_.FileExists(NEXT_LSN_NAME)) {
+      std::ifstream in(NEXT_LSN_NAME);
+      in >> next_lsn;
+    }
+    if (flushed_lsn_ + max_log_size > next_lsn) {
+      std::ofstream out(NEXT_LSN_NAME);
+      out << (flushed_lsn_ + max_log_size);
+    }
   }
-  std::ofstream out(NEXT_LSN_NAME);
-  out << (flushed_lsn_ + max_log_size);
 }
 
 void LogManager::Analyze() {

@@ -287,6 +287,8 @@ void DatabaseEngine::Crash() {
   crashed_ = true;
 }
 
+void DatabaseEngine::Flush() { buffer_pool_->Flush(); }
+
 void DatabaseEngine::Help(ResultWriter &writer) const {
   std::string help = R"(
   \? or \h              show help message

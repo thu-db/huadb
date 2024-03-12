@@ -17,17 +17,16 @@ Disk::Disk() {
 
   if (!FileExists(LOG_NAME)) {
     CreateFile(LOG_NAME);
-    log_fs_ = std::fstream(LOG_NAME, std::fstream::in | std::fstream::out | std::fstream::binary | std::fstream::trunc);
     std::filesystem::resize_file(LOG_NAME, LOG_SEGMENT_SIZE);
     log_segments = 1;
   } else {
-    log_fs_ = std::fstream(LOG_NAME, std::fstream::in | std::fstream::out | std::fstream::binary);
     auto log_file_size = std::filesystem::file_size(LOG_NAME);
     if (log_file_size / LOG_SEGMENT_SIZE == 0 || log_file_size % LOG_SEGMENT_SIZE != 0) {
       throw DbException("log file size is not a multiple of segment size");
     }
     log_segments = log_file_size / LOG_SEGMENT_SIZE;
   }
+  log_fs_.open(LOG_NAME, std::fstream::in | std::fstream::out | std::fstream::binary);
   if (log_fs_.fail()) {
     throw DbException("fstream failed in Disk::Disk");
   }
