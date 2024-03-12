@@ -18,7 +18,7 @@ std::shared_ptr<Record> DeleteExecutor::Next() {
   while (auto record = children_[0]->Next()) {
     // 通过 context_ 获取正确的锁，加锁失败时抛出异常
     // LAB 3 BEGIN
-    table_->DeleteRecord(record->GetRid(), context_.GetXid());
+    table_->DeleteRecord(record->GetRid(), context_.GetXid(), true);
     count++;
   }
   finished_ = true;
