@@ -26,26 +26,26 @@ oid_t OidManager::DropEntry(OidType type, const std::string &name) {
   return oid;
 }
 
-std::string OidManager::GetEntryName(oid_t oid) {
+std::string OidManager::GetEntryName(oid_t oid) const {
   if (oid2name_.find(oid) == oid2name_.end()) {
     throw DbException("Entry with oid " + std::to_string(oid) + " does not exist.");
   }
-  return oid2name_[oid];
+  return oid2name_.at(oid);
 }
 
-oid_t OidManager::GetEntryOid(OidType type, const std::string &name) {
+oid_t OidManager::GetEntryOid(OidType type, const std::string &name) const {
   std::string entry_name = GetEntryPrefix(type) + name;
   if (name2oid_.find(entry_name) == name2oid_.end()) {
     throw DbException(name + " not found in oid manager");
   }
-  return name2oid_[entry_name];
+  return name2oid_.at(entry_name);
 }
 
-bool OidManager::EntryExists(OidType type, const std::string &name) {
+bool OidManager::EntryExists(OidType type, const std::string &name) const {
   return name2oid_.find(GetEntryPrefix(type) + name) != name2oid_.end();
 }
 
-bool OidManager::OidExists(oid_t oid) { return oid2name_.find(oid) != oid2name_.end(); }
+bool OidManager::OidExists(oid_t oid) const { return oid2name_.find(oid) != oid2name_.end(); }
 
 oid_t OidManager::GetNextOid() const { return next_oid_; }
 

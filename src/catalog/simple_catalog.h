@@ -29,12 +29,12 @@ class SimpleCatalog {
   // 删除数据库
   void DropDatabase(const std::string &database_name, bool missing_ok);
   // 获取所有数据库名
-  std::vector<std::string> GetDatabaseNames();
+  std::vector<std::string> GetDatabaseNames() const;
   // 切换当前数据库
   void ChangeDatabase(const std::string &database_name);
   void ChangeDatabase(oid_t db_oid);
   // 获取表所在的数据库的oid
-  oid_t GetDatabaseOid(oid_t table_oid);
+  oid_t GetDatabaseOid(oid_t table_oid) const;
   // 获取当前数据库oid
   oid_t GetCurrentDatabaseOid() const;
 
@@ -48,21 +48,21 @@ class SimpleCatalog {
   // 删除索引
   void DropIndex(const std::string &index_name);
   // 获取当前数据库下所有表名
-  std::vector<std::string> GetTableNames();
+  std::vector<std::string> GetTableNames() const;
   // 获取表
-  std::shared_ptr<Table> GetTable(oid_t oid);
+  std::shared_ptr<Table> GetTable(oid_t oid) const;
   // 获取表oid
-  oid_t GetTableOid(const std::string &table_name);
+  oid_t GetTableOid(const std::string &table_name) const;
   // 获取表的schema信息
-  const ColumnList &GetTableColumnList(oid_t oid);
-  const ColumnList &GetTableColumnList(const std::string &table_name);
+  const ColumnList &GetTableColumnList(oid_t oid) const;
+  const ColumnList &GetTableColumnList(const std::string &table_name) const;
   // 表是否存在
-  bool TableExists(oid_t oid);
+  bool TableExists(oid_t oid) const;
   // 获取下一个 oid
   oid_t GetNextOid() const;
   // 获取统计信息
-  uint32_t GetCardinality(const std::string &table_name);
-  uint32_t GetDistinct(const std::string &table_name, const std::string &column_name);
+  uint32_t GetCardinality(const std::string &table_name) const;
+  uint32_t GetDistinct(const std::string &table_name, const std::string &column_name) const;
   // 设置统计信息
   void SetCardinality(const std::string &table_name, uint32_t cardinality);
   void SetDistinct(const std::string &table_name, const std::string &column_name, uint32_t distinct);

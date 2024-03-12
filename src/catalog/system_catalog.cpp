@@ -113,7 +113,7 @@ void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_
   }
 }
 
-std::vector<std::string> SystemCatalog::GetDatabaseNames() {
+std::vector<std::string> SystemCatalog::GetDatabaseNames() const {
   std::vector<std::string> db_names;
   assert(oid2table_.find(DATABASE_META_OID) != oid2table_.end());
   auto db_meta = GetTable(DATABASE_META_OID);
@@ -155,7 +155,7 @@ void SystemCatalog::ChangeDatabase(const std::string &database_name) {
   LoadStatistics();
 }
 
-oid_t SystemCatalog::GetDatabaseOid(oid_t table_oid) {
+oid_t SystemCatalog::GetDatabaseOid(oid_t table_oid) const {
   if (oid2table_.find(table_oid) != oid2table_.end()) {
     return current_database_oid_;
   }
@@ -258,7 +258,7 @@ void SystemCatalog::CreateIndex(const std::string &index_name, const std::string
 
 void SystemCatalog::DropIndex(const std::string &index_name) {}
 
-std::vector<std::string> SystemCatalog::GetTableNames() {
+std::vector<std::string> SystemCatalog::GetTableNames() const {
   if (current_database_oid_ == INVALID_OID) {
     throw DbException("Invalid database oid in GetDatabaseTableNames");
   }
@@ -276,39 +276,39 @@ std::vector<std::string> SystemCatalog::GetTableNames() {
   return table_names;
 }
 
-std::shared_ptr<Table> SystemCatalog::GetTable(oid_t oid) {
+std::shared_ptr<Table> SystemCatalog::GetTable(oid_t oid) const {
   if (oid2table_.find(oid) == oid2table_.end()) {
     throw DbException("Table with oid " + std::to_string(oid) + " does not exist.");
   }
-  return oid2table_[oid];
+  return oid2table_.at(oid);
 }
 
-oid_t SystemCatalog::GetTableOid(const std::string &table_name) {
+oid_t SystemCatalog::GetTableOid(const std::string &table_name) const {
   if (!oid_manager_.EntryExists(OidType::TABLE, table_name)) {
     throw DbException("Table " + table_name + " does not exist.");
   }
   return oid_manager_.GetEntryOid(OidType::TABLE, table_name);
 }
 
-const ColumnList &SystemCatalog::GetTableColumnList(oid_t oid) { return GetTable(oid)->GetColumnList(); }
+const ColumnList &SystemCatalog::GetTableColumnList(oid_t oid) const { return GetTable(oid)->GetColumnList(); }
 
-const ColumnList &SystemCatalog::GetTableColumnList(const std::string &table_name) {
+const ColumnList &SystemCatalog::GetTableColumnList(const std::string &table_name) const {
   auto oid = GetTableOid(table_name);
   return GetTable(oid)->GetColumnList();
 }
 
-bool SystemCatalog::TableExists(oid_t oid) { return oid_manager_.OidExists(oid); }
+bool SystemCatalog::TableExists(oid_t oid) const { return oid_manager_.OidExists(oid); }
 
 oid_t SystemCatalog::GetNextOid() const { return oid_manager_.GetNextOid(); }
 
-uint32_t SystemCatalog::GetCardinality(const std::string &table_name) {
+uint32_t SystemCatalog::GetCardinality(const std::string &table_name) const {
   if (table2cardinality_.find(table_name) == table2cardinality_.end()) {
     return INVALID_CARDINALITY;
   }
   return table2cardinality_.at(table_name);
 }
 
-uint32_t SystemCatalog::GetDistinct(const std::string &table_name, const std::string &column_name) {
+uint32_t SystemCatalog::GetDistinct(const std::string &table_name, const std::string &column_name) const {
   if (col2distinct_.find(table_name + "." + column_name) == col2distinct_.end()) {
     return INVALID_DISTINCT;
   }
@@ -400,7 +400,7 @@ void SystemCatalog::CheckUsingDatabase() const {
   }
 }
 
-bool SystemCatalog::DatabaseExists(const std::string &database_name) {
+bool SystemCatalog::DatabaseExists(const std::string &database_name) const {
   return oid_manager_.EntryExists(OidType::DATABASE, database_name);
 }
 

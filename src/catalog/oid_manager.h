@@ -23,12 +23,12 @@ class OidManager {
   oid_t DropEntry(OidType type, const std::string &name);
 
   // 根据oid查找条目名称
-  std::string GetEntryName(oid_t oid);
+  std::string GetEntryName(oid_t oid) const;
   // 根据类型和名称查找oid
-  oid_t GetEntryOid(OidType type, const std::string &name);
+  oid_t GetEntryOid(OidType type, const std::string &name) const;
   // 判断条目是否存在
-  bool EntryExists(OidType type, const std::string &name);
-  bool OidExists(oid_t oid);
+  bool EntryExists(OidType type, const std::string &name) const;
+  bool OidExists(oid_t oid) const;
 
   oid_t GetNextOid() const;
 
