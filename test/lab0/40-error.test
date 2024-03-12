@@ -1,3 +1,4 @@
+# Duplicate column name: id
 statement error
 create table error(id int, id double);
 
@@ -7,39 +8,51 @@ create table error(id int, score double, info char(10), info2 varchar(10));
 statement ok
 create table error2(id int);
 
+# Table error2 already exists
 statement error
 create table error2(id int, score double);
 
+# Insert column number does not match table column number
 statement error
 insert into error values(1, 1.1, 'hello');
 
+# Insert column number does not match table column number
 statement error
 insert into error values(1, 1.1, 'hello', 'hello', 'hello');
 
+# Insert column type does not match table column type
 statement error
 insert into error values(1.1, 1.1, 'hello', 'hello');
 
+# Insert value too long
 statement error
 insert into error values(1, 1.1, 'hello world', 'hello');
 
+# LIMIT must not be negative
 statement error
 select * from error limit -1;
 
+# OFFSET must not be negative
 statement error
 select * from error offset -1;
 
+# OFFSET must not be negative
 statement error
 select * from error limit 1 offset -1;
 
+# LIMIT must not be negative
 statement error
 select * from error limit -1 offset 1;
 
+# OFFSET must not be negative
 statement error
 select * from error offset -1 limit 1;
 
+# Table name "error" specified more than once
 statement error
 select * from error, error2 error;
 
+# Table name "a" specified more than once
 statement error
 select * from error a, error2 a;
 
@@ -47,4 +60,8 @@ statement ok
 drop table error;
 
 statement ok
+drop table error2;
+
+# Table "error2" does not exist
+statement error
 drop table error2;

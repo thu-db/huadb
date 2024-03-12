@@ -150,7 +150,7 @@ ColumnDefinition Binder::BindColumnDefinition(duckdb_libpgquery::PGColumnDef *co
     throw DbException("Unknown column type " + type_name);
   }
   if (col_def->typeName->typmods == nullptr) {
-    throw DbException("Column length is not specified.");
+    throw DbException("Column length is not specified");
   }
   auto exprs = BindExpressionList(col_def->typeName->typmods);
   const auto &const_expr = dynamic_cast<ConstExpression &>(*exprs[0]);
@@ -167,7 +167,7 @@ std::unique_ptr<Statement> Binder::BindDropStatement(duckdb_libpgquery::PGDropSt
   if (name_list->length == 1) {
     name = reinterpret_cast<duckdb_libpgquery::PGValue *>(name_list->head->data.ptr_value)->val.str;
   } else {
-    throw DbException("\"schema.name\" is not supported.");
+    throw DbException("\"schema.name\" is not supported");
   }
 
   switch (stmt->removeType) {
@@ -745,12 +745,12 @@ std::unique_ptr<TableRef> Binder::BindJoin(duckdb_libpgquery::PGJoinExpr *ref) {
 std::unique_ptr<BaseTableRef> Binder::BindBaseTableRef(std::string table_name, std::optional<std::string> alias) {
   if (alias) {
     if (table_names_.find(*alias) != table_names_.end()) {
-      throw DbException(fmt::format("Table name {} specified more than once", *alias));
+      throw DbException(fmt::format("Table name \"{}\" specified more than once", *alias));
     }
     table_names_.insert(*alias);
   } else {
     if (table_names_.find(table_name) != table_names_.end()) {
-      throw DbException(fmt::format("Table name {} specified more than once", table_name));
+      throw DbException(fmt::format("Table name \"{}\" specified more than once", table_name));
     }
     table_names_.insert(table_name);
   }

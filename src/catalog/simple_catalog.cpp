@@ -82,7 +82,7 @@ void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList 
     db_oid = current_database_oid_;
   }
   if (oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " already exists.");
+    throw DbException("Table " + table_name + " already exists");
   }
   // Step2. OidManager添加对应项
   if (oid == INVALID_OID) {
@@ -116,7 +116,7 @@ void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList 
 void SimpleCatalog::DropTable(const std::string &table_name) {
   assert(current_database_oid_ != SYSTEM_DATABASE_OID);
   if (!oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " does not exist.");
+    throw DbException("Table \"" + table_name + "\" does not exist");
   }
   oid_t table_oid = oid_manager_.GetEntryOid(OidType::TABLE, table_name);
   // Step2. 实际删除表
@@ -151,14 +151,14 @@ std::vector<std::string> SimpleCatalog::GetTableNames() const {
 
 std::shared_ptr<Table> SimpleCatalog::GetTable(oid_t oid) const {
   if (oid2table_.find(oid) == oid2table_.end()) {
-    throw DbException("Table with oid " + std::to_string(oid) + " does not exist.");
+    throw DbException("Table with oid " + std::to_string(oid) + " does not exist");
   }
   return oid2table_.at(oid);
 }
 
 oid_t SimpleCatalog::GetTableOid(const std::string &table_name) const {
   if (!oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " does not exist.");
+    throw DbException("Table \"" + table_name + "\" does not exist");
   }
   return oid_manager_.GetEntryOid(OidType::TABLE, table_name);
 }

@@ -69,7 +69,7 @@ void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_
     if (missing_ok) {
       return;
     } else {
-      throw DbException("Database " + database_name + " does not exist");
+      throw DbException("Database \"" + database_name + "\" does not exist");
     }
   }
   // Step2. 获取删除数据库的db_oid
@@ -103,7 +103,7 @@ void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_
     }
   }
   if (!deleted) {
-    throw DbException("Database " + database_name + " does not exist in Database Meta.");
+    throw DbException("Database \"" + database_name + "\" does not exist in Database Meta");
   }
   // Step5. OidManager删除对应项
   oid_manager_.DropEntry(OidType::DATABASE, database_name);
@@ -133,7 +133,7 @@ void SystemCatalog::ChangeDatabase(oid_t db_oid) {
 
 void SystemCatalog::ChangeDatabase(const std::string &database_name) {
   if (!DatabaseExists(database_name)) {
-    throw DbException("Database " + database_name + " does not exist");
+    throw DbException("Database \"" + database_name + "\" does not exist");
   }
   oid_t db_oid = oid_manager_.GetEntryOid(OidType::DATABASE, database_name);
   if (db_oid == current_database_oid_) {
@@ -168,7 +168,7 @@ oid_t SystemCatalog::GetDatabaseOid(oid_t table_oid) const {
       return record->GetValue(db_oid_idx).GetValue<oid_t>();
     }
   }
-  throw DbException("Table with oid " + std::to_string(table_oid) + " does not exist.");
+  throw DbException("Table with oid " + std::to_string(table_oid) + " does not exist");
 }
 
 oid_t SystemCatalog::GetCurrentDatabaseOid() const { return current_database_oid_; }
@@ -181,7 +181,7 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
     db_oid = current_database_oid_;
   }
   if (oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " already exists.");
+    throw DbException("Table " + table_name + " already exists");
   }
   // Step2. OidManager添加对应项
   if (oid == INVALID_OID) {
@@ -220,7 +220,7 @@ void SystemCatalog::DropTable(const std::string &table_name) {
   CheckUsingDatabase();
   assert(current_database_oid_ != SYSTEM_DATABASE_OID);
   if (!oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " does not exist.");
+    throw DbException("Table \"" + table_name + "\" does not exist");
   }
   oid_t table_oid = oid_manager_.GetEntryOid(OidType::TABLE, table_name);
   // Step2. 实际删除表
@@ -243,18 +243,11 @@ void SystemCatalog::DropTable(const std::string &table_name) {
     }
   }
   if (!deleted) {
-    throw DbException("Table " + table_name + " does not exist in table_meta.");
+    throw DbException("Table \"" + table_name + "\" does not exist in table_meta");
   }
 }
 
-void SystemCatalog::CreateIndex(const std::string &index_name, const std::string &table_name) {
-  // if (oid_manager_.EntryExists(OidType::INDEX, index_name)) {
-  //   throw DbException("Index " + index_name + " already exists.");
-  // }
-  // auto oid = oid_manager_.CreateEntry(OidType::INDEX, index_name);
-  // disk_.CreateFile(Disk::GetFilePath(current_database_oid_, oid));
-  // oid2index_[oid] = std::make_shared<Index>(buffer_pool_, log_manager_, oid, current_database_oid_, table_name);
-}
+void SystemCatalog::CreateIndex(const std::string &index_name, const std::string &table_name) {}
 
 void SystemCatalog::DropIndex(const std::string &index_name) {}
 
@@ -278,14 +271,14 @@ std::vector<std::string> SystemCatalog::GetTableNames() const {
 
 std::shared_ptr<Table> SystemCatalog::GetTable(oid_t oid) const {
   if (oid2table_.find(oid) == oid2table_.end()) {
-    throw DbException("Table with oid " + std::to_string(oid) + " does not exist.");
+    throw DbException("Table with oid " + std::to_string(oid) + " does not exist");
   }
   return oid2table_.at(oid);
 }
 
 oid_t SystemCatalog::GetTableOid(const std::string &table_name) const {
   if (!oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " does not exist.");
+    throw DbException("Table \"" + table_name + "\" does not exist");
   }
   return oid_manager_.GetEntryOid(OidType::TABLE, table_name);
 }
@@ -334,7 +327,7 @@ void SystemCatalog::SetCardinality(const std::string &table_name, uint32_t cardi
     }
   }
   if (!found) {
-    throw DbException(table_name + " does not exist in table_meta");
+    throw DbException("Table\"" + table_name + "\" does not exist in table_meta");
   }
 }
 
@@ -396,7 +389,7 @@ void SystemCatalog::ExitDatabase() {
 
 void SystemCatalog::CheckUsingDatabase() const {
   if (current_database_oid_ == INVALID_OID) {
-    throw DbException("Not using databases.");
+    throw DbException("Not using databases");
   }
 }
 

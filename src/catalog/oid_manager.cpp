@@ -56,7 +56,7 @@ std::string OidManager::GetEntryPrefix(OidType type) {
     case OidType::DATABASE:
       return "DATABASE.";
     default:
-      throw DbException("Unsupported object in oid system.");
+      throw DbException("Unsupported object in oid system");
   }
 }
 
