@@ -1,8 +1,10 @@
 #pragma once
 
 #include <atomic>
+#include <list>
+#include <mutex>
+#include <shared_mutex>
 #include <unordered_map>
-#include <vector>
 
 #include "catalog/catalog.h"
 #include "common/constants.h"
@@ -81,7 +83,10 @@ class LogManager {
   std::atomic<lsn_t> next_lsn_;
   // 已经刷到磁盘的最大 lsn
   lsn_t flushed_lsn_;
-  std::vector<std::shared_ptr<LogRecord>> log_buffer_;
+
+  std::list<std::shared_ptr<LogRecord>> log_buffer_;
+  std::shared_mutex log_buffer_mutex_;
+
   uint32_t redo_count_ = 0;
 };
 
