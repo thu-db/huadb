@@ -45,7 +45,7 @@ class TablePage {
   db_size_t GetUpper() const;
 
   // 获取页面剩余空间大小
-  db_size_t GetFreeSpaceSize();
+  db_size_t GetFreeSpaceSize() const;
 
   // 设置下一个页面的页面号
   void SetNextPageId(pageid_t page_id);

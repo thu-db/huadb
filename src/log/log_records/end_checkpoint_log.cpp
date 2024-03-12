@@ -70,9 +70,9 @@ std::shared_ptr<EndCheckpointLog> EndCheckpointLog::DeserializeFrom(lsn_t lsn, c
   return std::make_shared<EndCheckpointLog>(lsn, xid, prev_lsn, std::move(att), std::move(dpt));
 }
 
-const std::unordered_map<xid_t, lsn_t> &EndCheckpointLog::GetATT() { return att_; }
+const std::unordered_map<xid_t, lsn_t> &EndCheckpointLog::GetATT() const { return att_; }
 
-const std::unordered_map<TablePageid, lsn_t> &EndCheckpointLog::GetDPT() { return dpt_; }
+const std::unordered_map<TablePageid, lsn_t> &EndCheckpointLog::GetDPT() const { return dpt_; }
 
 std::string EndCheckpointLog::ToString() const {
   std::ostringstream oss;

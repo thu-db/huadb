@@ -25,7 +25,7 @@ class Record {
   // 获取记录的大小
   db_size_t GetSize() const;
   // 将记录转换为字符串
-  std::string ToString();
+  std::string ToString() const;
   // 记录序列化
   db_size_t SerializeTo(char *data) const;
   // 记录反序列化

@@ -23,13 +23,13 @@ void LockManager::ReleaseLocks(xid_t xid) {
 
 void LockManager::SetDeadLockType(DeadlockType deadlock_type) { deadlock_type_ = deadlock_type; }
 
-bool LockManager::Compatible(LockType type_a, LockType type_b) {
+bool LockManager::Compatible(LockType type_a, LockType type_b) const {
   // 判断锁是否相容
   // LAB 3 BEGIN
   return true;
 }
 
-LockType LockManager::Upgrade(LockType self, LockType other) {
+LockType LockManager::Upgrade(LockType self, LockType other) const {
   // 升级锁类型
   // LAB 3 BEGIN
   return LockType::IS;

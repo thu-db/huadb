@@ -12,7 +12,7 @@ void LogManager::SetBufferPool(std::shared_ptr<BufferPool> buffer_pool) { buffer
 
 void LogManager::SetCatalog(std::shared_ptr<Catalog> catalog) { catalog_ = std::move(catalog); }
 
-lsn_t LogManager::GetNextLSN() { return next_lsn_; }
+lsn_t LogManager::GetNextLSN() const { return next_lsn_; }
 
 void LogManager::Clear() { log_buffer_.clear(); }
 

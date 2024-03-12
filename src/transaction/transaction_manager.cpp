@@ -13,10 +13,10 @@ cid_t TransactionManager::GetCidAndIncrement(xid_t xid) {
   if (xid2cid_.find(xid) == xid2cid_.end()) {
     throw DbException("xid" + std::to_string(xid) + "not found in GetCidAndIncrement");
   }
-  return xid2cid_[xid]++;
+  return xid2cid_.at(xid)++;
 }
 
-xid_t TransactionManager::GetNextXid() { return next_xid_; }
+xid_t TransactionManager::GetNextXid() const { return next_xid_; }
 
 void TransactionManager::SetNextXid(xid_t next_xid) {
   if (next_xid > next_xid_) {
@@ -59,9 +59,14 @@ void TransactionManager::Rollback(xid_t xid) {
   xid2active_set_.erase(xid);
 }
 
-std::unordered_set<xid_t> TransactionManager::GetSnapshot(xid_t xid) { return xid2active_set_[xid]; }
+std::unordered_set<xid_t> TransactionManager::GetSnapshot(xid_t xid) const {
+  if (xid2active_set_.find(xid) == xid2active_set_.end()) {
+    throw DbException("xid" + std::to_string(xid) + "not found in xid2active_set_ in GetSnapshot");
+  }
+  return xid2active_set_.at(xid);
+}
 
-std::unordered_set<xid_t> TransactionManager::GetActiveTransactions() {
+std::unordered_set<xid_t> TransactionManager::GetActiveTransactions() const {
   std::unordered_set<xid_t> active_xids;
   for (const auto &entry : xid2cid_) {
     active_xids.insert(entry.first);

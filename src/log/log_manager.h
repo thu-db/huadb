@@ -20,7 +20,7 @@ class LogManager {
   void SetBufferPool(std::shared_ptr<BufferPool> buffer_pool);
   void SetCatalog(std::shared_ptr<Catalog> catalog);
 
-  lsn_t GetNextLSN();
+  lsn_t GetNextLSN() const;
 
   // 清空 log buffer，用于数据库故障模拟
   void Clear();

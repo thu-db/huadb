@@ -41,7 +41,7 @@ db_size_t Record::GetSize() const {
   return size;
 }
 
-std::string Record::ToString() {
+std::string Record::ToString() const {
   std::string result;
   for (const auto &value : values_) {
     result += value.ToString();

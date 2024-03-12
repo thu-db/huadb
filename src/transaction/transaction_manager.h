@@ -23,7 +23,7 @@ class TransactionManager {
   // 获取 cid 并递增
   cid_t GetCidAndIncrement(xid_t xid);
   // 获取下一个 xid
-  xid_t GetNextXid();
+  xid_t GetNextXid() const;
   // 设置 next_xid，用于故障恢复
   void SetNextXid(xid_t next_xid);
 
@@ -32,9 +32,9 @@ class TransactionManager {
   void Rollback(xid_t xid);
 
   // 获取事务快照，即事务开始时的活跃事务表
-  std::unordered_set<xid_t> GetSnapshot(xid_t xid);
+  std::unordered_set<xid_t> GetSnapshot(xid_t xid) const;
   // 获取活跃事务表
-  std::unordered_set<xid_t> GetActiveTransactions();
+  std::unordered_set<xid_t> GetActiveTransactions() const;
 
  private:
   // 释放事务持有的锁

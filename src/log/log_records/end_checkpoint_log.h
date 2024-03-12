@@ -15,8 +15,8 @@ class EndCheckpointLog : public LogRecord {
   size_t SerializeTo(char *data) const override;
   static std::shared_ptr<EndCheckpointLog> DeserializeFrom(lsn_t lsn, const char *data);
 
-  const std::unordered_map<xid_t, lsn_t> &GetATT();
-  const std::unordered_map<TablePageid, lsn_t> &GetDPT();
+  const std::unordered_map<xid_t, lsn_t> &GetATT() const;
+  const std::unordered_map<TablePageid, lsn_t> &GetDPT() const;
 
   std::string ToString() const override;
 

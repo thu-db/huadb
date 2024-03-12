@@ -80,7 +80,7 @@ db_size_t TablePage::GetLower() const { return *lower_; }
 
 db_size_t TablePage::GetUpper() const { return *upper_; }
 
-db_size_t TablePage::GetFreeSpaceSize() {
+db_size_t TablePage::GetFreeSpaceSize() const {
   if (*upper_ < *lower_ + sizeof(Slot)) {
     return 0;
   } else {

@@ -31,9 +31,9 @@ class LockManager {
 
  private:
   // 判断锁的相容性
-  bool Compatible(LockType type_a, LockType type_b);
-  // 实现锁的升级，如共享锁升级为互斥锁
-  LockType Upgrade(LockType self, LockType other);
+  bool Compatible(LockType type_a, LockType type_b) const;
+  // 实现锁的升级，如共享锁升级为互斥锁，输入两种锁的类型，返回升级后的锁类型
+  LockType Upgrade(LockType self, LockType other) const;
 
   DeadlockType deadlock_type_ = DeadlockType::NONE;
 };
