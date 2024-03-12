@@ -7,6 +7,7 @@ create database huadb_test_1;
 statement ok
 create database huadb_test_2;
 
+# Database "huadb_test_1" already exists
 statement error
 create database huadb_test_1;
 
@@ -19,6 +20,7 @@ statement ok
 statement ok
 \c huadb_test_1
 
+# No database name
 statement error
 \c
 
@@ -67,9 +69,11 @@ gender char 1
 name varchar 10
 score double 8
 
+# Cannot drop the currently open database
 statement error
 drop database huadb_test_1;
 
+# Database "not_exists" does not exist
 statement error
 drop database not_exists;
 

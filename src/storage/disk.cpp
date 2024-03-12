@@ -77,7 +77,8 @@ void Disk::ReadPage(const std::string &path, pageid_t page_id, char *data) {
   fs.seekg(page_id * DB_PAGE_SIZE);
   fs.read(data, DB_PAGE_SIZE);
   if (fs.gcount() != DB_PAGE_SIZE) {
-    throw DbException("read page failed");
+    throw DbException("read page failed: read " + std::to_string(fs.gcount()) + " bytes, expected " +
+                      std::to_string(DB_PAGE_SIZE) + " bytes");
   }
 }
 

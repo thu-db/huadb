@@ -8,7 +8,7 @@ create table error(id int, score double, info char(10), info2 varchar(10));
 statement ok
 create table error2(id int);
 
-# Table error2 already exists
+# Table "error2" already exists
 statement error
 create table error2(id int, score double);
 

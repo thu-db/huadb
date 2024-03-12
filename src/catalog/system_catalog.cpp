@@ -44,7 +44,7 @@ void SystemCatalog::LoadSystemTables() {
 void SystemCatalog::CreateDatabase(const std::string &database_name, bool exists_ok, oid_t db_oid) {
   // Step1. 约束检测
   if (!exists_ok && DatabaseExists(database_name)) {
-    throw DbException("Database " + database_name + " already exists");
+    throw DbException("Database \"" + database_name + "\" already exists");
   }
   // Step2. OidManager添加对应项
   if (db_oid == INVALID_OID) {
@@ -181,7 +181,7 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
     db_oid = current_database_oid_;
   }
   if (oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " already exists");
+    throw DbException("Table \"" + table_name + "\" already exists");
   }
   // Step2. OidManager添加对应项
   if (oid == INVALID_OID) {

@@ -36,8 +36,7 @@ db_size_t RecordHeader::DeserializeFrom(const char *data) {
 
 std::string RecordHeader::ToString() const {
   std::ostringstream oss;
-  oss << "Header[";
-  oss << "deleted: " << deleted_;
+  oss << "[deleted: " << deleted_;
   oss << ", xmin: " << xmin_;
   oss << ", xmax: " << xmax_;
   oss << ", cid: " << cid_;

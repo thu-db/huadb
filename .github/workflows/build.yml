@@ -33,7 +33,7 @@ jobs:
   sync-gitee:
     runs-on: ubuntu-22.04
     timeout-minutes: 2
-    
+
     steps:
       - name: Sync to Gitee
         uses: wearerequired/git-mirror-action@master
@@ -45,7 +45,7 @@ jobs:
   sync-gitlab:
     runs-on: ubuntu-22.04
     timeout-minutes: 2
-    
+
     steps:
       - name: Sync to GitLab
         uses: wearerequired/git-mirror-action@master

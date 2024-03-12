@@ -47,7 +47,7 @@ class BufferPool {
 
   // 普通表缓存
   std::vector<BufferPoolEntry> buffers_;
-  // page_id 到 buffer pool 中下标的映射
+  // page_id 到 buffers_ 下标的映射
   std::unordered_map<TablePageid, size_t> hashmap_;
   // 系统表专用缓存
   std::vector<BufferPoolEntry> systable_buffers_;

@@ -23,6 +23,9 @@ std::shared_ptr<Page> BufferPool::GetPage(oid_t db_oid, oid_t table_oid, pageid_
     AddToBuffer(db_oid, table_oid, page_id, page);
     return page;
   } else {
+    if (db_oid != SYSTEM_DATABASE_OID) {
+      buffer_strategy_->Access(entry->second);
+    }
     return buffers[entry->second].page_;
   }
 }

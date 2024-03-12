@@ -106,7 +106,7 @@ std::string TablePage::ToString() const {
   oss << "  lower: " << *lower_ << std::endl;
   oss << "  upper: " << *upper_ << std::endl;
   if (*lower_ > *upper_) {
-    oss << "***Error: lower > upper***" << std::endl;
+    oss << "\n***Error: lower > upper***" << std::endl;
   }
   oss << "  slots: " << std::endl;
   for (size_t i = 0; i < GetRecordCount(); i++) {

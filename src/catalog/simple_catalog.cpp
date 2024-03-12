@@ -82,7 +82,7 @@ void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList 
     db_oid = current_database_oid_;
   }
   if (oid_manager_.EntryExists(OidType::TABLE, table_name)) {
-    throw DbException("Table " + table_name + " already exists");
+    throw DbException("Table \"" + table_name + "\" already exists");
   }
   // Step2. OidManager添加对应项
   if (oid == INVALID_OID) {
