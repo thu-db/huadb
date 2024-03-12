@@ -52,11 +52,14 @@ class Record {
   void SetRid(Rid rid);
 
  private:
+  void UpdateSize();
+
   // 空值位图
   Bitmap null_bitmap_;
   std::vector<Value> values_;
   RecordHeader header_;
   Rid rid_;
+  db_size_t size_;
 };
 
 }  // namespace huadb

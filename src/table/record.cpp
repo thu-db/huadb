@@ -2,6 +2,8 @@
 
 #include <cassert>
 
+#include "common/exceptions.h"
+
 namespace huadb {
 
 Record::Record(std::vector<Value> values, Rid rid)
@@ -11,6 +13,7 @@ Record::Record(std::vector<Value> values, Rid rid)
       null_bitmap_.Set(i);
     }
   }
+  UpdateSize();
 }
 
 void Record::Append(const Record &record) {
@@ -18,28 +21,29 @@ void Record::Append(const Record &record) {
     values_.push_back(value);
   }
   null_bitmap_.Resize(null_bitmap_.GetSize() + values_.size());
+  UpdateSize();
 }
 
-Value Record::GetValue(size_t col_idx) const { return values_[col_idx]; }
+Value Record::GetValue(size_t col_idx) const {
+  if (col_idx >= values_.size()) {
+    throw DbException("Column index out of range");
+  }
+  return values_[col_idx];
+}
 
-void Record::SetValue(size_t col_idx, const Value &value) { values_[col_idx] = value; }
+void Record::SetValue(size_t col_idx, const Value &value) {
+  values_[col_idx] = value;
+  if (value.IsNull()) {
+    null_bitmap_.Set(col_idx);
+  } else {
+    null_bitmap_.Clear(col_idx);
+  }
+  UpdateSize();
+}
 
 const std::vector<Value> &Record::GetValues() const { return values_; }
 
-db_size_t Record::GetSize() const {
-  auto size = RECORD_HEADER_SIZE;
-  size += null_bitmap_.GetBytes();
-  for (const auto &value : values_) {
-    if (value.IsNull()) {
-      continue;
-    }
-    size += value.GetSize();
-    if (TypeUtil::IsString(value.GetType())) {
-      size += 2;
-    }
-  }
-  return size;
-}
+db_size_t Record::GetSize() const { return size_; }
 
 std::string Record::ToString() const {
   std::string result;
@@ -77,6 +81,7 @@ db_size_t Record::DeserializeFrom(const char *data, const ColumnList &column_lis
       values_.push_back(value);
     }
   }
+  UpdateSize();
   assert(offset == GetSize());
   return offset;
 }
@@ -104,5 +109,19 @@ void Record::SetCid(cid_t cid) { header_.cid_ = cid; }
 Rid Record::GetRid() const { return rid_; }
 
 void Record::SetRid(Rid rid) { rid_ = rid; }
+
+void Record::UpdateSize() {
+  size_ = RECORD_HEADER_SIZE;
+  size_ += null_bitmap_.GetBytes();
+  for (const auto &value : values_) {
+    if (value.IsNull()) {
+      continue;
+    }
+    size_ += value.GetSize();
+    if (TypeUtil::IsString(value.GetType())) {
+      size_ += 2;
+    }
+  }
+}
 
 }  // namespace huadb
