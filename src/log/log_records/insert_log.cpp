@@ -72,6 +72,10 @@ void InsertLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_
 
 void InsertLog::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {
   // 如果 oid_ 不存在，表示该表已经被删除，无需 redo
+  if (!catalog.TableExists(oid_)) {
+    return;
+  }
+  // 根据日志信息进行重做
   // LAB 2 BEGIN
 }
 

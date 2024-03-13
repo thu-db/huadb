@@ -231,13 +231,13 @@ void LogManager::Flush(lsn_t lsn) {
 void LogManager::Analyze() {
   // 恢复 Master Record 等元信息
   // 恢复故障时正在使用的数据库
-  std::ifstream in(NEXT_LSN_NAME);
-  if (in.fail()) {
-    next_lsn_ = FIRST_LSN;
-  } else {
+  if (disk_.FileExists(NEXT_LSN_NAME)) {
+    std::ifstream in(NEXT_LSN_NAME);
     lsn_t next_lsn;
     in >> next_lsn;
     next_lsn_ = next_lsn;
+  } else {
+    next_lsn_ = FIRST_LSN;
   }
   flushed_lsn_ = next_lsn_ - 1;
   lsn_t checkpoint_lsn = 0;

@@ -586,7 +586,7 @@ void DatabaseEngine::Analyze(const AnalyzeStatement &stmt, ResultWriter &writer)
     auto oid = catalog_->GetTableOid(table_name);
     auto table = catalog_->GetTable(oid);
     if (stmt.columns_.empty()) {
-      auto column_list = catalog_->GetTableColumnList(stmt.table_->table_);
+      auto column_list = catalog_->GetTableColumnList(table_name);
       columns.clear();
       for (size_t i = 0; i < column_list.Length(); i++) {
         auto col_type = column_list.GetColumn(i).type_;

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.15)
 
 set(CMAKE_WARN_DEPRECATED OFF CACHE BOOL "" FORCE)
 set(CMAKE_CXX_STANDARD 17)
@@ -9,7 +9,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 project(HuaDB
   VERSION 2024
-  DESCRIPTION "An educational database in THU Database course"
+  DESCRIPTION "The educational database in THU database course"
   HOMEPAGE_URL https://github.com/thu-db/huadb
   LANGUAGES C CXX
 )

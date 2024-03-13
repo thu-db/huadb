@@ -60,6 +60,7 @@ void TablePage::UndoDeleteRecord(slotid_t slot_id) {
   // LAB 3 BEGIN
 
   // 清除记录的删除标记
+  // 将页面设为 dirty
   // LAB 2 BEGIN
 }
 
