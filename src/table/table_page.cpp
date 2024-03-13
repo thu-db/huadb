@@ -49,8 +49,9 @@ void TablePage::DeleteRecord(slotid_t slot_id, xid_t xid) {
   // LAB 1 BEGIN
 }
 
-std::unique_ptr<Record> TablePage::GetRecord(slotid_t slot_id, const ColumnList &column_list) {
+std::unique_ptr<Record> TablePage::GetRecord(Rid rid, const ColumnList &column_list) {
   // 根据 slot_id 获取 record
+  // 新建 record 并设置 rid
   // LAB 1 BEGIN
   return nullptr;
 }

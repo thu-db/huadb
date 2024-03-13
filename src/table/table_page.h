@@ -26,7 +26,7 @@ class TablePage {
   // 删除记录
   void DeleteRecord(slotid_t slot_id, xid_t xid);
   // 获取记录
-  std::unique_ptr<Record> GetRecord(slotid_t slot_id, const ColumnList &column_list);
+  std::unique_ptr<Record> GetRecord(Rid rid, const ColumnList &column_list);
 
   // Lab 2: 回滚删除操作
   void UndoDeleteRecord(slotid_t slot_id);
