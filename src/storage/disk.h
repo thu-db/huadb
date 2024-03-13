@@ -13,14 +13,15 @@ class Disk {
  public:
   Disk();
   ~Disk();
-  bool DirectoryExists(const std::string &path);
-  void ChangeDirectory(const std::string &path);
-  void CreateDirectory(const std::string &path);
-  void RemoveDirectory(const std::string &path);
+  static bool DirectoryExists(const std::string &path);
+  static void ChangeDirectory(const std::string &path);
+  static void CreateDirectory(const std::string &path);
+  static void RemoveDirectory(const std::string &path);
 
-  bool FileExists(const std::string &path);
-  void CreateFile(const std::string &path);
-  void RemoveFile(const std::string &path);
+  static bool FileExists(const std::string &path);
+  static void CreateFile(const std::string &path);
+  static void RemoveFile(const std::string &path);
+
   void OpenFile(const std::string &path);
   void CloseFile(const std::string &path);
 
@@ -30,7 +31,7 @@ class Disk {
   void ReadLog(uint32_t offset, uint32_t count, char *data);
   void WriteLog(uint32_t offset, uint32_t count, const char *data);
 
-  uint32_t GetAccessCount();
+  uint32_t GetAccessCount() const;
 
   static std::string GetFilePath(oid_t db_oid, oid_t table_oid);
 

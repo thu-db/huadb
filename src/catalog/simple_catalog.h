@@ -10,7 +10,6 @@
 
 namespace huadb {
 
-class Disk;
 class BufferPool;
 class LogManager;
 class Table;
@@ -18,7 +17,7 @@ class Index;
 
 class SimpleCatalog {
  public:
-  SimpleCatalog(Disk &disk, BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid = PRESERVED_OID);
+  SimpleCatalog(BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid = PRESERVED_OID);
   // 创建系统表，仅初始化系统使用
   void CreateSystemTables();
   // 加载系统表，系统已经初始化过时使用
@@ -68,7 +67,6 @@ class SimpleCatalog {
   void SetDistinct(const std::string &table_name, const std::string &column_name, uint32_t distinct);
 
  private:
-  Disk &disk_;
   BufferPool &buffer_pool_;
   LogManager &log_manager_;
 

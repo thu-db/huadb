@@ -44,7 +44,7 @@ DatabaseEngine::DatabaseEngine() {
   buffer_pool_ = std::make_shared<BufferPool>(*disk_, *log_manager_);
   log_manager_->SetBufferPool(buffer_pool_);
 
-  catalog_ = std::make_unique<Catalog>(*disk_, *buffer_pool_, *log_manager_, oid);
+  catalog_ = std::make_unique<Catalog>(*buffer_pool_, *log_manager_, oid);
   log_manager_->SetCatalog(catalog_);
 
   // 如果不存在 init 文件，创建系统表；如存在，则载入系统表

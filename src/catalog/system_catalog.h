@@ -9,7 +9,6 @@
 
 namespace huadb {
 
-class Disk;
 class BufferPool;
 class LogManager;
 class Table;
@@ -17,7 +16,7 @@ class Index;
 
 class SystemCatalog {
  public:
-  SystemCatalog(Disk &disk, BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid = PRESERVED_OID);
+  SystemCatalog(BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid = PRESERVED_OID);
 
   // 创建系统表，仅初始化系统使用
   void CreateSystemTables();
@@ -82,7 +81,6 @@ class SystemCatalog {
   void LoadTableMeta();
   void LoadStatistics();
 
-  Disk &disk_;
   BufferPool &buffer_pool_;
   LogManager &log_manager_;
 

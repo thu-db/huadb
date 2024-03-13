@@ -124,7 +124,7 @@ void Disk::WriteLog(uint32_t offset, uint32_t count, const char *data) {
   log_fs_.flush();
 }
 
-uint32_t Disk::GetAccessCount() { return access_count_; }
+uint32_t Disk::GetAccessCount() const { return access_count_; }
 
 std::string Disk::GetFilePath(oid_t db_oid, oid_t table_oid) {
   return std::to_string(db_oid) + "/" + std::to_string(table_oid);

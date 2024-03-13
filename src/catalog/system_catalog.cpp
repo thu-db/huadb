@@ -12,12 +12,12 @@
 
 namespace huadb {
 
-SystemCatalog::SystemCatalog(Disk &disk, BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid)
-    : disk_(disk), buffer_pool_(buffer_pool), log_manager_(log_manager), oid_manager_(next_oid) {}
+SystemCatalog::SystemCatalog(BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid)
+    : buffer_pool_(buffer_pool), log_manager_(log_manager), oid_manager_(next_oid) {}
 
 void SystemCatalog::CreateSystemTables() {
   // 创建 system 数据库
-  disk_.CreateDirectory(std::to_string(SYSTEM_DATABASE_OID));
+  Disk::CreateDirectory(std::to_string(SYSTEM_DATABASE_OID));
   // 创建系统表
   CreateTable(TABLE_META_NAME, table_meta_schema, TABLE_META_OID, SYSTEM_DATABASE_OID, true);
   CreateTable(DATABASE_META_NAME, database_meta_schema, DATABASE_META_OID, SYSTEM_DATABASE_OID, true);
@@ -58,8 +58,8 @@ void SystemCatalog::CreateDatabase(const std::string &database_name, bool exists
   values.emplace_back(database_name);
   GetTable(DATABASE_META_OID)->InsertRecord(std::make_shared<Record>(std::move(values)), DDL_XID, DDL_CID, false);
   // Step4. 实际创建数据库的文件夹
-  if (!disk_.DirectoryExists(std::to_string(db_oid))) {
-    disk_.CreateDirectory(std::to_string(db_oid));
+  if (!Disk::DirectoryExists(std::to_string(db_oid))) {
+    Disk::CreateDirectory(std::to_string(db_oid));
   }
 }
 
@@ -108,8 +108,8 @@ void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_
   // Step5. OidManager删除对应项
   oid_manager_.DropEntry(OidType::DATABASE, database_name);
   // Step6. 实际删除数据库的文件夹
-  if (disk_.DirectoryExists(std::to_string(db_oid))) {
-    disk_.RemoveDirectory(std::to_string(db_oid));
+  if (Disk::DirectoryExists(std::to_string(db_oid))) {
+    Disk::RemoveDirectory(std::to_string(db_oid));
   }
 }
 
@@ -195,7 +195,7 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
     throw DbException("Cannot create table in system database");
   }
   if (new_table) {
-    disk_.CreateFile(Disk::GetFilePath(db_oid, oid));
+    Disk::CreateFile(Disk::GetFilePath(db_oid, oid));
   }
   oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table);
 
@@ -225,7 +225,7 @@ void SystemCatalog::DropTable(const std::string &table_name) {
   oid_t table_oid = oid_manager_.GetEntryOid(OidType::TABLE, table_name);
   // Step2. 实际删除表
   // 磁盘中删除对应项
-  disk_.RemoveFile(Disk::GetFilePath(current_database_oid_, table_oid));
+  Disk::RemoveFile(Disk::GetFilePath(current_database_oid_, table_oid));
   oid2table_.erase(table_oid);
 
   // Step3. OidManager删除对应项

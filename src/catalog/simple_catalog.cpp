@@ -9,11 +9,11 @@
 
 namespace huadb {
 
-SimpleCatalog::SimpleCatalog(Disk &disk, BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid)
-    : disk_(disk), buffer_pool_(buffer_pool), log_manager_(log_manager), oid_manager_(next_oid) {}
+SimpleCatalog::SimpleCatalog(BufferPool &buffer_pool, LogManager &log_manager, oid_t next_oid)
+    : buffer_pool_(buffer_pool), log_manager_(log_manager), oid_manager_(next_oid) {}
 
 void SimpleCatalog::CreateSystemTables() {
-  disk_.CreateDirectory(std::to_string(TEMP_DATABASE_OID));
+  Disk::CreateDirectory(std::to_string(TEMP_DATABASE_OID));
   // 切换当前数据库oid
   current_database_oid_ = TEMP_DATABASE_OID;
 }
@@ -96,7 +96,7 @@ void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList 
     assert(db_oid != SYSTEM_DATABASE_OID);
   }
   if (new_table) {
-    disk_.CreateFile(Disk::GetFilePath(db_oid, oid));
+    Disk::CreateFile(Disk::GetFilePath(db_oid, oid));
   }
   name2oid_[table_name] = oid;
   oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table);
@@ -121,14 +121,14 @@ void SimpleCatalog::DropTable(const std::string &table_name) {
   oid_t table_oid = oid_manager_.GetEntryOid(OidType::TABLE, table_name);
   // Step2. 实际删除表
   // 磁盘中删除对应项
-  disk_.RemoveFile(Disk::GetFilePath(current_database_oid_, table_oid));
+  Disk::RemoveFile(Disk::GetFilePath(current_database_oid_, table_oid));
   name2oid_.erase(table_name);
   oid2table_.erase(table_oid);
 
   // Step3. OidManager删除对应项
   oid_manager_.DropEntry(OidType::TABLE, table_name);
   // Step4: 删除对应的meta文件
-  disk_.RemoveFile(std::to_string(current_database_oid_) + "/" + table_name + ".meta");
+  Disk::RemoveFile(std::to_string(current_database_oid_) + "/" + table_name + ".meta");
   std::ofstream db_out(std::to_string(current_database_oid_) + "/tables", std::ios::app);
   db_out << "~" << table_name << " ";
 }
