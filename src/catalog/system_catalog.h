@@ -34,8 +34,6 @@ class SystemCatalog {
   void ChangeDatabase(oid_t db_oid);
   // 获取表所在的数据库的oid
   oid_t GetDatabaseOid(oid_t table_oid) const;
-  // 获取当前数据库oid
-  oid_t GetCurrentDatabaseOid() const;
 
   // 创建表
   void CreateTable(const std::string &table_name, const ColumnList &column_list, oid_t oid = INVALID_OID,

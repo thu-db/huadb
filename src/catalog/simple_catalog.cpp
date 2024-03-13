@@ -73,8 +73,6 @@ void SimpleCatalog::ChangeDatabase(const std::string &database_name) {
   throw DbException("ChangeDatabase not implemented in SimpleCatalog");
 }
 
-oid_t SimpleCatalog::GetCurrentDatabaseOid() const { return current_database_oid_; }
-
 void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList &column_list, oid_t oid, oid_t db_oid,
                                 bool new_table) {
   // Step1. 约束检测

@@ -171,8 +171,6 @@ oid_t SystemCatalog::GetDatabaseOid(oid_t table_oid) const {
   throw DbException("Table with oid " + std::to_string(table_oid) + " does not exist");
 }
 
-oid_t SystemCatalog::GetCurrentDatabaseOid() const { return current_database_oid_; }
-
 void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList &column_list, oid_t oid, oid_t db_oid,
                                 bool new_table) {
   // Step1. 约束检测
