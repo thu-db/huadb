@@ -38,12 +38,11 @@ std::shared_ptr<NewPageLog> NewPageLog::DeserializeFrom(lsn_t lsn, const char *d
   return std::make_shared<NewPageLog>(lsn, xid, prev_lsn, oid, prev_page_id, page_id);
 }
 
-void NewPageLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
-                      lsn_t undo_next_lsn) {
+void NewPageLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t undo_next_lsn) {
   // LAB 2 BEGIN
 }
 
-void NewPageLog::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {
+void NewPageLog::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager) {
   // 如果 oid_ 不存在，表示该表已经被删除，无需 redo
   if (!catalog.TableExists(oid_)) {
     return;

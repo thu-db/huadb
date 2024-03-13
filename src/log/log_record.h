@@ -34,8 +34,8 @@ class LogRecord {
   static std::shared_ptr<LogRecord> DeserializeFrom(lsn_t lsn, const char *data);
 
   // 撤销和重做
-  virtual void Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn, lsn_t undo_next_lsn);
-  virtual void Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn);
+  virtual void Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t undo_next_lsn);
+  virtual void Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager);
 
   // 设置 lsn
   void SetLSN(lsn_t lsn);

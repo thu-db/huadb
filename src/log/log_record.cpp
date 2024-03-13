@@ -46,10 +46,9 @@ std::shared_ptr<LogRecord> LogRecord::DeserializeFrom(lsn_t lsn, const char *dat
   }
 }
 
-void LogRecord::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
-                     lsn_t undo_next_lsn) {}
+void LogRecord::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t undo_next_lsn) {}
 
-void LogRecord::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {}
+void LogRecord::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager) {}
 
 void LogRecord::SetLSN(lsn_t lsn) { lsn_ = lsn; }
 

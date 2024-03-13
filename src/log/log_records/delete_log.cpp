@@ -39,13 +39,12 @@ std::shared_ptr<DeleteLog> DeleteLog::DeserializeFrom(lsn_t lsn, const char *dat
   return std::make_shared<DeleteLog>(lsn, xid, prev_lsn, oid, page_id, slot_id);
 }
 
-void DeleteLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
-                     lsn_t undo_next_lsn) {
+void DeleteLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t undo_next_lsn) {
   // 恢复删除的记录
   // LAB 2 BEGIN
 }
 
-void DeleteLog::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn) {
+void DeleteLog::Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager) {
   // 如果 oid_ 不存在，表示该表已经被删除，无需 redo
   if (!catalog.TableExists(oid_)) {
     return;
