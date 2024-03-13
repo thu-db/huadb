@@ -1,3 +1,16 @@
+# Txn #1 | Txn #2 |
+# -----------------
+# BEGIN  |        |
+# W(X)   |        |
+# R(X)   |        |
+#        | BEGIN  |
+#        | R(X)   |
+# COMMIT |        |
+#        | R(X)   |
+#        | COMMIT |
+# R(X)   |        |
+#        | R(X)   |
+
 statement ok
 create table a_mvcc(id int);
 

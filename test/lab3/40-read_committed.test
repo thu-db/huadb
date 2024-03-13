@@ -1,8 +1,26 @@
+# Initial State: X
+
+# Txn #1 | Txn #2 |
+# -----------------
+# BEGIN  |        |
+#        | BEGIN  |
+# W(Y)   |        |
+# R(X,Y) |        |
+#        | R(X,Y) |
+#        | W(Y)   |
+# R(X,Y) |        |
+#        | R(X,Y) |
+#        | COMMIT |
+# R(X,Y) |        |
+#        | R(X,Y) |
+# ABORT  |        |
+# R(X)   |        |
+#        | R(X)   |
 statement ok
 create table rc(id int, info varchar(2));
 
 query
-insert into rc values(0, 'a');
+insert into rc values(0, 'X');
 ----
 1
 
@@ -19,20 +37,20 @@ statement ok C2
 begin;
 
 query C1
-insert into rc values(1, 'b');
+insert into rc values(1, 'Y');
 ----
 1
 
 query rowsort C1
 select * from rc;
 ----
-0 a
-1 b
+0 X
+1 Y
 
 query C2
 select * from rc;
 ----
-0 a
+0 X
 
 # Halloween problem
 query C2
@@ -43,13 +61,13 @@ update rc set id = id + 1;
 query rowsort C1
 select * from rc;
 ----
-0 a
-1 b
+0 X
+1 Y
 
 query C2
 select * from rc;
 ----
-1 a
+1 X
 
 statement ok C2
 commit;
@@ -57,13 +75,13 @@ commit;
 query rowsort C1
 select * from rc;
 ----
-1 a
-1 b
+1 X
+1 Y
 
 query rowsort C2
 select * from rc;
 ----
-1 a
+1 X
 
 statement ok C1
 rollback;
@@ -71,12 +89,12 @@ rollback;
 query rowsort C1
 select * from rc;
 ----
-1 a
+1 X
 
 query rowsort C2
 select * from rc;
 ----
-1 a
+1 X
 
 statement ok
 drop table rc;

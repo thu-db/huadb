@@ -1,4 +1,37 @@
-# Textbook example
+# Initial State: A, B
+
+# Txn #1   | Txn #2   | Txn #3   |
+# --------------------------------
+# BEGIN    |          |          |
+#          | BEGIN    |          |
+# R(A)     |          |          |
+# R(B)     |          |          |
+#          | XLock(A) |          |
+#          | W(A)     |          |
+# COMMIT   |          |          |
+#          |          | BEGIN    |
+#          |          | XLock(A) |
+#          |          | ABORT    |
+#          |          | BEGIN    |
+#          |          | SLock(A) |
+#          |          | ABORT    |
+#          |          | BEGIN    |
+#          |          | R(A)     |
+#          | SLock(B) |          |
+#          | R(B)     |          |
+#          |          | XLock(B) |
+#          |          | ABORT    |
+#          |          | BEGIN    |
+#          |          | SLock(B) |
+#          |          | R(B)     |
+#          | COMMIT   |          |
+#          |          | COMMIT   |
+#          |          | BEGIN    |
+#          |          | XLock(A) |
+#          |          | W(A)     |
+#          |          | XLock(A) |
+#          |          | COMMIT   |
+
 
 statement ok
 create table mv2pl(name varchar(1), value int);
@@ -20,13 +53,13 @@ set isolation_level = 'serializable';
 statement ok C1
 begin;
 
+statement ok C2
+begin;
+
 query C1
 select * from mv2pl where name = 'A';
 ----
 A 0
-
-statement ok C2
-begin;
 
 query C1
 select * from mv2pl where name = 'B';
@@ -37,41 +70,59 @@ query C2
 select * from mv2pl where name = 'A' for update;
 ----
 A 0
+
+query C2
+update mv2pl set value = value + 1 where name = 'A';
+----
+1
 
 statement ok C1
 commit;
 
-query C2
-update mv2pl set value = value + 1 where name = 'A';
-----
-1
-
-query C2
-select * from mv2pl where name = 'A';
-----
-A 1
-
 statement ok C3
 begin;
-
-query C2
-select * from mv2pl where name = 'B' for share;
-----
-B 0
 
 statement error C3
 select * from mv2pl where name = 'A' for update;
 
+statement ok C3
+rollback;
+
+statement ok C3
+begin;
+
 statement error C3
 select * from mv2pl where name = 'A' for share;
+
+statement ok C3
+rollback;
+
+statement ok C3
+begin;
 
 query C3
 select * from mv2pl where name = 'A';
 ----
 A 0
 
+query C2
+select * from mv2pl where name = 'B' for share;
+----
+B 0
+
+query C2
+select * from mv2pl where name = 'B';
+----
+B 0
+
 statement error C3
 select * from mv2pl where name = 'B' for update;
+
+statement ok C3
+rollback;
+
+statement ok C3
+begin;
 
 query C3
 select * from mv2pl where name = 'B' for share;
@@ -86,6 +137,12 @@ B 0
 statement ok C2
 commit;
 
+statement ok C3
+commit;
+
+statement ok C3
+begin;
+
 query C3
 select * from mv2pl where name = 'A' for update;
 ----
@@ -96,7 +153,7 @@ update mv2pl set value = value + 1 where name = 'A';
 ----
 1
 
-# 测试重复加锁
+# Repeat lock for same transaction should be OK
 query C3
 select * from mv2pl where name = 'A' for update;
 ----

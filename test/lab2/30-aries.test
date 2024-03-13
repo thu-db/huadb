@@ -7,12 +7,13 @@ restart;
 statement ok C1
 begin;
 
-# Write one page of data
+# Write page A
 query C1
 insert into aries values('A', '000111222333444555666777888999AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz');
 ----
 1
 
+# Write page B
 query C1
 insert into aries values('B', '000111222333444555666777888999AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz');
 ----
@@ -24,6 +25,7 @@ checkpoint;
 statement ok C3
 begin;
 
+# Write page C
 query C1
 insert into aries values('C', '000111222333444555666777888999AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz');
 ----
@@ -35,6 +37,7 @@ begin;
 statement ok
 flush;
 
+# Write page D
 query C2
 insert into aries values('D', '000111222333444555666777888999AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz');
 ----
@@ -43,11 +46,13 @@ insert into aries values('D', '000111222333444555666777888999AAABBBCCCDDDEEEFFFG
 statement ok C1
 commit;
 
+# Write page B
 query C3
 delete from aries where id = 'B';
 ----
 1
 
+# Write page A
 query C2
 delete from aries where id = 'A';
 ----
@@ -56,6 +61,7 @@ delete from aries where id = 'A';
 statement ok C2
 commit;
 
+# Write page E
 query C3
 insert into aries values('E', '000111222333444555666777888999AAABBBCCCDDDEEEFFFGGGHHHIIIJJJKKKLLLMMMNNNOOOPPPQQQRRRSSSTTTUUUVVVWWWXXXYYYZZZaaabbbcccdddeeefffggghhhiiijjjkkklllmmmnnnooopppqqqrrrssstttuuuvvvwwwxxxyyyzzz');
 ----
