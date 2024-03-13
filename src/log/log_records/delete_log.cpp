@@ -41,6 +41,7 @@ std::shared_ptr<DeleteLog> DeleteLog::DeserializeFrom(lsn_t lsn, const char *dat
 
 void DeleteLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t lsn,
                      lsn_t undo_next_lsn) {
+  // 恢复删除的记录
   // LAB 2 BEGIN
 }
 
