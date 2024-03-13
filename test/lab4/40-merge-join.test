@@ -22,6 +22,22 @@ create table merge_right_2(id int, score double);
 statement ok
 create table merge_empty(id int, info varchar(100));
 
+statement ok
+create table merge_left_3(id int, info varchar(100));
+
+statement ok
+create table merge_right_3(id int, score double);
+
+query
+insert into merge_left_3 values(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'), (5, 'e'), (6, 'f'), (7, 'g'), (8, 'h'), (9, 'i'), (10, 'j');
+----
+10
+
+query
+insert into merge_right_3 values(100, 1.1), (200, 2.2), (300, 3.3), (400, 4.4), (500, 5.5), (600, 6.6), (700, 7.7), (800, 8.8), (900, 9.9), (1000, 10.1);
+----
+10
+
 query
 insert into merge_left_1 values(2, 'b'), (3, 'c'), (1, 'a'), (2, 'bb'), (1, 'aa'), (2, 'bbb');
 ----
@@ -71,7 +87,7 @@ select merge_left_1.id, merge_left_1.info, merge_middle_1.score from merge_left_
 3 c 3.4
 3 c 3.5
 
-# 三表连接
+# 3 tables
 query rowsort
 select merge_left_1.id, merge_left_1.info, merge_middle_1.score, merge_right_1.name from (merge_left_1 join merge_middle_1 on merge_left_1.id = merge_middle_1.id) join merge_right_1 on merge_left_1.id = merge_right_1.id;
 ----
@@ -121,6 +137,10 @@ query
 select * from merge_left_1 join merge_empty on merge_left_1.id = merge_empty.id;
 ----
 
+query
+select * from merge_left_3 join merge_right_3 on merge_left_3.id = merge_right_3.id;
+----
+
 statement ok
 drop table merge_left_1;
 
@@ -138,3 +158,9 @@ drop table merge_right_2;
 
 statement ok
 drop table merge_empty;
+
+statement ok
+drop table merge_left_3;
+
+statement ok
+drop table merge_right_3;

@@ -45,6 +45,7 @@ select * from test_order order by score;
 5 55.5 eeeee
 3 333.3 ccc
 
+# asc
 query
 select * from test_order order by score asc;
 ----
@@ -58,6 +59,7 @@ select * from test_order order by score asc;
 5 55.5 eeeee
 3 333.3 ccc
 
+# desc
 query
 select * from test_order order by score desc;
 ----
@@ -117,6 +119,7 @@ drop table test_order;
 statement ok
 create table empty(id int);
 
+# order by empty table
 query
 select * from empty order by id;
 ----

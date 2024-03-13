@@ -6,6 +6,7 @@
 
 namespace huadb {
 
+// deleted(1) + xmin(4) + xmax(4) + cid(4) = 13
 static constexpr db_size_t RECORD_HEADER_SIZE = sizeof(bool) + sizeof(xid_t) + sizeof(xid_t) + sizeof(cid_t);
 
 class RecordHeader {
