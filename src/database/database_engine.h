@@ -42,6 +42,9 @@ class DatabaseEngine {
  private:
   void Help(ResultWriter &writer) const;
 
+  // 检查事务是否正在进行（不包含自动开启的事务）
+  bool CheckInTransaction(const Connection &connection) const;
+
   void CreateDatabase(const std::string &db_name, bool exists_ok, ResultWriter &writer);
   void ShowDatabases(ResultWriter &writer) const;
   void ChangeDatabase(const std::string &db_name, ResultWriter &writer);
