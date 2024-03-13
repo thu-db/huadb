@@ -42,29 +42,29 @@ void SystemCatalog::LoadSystemTables() {
 }
 
 void SystemCatalog::CreateDatabase(const std::string &database_name, bool exists_ok, oid_t db_oid) {
-  // Step1. 约束检测
+  // Step 1. 约束检测
   if (!exists_ok && DatabaseExists(database_name)) {
     throw DbException("Database \"" + database_name + "\" already exists");
   }
-  // Step2. OidManager添加对应项
+  // Step 2. OidManager 添加对应项
   if (db_oid == INVALID_OID) {
     db_oid = oid_manager_.CreateEntry(OidType::DATABASE, database_name);
   } else {
     oid_manager_.SetEntryOid(OidType::DATABASE, database_name, db_oid);
   }
-  // Step3. DatabaseMeta中添加对应记录
+  // Step 3. DatabaseMeta 中添加对应记录
   std::vector<Value> values;
   values.emplace_back(db_oid);
   values.emplace_back(database_name);
   GetTable(DATABASE_META_OID)->InsertRecord(std::make_shared<Record>(std::move(values)), DDL_XID, DDL_CID, false);
-  // Step4. 实际创建数据库的文件夹
+  // Step 4. 实际创建数据库的文件夹
   if (!Disk::DirectoryExists(std::to_string(db_oid))) {
     Disk::CreateDirectory(std::to_string(db_oid));
   }
 }
 
 void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_ok) {
-  // Step1. 判断数据库是否存在
+  // Step 1. 判断数据库是否存在
   if (!DatabaseExists(database_name)) {
     if (missing_ok) {
       return;
@@ -72,13 +72,13 @@ void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_
       throw DbException("Database \"" + database_name + "\" does not exist");
     }
   }
-  // Step2. 获取删除数据库的db_oid
+  // Step 2. 获取删除数据库的 db_oid
   oid_t db_oid = oid_manager_.GetEntryOid(OidType::DATABASE, database_name);
   if (db_oid == current_database_oid_) {
     throw DbException("Cannot drop the currently open database");
   }
 
-  // Step3. TableMeta中删除包含表
+  // Step 3. TableMeta 中删除包含表
   auto table_meta = GetTable(TABLE_META_OID);
   auto scan = std::make_shared<TableScan>(buffer_pool_, table_meta, Rid{table_meta->GetFirstPageId(), 0});
   auto db_oid_idx = table_meta_schema.GetColumnIndex("db_oid");
@@ -90,7 +90,7 @@ void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_
     }
   }
 
-  // Step4. DatabaseMeta中删除对应项
+  // Step 4. DatabaseMeta 中删除对应项
   bool deleted = false;
   auto db_meta = GetTable(DATABASE_META_OID);
   scan = std::make_shared<TableScan>(buffer_pool_, db_meta, Rid{db_meta->GetFirstPageId(), 0});
@@ -105,9 +105,9 @@ void SystemCatalog::DropDatabase(const std::string &database_name, bool missing_
   if (!deleted) {
     throw DbException("Database \"" + database_name + "\" does not exist in Database Meta");
   }
-  // Step5. OidManager删除对应项
+  // Step 5. OidManager 删除对应项
   oid_manager_.DropEntry(OidType::DATABASE, database_name);
-  // Step6. 实际删除数据库的文件夹
+  // Step 6. 实际删除数据库的文件夹
   if (Disk::DirectoryExists(std::to_string(db_oid))) {
     Disk::RemoveDirectory(std::to_string(db_oid));
   }
@@ -148,7 +148,7 @@ void SystemCatalog::ChangeDatabase(const std::string &database_name) {
     current_database_oid_ = db_oid;
     return;
   }
-  // 设定当前数据库id
+  // 设定当前数据库 id
   current_database_oid_ = db_oid;
   // 加载切换数据库的所有表
   LoadTableMeta();
@@ -173,7 +173,7 @@ oid_t SystemCatalog::GetDatabaseOid(oid_t table_oid) const {
 
 void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList &column_list, oid_t oid, oid_t db_oid,
                                 bool new_table) {
-  // Step1. 约束检测
+  // Step 1. 约束检测
   if (db_oid == INVALID_OID) {
     CheckUsingDatabase();
     db_oid = current_database_oid_;
@@ -181,14 +181,14 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
   if (oid_manager_.EntryExists(OidType::TABLE, table_name)) {
     throw DbException("Table \"" + table_name + "\" already exists");
   }
-  // Step2. OidManager添加对应项
+  // Step 2. OidManager 添加对应项
   if (oid == INVALID_OID) {
     oid = oid_manager_.CreateEntry(OidType::TABLE, table_name);
   } else {
     oid_manager_.SetEntryOid(OidType::TABLE, table_name, oid);
   }
 
-  // Step3. 创建新的表
+  // Step 3. 创建新的表
   if (oid > PRESERVED_OID && db_oid == SYSTEM_DATABASE_OID) {
     throw DbException("Cannot create table in system database");
   }
@@ -197,12 +197,12 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
   }
   oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table);
 
-  // 检查：非新表不需要添加到Meta中
+  // 检查：非新表不需要添加到 Meta 中
   if (!new_table) {
     return;
   }
 
-  // Step4. TableMeta中添加对应记录
+  // Step 4. TableMeta 中添加对应记录
   assert(db_oid != INVALID_OID);
   std::vector<Value> values;
   values.emplace_back(oid);
@@ -214,21 +214,21 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
 }
 
 void SystemCatalog::DropTable(const std::string &table_name) {
-  // Step1. 约束检测
+  // Step 1. 约束检测
   CheckUsingDatabase();
   assert(current_database_oid_ != SYSTEM_DATABASE_OID);
   if (!oid_manager_.EntryExists(OidType::TABLE, table_name)) {
     throw DbException("Table \"" + table_name + "\" does not exist");
   }
   oid_t table_oid = oid_manager_.GetEntryOid(OidType::TABLE, table_name);
-  // Step2. 实际删除表
+  // Step 2. 实际删除表
   // 磁盘中删除对应项
   Disk::RemoveFile(Disk::GetFilePath(current_database_oid_, table_oid));
   oid2table_.erase(table_oid);
 
-  // Step3. OidManager删除对应项
+  // Step 3. OidManager 删除对应项
   oid_manager_.DropEntry(OidType::TABLE, table_name);
-  // Step4: TableMeta删除对应条目
+  // Step 4: TableMeta 删除对应条目
   bool deleted = false;
   auto table_meta = GetTable(TABLE_META_OID);
   auto scan = std::make_shared<TableScan>(buffer_pool_, table_meta, Rid{table_meta->GetFirstPageId(), 0});
@@ -254,7 +254,7 @@ std::vector<std::string> SystemCatalog::GetTableNames() const {
     throw DbException("Invalid database oid in GetDatabaseTableNames");
   }
   std::vector<std::string> table_names{};
-  // 获取db_oid相同元素的table_oid
+  // 获取 db_oid 相同元素的 table_oid
   auto table_meta = GetTable(TABLE_META_OID);
   auto scan = std::make_shared<TableScan>(buffer_pool_, table_meta, Rid{table_meta->GetFirstPageId(), 0});
   auto db_oid_idx = table_meta_schema.GetColumnIndex("db_oid");
@@ -368,7 +368,7 @@ void SystemCatalog::ExitDatabase() {
     return;
   }
   buffer_pool_.Flush(true);
-  // 直接利用OidManager信息进行删除
+  // 直接利用 OidManager 信息进行删除
   std::vector<oid_t> deleted_oids{};
   for (const auto &pair : oid2table_) {
     if (pair.first <= PRESERVED_OID) {
@@ -381,7 +381,7 @@ void SystemCatalog::ExitDatabase() {
     oid_manager_.DropEntry(OidType::TABLE, table_name);
     oid2table_.erase(oid);
   }
-  // 设定数据库id为无效值
+  // 设定数据库 id 为无效值
   current_database_oid_ = INVALID_OID;
 }
 

@@ -41,10 +41,11 @@ slotid_t TablePage::InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_
 }
 
 void TablePage::DeleteRecord(slotid_t slot_id, xid_t xid) {
-  // 更改实验1的实现，改为通过 xid 标记删除
+  // 更改实验 1 的实现，改为通过 xid 标记删除
   // LAB 3 BEGIN
 
   // 将 slot_id 对应的 record 标记为删除
+  // 可使用 Record::DeserializeHeaderFrom 函数读取记录头
   // 将 page 标记为 dirty
   // LAB 1 BEGIN
 }

@@ -3,7 +3,6 @@ add_subdirectory(catalog)
 add_subdirectory(common)
 add_subdirectory(database)
 add_subdirectory(executors)
-
 add_subdirectory(log)
 add_subdirectory(optimizer)
 add_subdirectory(planner)
