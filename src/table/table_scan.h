@@ -11,7 +11,7 @@ namespace huadb {
 
 class TableScan {
  public:
-  TableScan(BufferPool &buffer_pool, std::shared_ptr<Table> table, Rid rid = {0, 0});
+  TableScan(BufferPool &buffer_pool, std::shared_ptr<Table> table, Rid rid);
   // xid: 事务 id
   // isolation_level: 隔离级别
   // cid: 事物内部 command id

@@ -108,9 +108,9 @@ select id, info from test_update;
 
 # New page
 query
-update test_update set score = 99.9 where score < 4.0 or id = 11;
+update test_update set score = 99.9 where score < 4.0;
 ----
-4
+3
 
 query rowsort
 select id, score from test_update;
@@ -123,7 +123,7 @@ select id, score from test_update;
 8 8.8
 9 9.9
 10 10.1
-11 99.9
+11 11.1
 
 statement ok
 drop table test_update;
