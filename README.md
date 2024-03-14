@@ -2,7 +2,7 @@
 
 HuaDB 为清华大学数据库内核课程的实验框架，实验说明可参阅[课程文档](https://thu-db.github.io/huadb-doc/)，课程资料可在[课程主页](https://dbgroup.cs.tsinghua.edu.cn/ligl/courses_cn.html)查阅。
 
-本课程于每年春季学期进行，**近期将发布 2024 年 release 版本**
+本课程于每年春季学期进行，最新版本为 2024 版。
 
 ## 编译与测试
 
