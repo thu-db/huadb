@@ -239,6 +239,13 @@ lock lock_test in exclusive mode;
 statement ok C1
 rollback;
 
+query C2
+select * from lock_test;
+----
+2
+3
+5
+
 statement ok C2
 rollback;
 

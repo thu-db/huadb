@@ -28,8 +28,6 @@ std::shared_ptr<Record> InsertExecutor::Next() {
     // 通过 context_ 获取正确的锁，加锁失败时抛出异常
     // LAB 3 BEGIN
     auto rid = table_->InsertRecord(std::move(table_record), context_.GetXid(), context_.GetCid(), true);
-    // 通过 context_ 获取正确的锁，加锁失败时抛出异常
-    // LAB 3 BEGIN
     count++;
   }
   finished_ = true;
