@@ -56,7 +56,7 @@ void LinenoiseShell() {
   auto database = std::make_unique<huadb::DatabaseEngine>();
   auto connection = std::make_unique<huadb::Connection>(*database);
   while (true) {
-    auto current_db = database->GetCurrentDatabase();
+    auto current_db = connection->GetCurrentDatabase();
     std::string in_transaction;
     if (connection->InTransaction()) {
       in_transaction = "*";

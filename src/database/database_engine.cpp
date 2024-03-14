@@ -28,7 +28,7 @@ DatabaseEngine::DatabaseEngine() {
     std::ifstream in(CONTROL_NAME);
     xid_t xid;
     lsn_t lsn;
-    // 当前最大事务id，lsn，oid，以及是否正常关闭
+    // 下一个事务id，lsn，oid，以及是否正常关闭
     in >> xid >> lsn >> oid >> normal_shutdown;
     std::ofstream out(CONTROL_NAME);
     out.flush();
@@ -470,7 +470,7 @@ void DatabaseEngine::Rollback(const Connection &connection) {
   }
 }
 
-void DatabaseEngine::Checkpoint() { log_manager_->Checkpoint(true); }
+void DatabaseEngine::Checkpoint() { log_manager_->Checkpoint(); }
 
 void DatabaseEngine::Recover() { log_manager_->Recover(); }
 

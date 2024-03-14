@@ -28,9 +28,9 @@ void parse_control(const fs::path &path) {
   huadb::oid_t oid;
   bool normal_shutdown;
   file >> xid >> lsn >> oid >> normal_shutdown;
-  std::cout << "xid: " << xid << std::endl;
-  std::cout << "lsn: " << lsn << std::endl;
-  std::cout << "oid: " << oid << std::endl;
+  std::cout << "next xid: " << xid << std::endl;
+  std::cout << "next lsn: " << lsn << std::endl;
+  std::cout << "next oid: " << oid << std::endl;
   std::cout << "normal_shutdown: " << normal_shutdown << std::endl;
 }
 

@@ -39,6 +39,8 @@ class DatabaseEngine {
   void Crash();
   void Flush();
 
+  void Rollback(const Connection &connection);
+
  private:
   void Help(ResultWriter &writer) const;
 
@@ -62,7 +64,6 @@ class DatabaseEngine {
 
   void Begin(const Connection &connection);
   void Commit(const Connection &connection);
-  void Rollback(const Connection &connection);
 
   void Checkpoint();
   void Recover();

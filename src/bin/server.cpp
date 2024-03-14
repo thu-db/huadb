@@ -15,6 +15,16 @@
 
 sigjmp_buf env;
 
+void send_result(int client_socket, const std::string &result, const huadb::Connection &connection) {
+  // auto current_db = connection.GetCurrentDatabase();
+  // std::string in_transaction;
+  // if (connection.InTransaction()) {
+  //   in_transaction = "*";
+  // }
+  // auto prompt = current_db + "=" + in_transaction + "> ";
+  send(client_socket, result.c_str(), result.size(), 0);
+}
+
 void sigint_handler(int signo) { siglongjmp(env, 1); }
 
 void client_handler(int client_socket, huadb::DatabaseEngine &database) {
@@ -33,13 +43,15 @@ void client_handler(int client_socket, huadb::DatabaseEngine &database) {
       for (const auto &table : writer.tables_) {
         result += table;
       }
-      send(client_socket, ("R" + result).c_str(), result.size() + 1, 0);
+      // Prevent empty result
+      send_result(client_socket, "R" + result, *connection);
     } catch (std::exception &e) {
       std::ostringstream oss;
       oss << huadb::BOLD << huadb::RED << "Error: " << huadb::RESET << e.what() << "\n";
-      send(client_socket, ("R" + oss.str()).c_str(), oss.str().size() + 1, 0);
+      send_result(client_socket, "R" + oss.str(), *connection);
     }
   }
+  connection->Rollback();
   close(client_socket);
   std::cout << "Client disconnected" << std::endl;
 }
