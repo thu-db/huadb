@@ -11,7 +11,6 @@ Table::Table(BufferPool &buffer_pool, LogManager &log_manager, oid_t oid, oid_t 
       oid_(oid),
       db_oid_(db_oid),
       column_list_(std::move(column_list)) {
-  // 新建表时初始化第一个页面
   if (new_table || is_empty) {
     first_page_id_ = NULL_PAGE_ID;
   } else {
@@ -33,7 +32,8 @@ Rid Table::InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_t cid, bo
   // 使用 buffer_pool_ 获取页面
   // 使用 TablePage 类操作记录页面
   // 遍历表的页面，判断页面是否有足够的空间插入记录，如果没有则通过 buffer_pool_ 创建新页面
-  // 创建新页面时需设置当前页面的 next_page_id，并将新页面初始化
+  // 如果 first_page_i_ 为 NULL_PAGE_ID，说明表还没有页面，需要创建新页面
+  // 创建新页面时需设置前一个页面的 next_page_id，并将新页面初始化
   // 找到空间足够的页面后，通过 TablePage 插入记录
   // 返回插入记录的 rid
   // LAB 1 BEGIN
@@ -45,7 +45,7 @@ void Table::DeleteRecord(const Rid &rid, xid_t xid, bool write_log) {
   // 设置页面的 page lsn
   // LAB 2 BEGIN
 
-  // 使用 TablePage 结构体操作记录页面
+  // 使用 TablePage 操作页面
   // LAB 1 BEGIN
 }
 
