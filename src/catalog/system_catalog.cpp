@@ -195,7 +195,8 @@ void SystemCatalog::CreateTable(const std::string &table_name, const ColumnList 
   if (new_table) {
     Disk::CreateFile(Disk::GetFilePath(db_oid, oid));
   }
-  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table);
+  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table,
+                                            Disk::EmptyFile(Disk::GetFilePath(db_oid, oid)));
 
   // 检查：非新表不需要添加到 Meta 中
   if (!new_table) {
@@ -430,8 +431,8 @@ void SystemCatalog::LoadTableMeta() {
 
       // 添加数据表
       oid_manager_.SetEntryOid(OidType::TABLE, table_name, oid);
-      oid2table_[oid] =
-          std::make_shared<Table>(buffer_pool_, log_manager_, oid, current_database_oid_, column_list, false);
+      oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, current_database_oid_, column_list,
+                                                false, Disk::EmptyFile(Disk::GetFilePath(GetDatabaseOid(oid), oid)));
       table2cardinality_[table_name] = cardinality;
     }
   }

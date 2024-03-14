@@ -97,7 +97,8 @@ void SimpleCatalog::CreateTable(const std::string &table_name, const ColumnList 
     Disk::CreateFile(Disk::GetFilePath(db_oid, oid));
   }
   name2oid_[table_name] = oid;
-  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table);
+  oid2table_[oid] = std::make_shared<Table>(buffer_pool_, log_manager_, oid, db_oid, column_list, new_table,
+                                            Disk::EmptyFile(Disk::GetFilePath(db_oid, oid)));
 
   // 检查：非新表不需要添加到Meta中
   if (!new_table) {

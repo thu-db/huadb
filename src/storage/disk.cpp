@@ -49,6 +49,13 @@ void Disk::RemoveDirectory(const std::string &path) { std::filesystem::remove_al
 
 bool Disk::FileExists(const std::string &path) { return std::filesystem::is_regular_file(path); }
 
+bool Disk::EmptyFile(const std::string &path) {
+  if (!FileExists(path)) {
+    throw DbException("file " + path + " does not exist");
+  }
+  return std::filesystem::is_empty(path);
+}
+
 void Disk::CreateFile(const std::string &path) { std::ofstream ofs(path); }
 
 void Disk::RemoveFile(const std::string &path) { std::filesystem::remove(path); }
@@ -76,7 +83,7 @@ void Disk::ReadPage(const std::string &path, pageid_t page_id, char *data) {
   fs.seekg(page_id * DB_PAGE_SIZE);
   fs.read(data, DB_PAGE_SIZE);
   if (fs.gcount() != DB_PAGE_SIZE) {
-    throw DbException("read page failed: read " + std::to_string(fs.gcount()) + " bytes, expected " +
+    throw DbException(path + " read page failed: read " + std::to_string(fs.gcount()) + " bytes, expected " +
                       std::to_string(DB_PAGE_SIZE) + " bytes");
   }
 }

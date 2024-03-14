@@ -11,7 +11,7 @@ namespace huadb {
 class Table {
  public:
   Table(BufferPool &buffer_pool, LogManager &log_manager, oid_t oid, oid_t db_oid, ColumnList column_list,
-        bool new_table);
+        bool new_table, bool is_empty);
 
   // 插入记录，返回插入记录的 rid
   // write_log: 是否写日志。系统表操作不写日志，用户表操作写日志，lab 2 相关参数

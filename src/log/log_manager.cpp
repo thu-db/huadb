@@ -32,7 +32,7 @@ lsn_t LogManager::AppendInsertLog(xid_t xid, oid_t oid, pageid_t page_id, slotid
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendInsertLog)");
   }
-  auto log = std::make_shared<InsertLog>(NULL_LSN, xid, att_[xid], oid, page_id, slot_id, offset, size, new_record);
+  auto log = std::make_shared<InsertLog>(NULL_LSN, xid, att_.at(xid), oid, page_id, slot_id, offset, size, new_record);
   lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   att_[xid] = lsn;
@@ -50,7 +50,7 @@ lsn_t LogManager::AppendDeleteLog(xid_t xid, oid_t oid, pageid_t page_id, slotid
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendDeleteLog)");
   }
-  auto log = std::make_shared<DeleteLog>(NULL_LSN, xid, att_[xid], oid, page_id, slot_id);
+  auto log = std::make_shared<DeleteLog>(NULL_LSN, xid, att_.at(xid), oid, page_id, slot_id);
   lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   att_[xid] = lsn;
@@ -72,7 +72,7 @@ lsn_t LogManager::AppendNewPageLog(xid_t xid, oid_t oid, pageid_t prev_page_id, 
   if (xid == DDL_XID) {
     log_xid = NULL_XID;
   } else {
-    log_xid = att_[xid];
+    log_xid = att_.at(xid);
   }
   auto log = std::make_shared<NewPageLog>(NULL_LSN, xid, log_xid, oid, prev_page_id, page_id);
   lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
@@ -113,7 +113,7 @@ lsn_t LogManager::AppendCommitLog(xid_t xid) {
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendCommitLog)");
   }
-  auto log = std::make_shared<CommitLog>(NULL_LSN, xid, att_[xid]);
+  auto log = std::make_shared<CommitLog>(NULL_LSN, xid, att_.at(xid));
   lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   {
@@ -129,7 +129,7 @@ lsn_t LogManager::AppendRollbackLog(xid_t xid) {
   if (att_.find(xid) == att_.end()) {
     throw DbException(std::to_string(xid) + " does not exist in att (in AppendRollbackLog)");
   }
-  auto log = std::make_shared<RollbackLog>(NULL_LSN, xid, att_[xid]);
+  auto log = std::make_shared<RollbackLog>(NULL_LSN, xid, att_.at(xid));
   lsn_t lsn = next_lsn_.fetch_add(log->GetSize(), std::memory_order_relaxed);
   log->SetLSN(lsn);
   {
@@ -246,6 +246,7 @@ void LogManager::Analyze() {
     in >> checkpoint_lsn;
   }
   // 根据 Checkpoint 日志恢复脏页表、活跃事务表等元信息
+  // 必要时调用 transaction_manager_.SetNextXid 来恢复事务 id
   // LAB 2 BEGIN
 }
 

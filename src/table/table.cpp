@@ -5,22 +5,18 @@
 namespace huadb {
 
 Table::Table(BufferPool &buffer_pool, LogManager &log_manager, oid_t oid, oid_t db_oid, ColumnList column_list,
-             bool new_table)
+             bool new_table, bool is_empty)
     : buffer_pool_(buffer_pool),
       log_manager_(log_manager),
       oid_(oid),
       db_oid_(db_oid),
       column_list_(std::move(column_list)) {
   // 新建表时初始化第一个页面
-  if (new_table) {
-    auto table_page = std::make_unique<TablePage>(buffer_pool_.NewPage(db_oid_, oid_, 0));
-    table_page->Init();
-    if (oid >= PRESERVED_OID) {
-      lsn_t lsn = log_manager_.AppendNewPageLog(DDL_XID, oid_, NULL_PAGE_ID, 0);
-      table_page->SetPageLSN(lsn);
-    }
+  if (new_table || is_empty) {
+    first_page_id_ = NULL_PAGE_ID;
+  } else {
+    first_page_id_ = 0;
   }
-  first_page_id_ = 0;
 }
 
 Rid Table::InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_t cid, bool write_log) {

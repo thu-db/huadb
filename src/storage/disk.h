@@ -19,6 +19,8 @@ class Disk {
   static void RemoveDirectory(const std::string &path);
 
   static bool FileExists(const std::string &path);
+  static bool EmptyFile(const std::string &path);
+
   static void CreateFile(const std::string &path);
   static void RemoveFile(const std::string &path);
 
