@@ -201,10 +201,9 @@ void LogManager::Flush(lsn_t lsn) {
         continue;
       }
       auto log_size = log_record->GetSize();
-      char *log = new char[log_size];
-      log_record->SerializeTo(log);
-      disk_.WriteLog(log_record->GetLSN(), log_size, log);
-      delete[] log;
+      auto log = std::make_unique<char[]>(log_size);
+      log_record->SerializeTo(log.get());
+      disk_.WriteLog(log_record->GetLSN(), log_size, log.get());
       if (max_lsn == NULL_LSN || log_record->GetLSN() > max_lsn) {
         max_lsn = log_record->GetLSN();
         max_log_size = log_size;

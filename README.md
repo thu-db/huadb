@@ -45,6 +45,7 @@ make shell
 
 本项目包含了如下第三方库代码：
 
+- [argparse](https://github.com/p-ranav/argparse)：使用 C++17 编写的命令行解析器，可以轻松定义用户友好的命令行参数
 - [fmt](https://github.com/fmtlib/fmt): 提供了类似 Python 的字符串插值功能，可以方便地将变量插入到字符串中
 - [libfort](https://github.com/seleznevae/libfort): 用于在终端输出表格，提供了表格布局和样式设置的功能
 - [libpg_query](https://github.com/duckdb/duckdb/tree/main/third_party/libpg_query): 由 DuckDB 改写的支持 PostgreSQL 语法的解析器，用于查询解析
