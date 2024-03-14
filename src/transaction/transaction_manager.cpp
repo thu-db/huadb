@@ -27,8 +27,8 @@ void TransactionManager::SetNextXid(xid_t next_xid) {
 xid_t TransactionManager::Begin() {
   auto xid = next_xid_++;
   std::unordered_set<xid_t> active_xids;
-  for (const auto &entry : xid2cid_) {
-    active_xids.insert(entry.first);
+  for (const auto [xid, _] : xid2cid_) {
+    active_xids.insert(xid);
   }
   xid2active_set_[xid] = active_xids;
   xid2cid_[xid] = FIRST_CID;
@@ -68,8 +68,8 @@ std::unordered_set<xid_t> TransactionManager::GetSnapshot(xid_t xid) const {
 
 std::unordered_set<xid_t> TransactionManager::GetActiveTransactions() const {
   std::unordered_set<xid_t> active_xids;
-  for (const auto &entry : xid2cid_) {
-    active_xids.insert(entry.first);
+  for (const auto [xid, _] : xid2cid_) {
+    active_xids.insert(xid);
   }
   return active_xids;
 }

@@ -371,11 +371,11 @@ void SystemCatalog::ExitDatabase() {
   buffer_pool_.Flush(true);
   // 直接利用 OidManager 信息进行删除
   std::vector<oid_t> deleted_oids{};
-  for (const auto &pair : oid2table_) {
-    if (pair.first <= PRESERVED_OID) {
+  for (const auto &[oid, _] : oid2table_) {
+    if (oid <= PRESERVED_OID) {
       continue;
     }
-    deleted_oids.push_back(pair.first);
+    deleted_oids.push_back(oid);
   }
   for (const auto &oid : deleted_oids) {
     std::string table_name = oid_manager_.GetEntryName(oid);

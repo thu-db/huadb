@@ -16,19 +16,19 @@ size_t EndCheckpointLog::SerializeTo(char *data) const {
   size_t att_size = att_.size();
   memcpy(data + offset, &att_size, sizeof(att_size));
   offset += sizeof(att_size);
-  for (const auto &entry : att_) {
-    memcpy(data + offset, &entry.first, sizeof(xid_t));
+  for (const auto [xid, lsn] : att_) {
+    memcpy(data + offset, &xid, sizeof(xid_t));
     offset += sizeof(xid_t);
-    memcpy(data + offset, &entry.second, sizeof(lsn_t));
+    memcpy(data + offset, &lsn, sizeof(lsn_t));
     offset += sizeof(lsn_t);
   }
   size_t dpt_size = dpt_.size();
   memcpy(data + offset, &dpt_size, sizeof(dpt_size));
   offset += sizeof(dpt_size);
-  for (const auto &entry : dpt_) {
-    memcpy(data + offset, &entry.first, sizeof(TablePageid));
+  for (const auto [table_page_id, lsn] : dpt_) {
+    memcpy(data + offset, &table_page_id, sizeof(TablePageid));
     offset += sizeof(TablePageid);
-    memcpy(data + offset, &entry.second, sizeof(lsn_t));
+    memcpy(data + offset, &lsn, sizeof(lsn_t));
     offset += sizeof(lsn_t);
   }
   assert(offset == size_);
@@ -77,12 +77,12 @@ const std::unordered_map<TablePageid, lsn_t> &EndCheckpointLog::GetDPT() const {
 std::string EndCheckpointLog::ToString() const {
   std::ostringstream oss;
   oss << "EndCheckpointLog\t[" << LogRecord::ToString() << " att: {";
-  for (const auto &entry : att_) {
-    oss << "(" << entry.first << ": " << entry.second << ") ";
+  for (const auto [xid, lsn] : att_) {
+    oss << "(" << xid << ": " << lsn << ") ";
   }
   oss << "} dpt: {";
-  for (const auto &entry : dpt_) {
-    oss << "(" << entry.first.table_oid_ << ", " << entry.first.page_id_ << ": " << entry.second << ") ";
+  for (const auto [table_page_id, lsn] : dpt_) {
+    oss << "(" << table_page_id.table_oid_ << ", " << table_page_id.page_id_ << ": " << lsn << ") ";
   }
   oss << "}]";
   return oss.str();

@@ -142,8 +142,8 @@ void SimpleCatalog::DropIndex(const std::string &index_name) {
 
 std::vector<std::string> SimpleCatalog::GetTableNames() const {
   std::vector<std::string> table_names;
-  for (const auto &entry : name2oid_) {
-    table_names.push_back(entry.first);
+  for (const auto &[name, _] : name2oid_) {
+    table_names.push_back(name);
   }
   return table_names;
 }
