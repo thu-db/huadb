@@ -1,6 +1,6 @@
 #include "database/database_engine.h"
 
-#include <algorithm>
+#include <exception>
 
 #include "binder/binder.h"
 #include "binder/statements/statements.h"
@@ -63,7 +63,7 @@ DatabaseEngine::DatabaseEngine() {
 
 DatabaseEngine::~DatabaseEngine() {
   // 如果数据库不是崩溃状态，关闭数据库
-  if (!crashed_) {
+  if (std::uncaught_exceptions() == 0 && !crashed_) {
     CloseDatabase();
   }
 }
