@@ -116,6 +116,8 @@ std::string TablePage::ToString() const {
     oss << "    " << i << ": offset " << slots_[i].offset_ << ", size " << slots_[i].size_ << " ";
     if (slots_[i].size_ <= RECORD_HEADER_SIZE) {
       oss << "***Error: record size smaller than header size***" << std::endl;
+    } else if (slots_[i].offset_ + RECORD_HEADER_SIZE >= DB_PAGE_SIZE) {
+      oss << "***Error: record offset out of page boundary***" << std::endl;
     } else {
       RecordHeader header;
       header.DeserializeFrom(page_data_ + slots_[i].offset_);
