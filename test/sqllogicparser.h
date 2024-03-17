@@ -70,6 +70,6 @@ class SQLLogicParser {
   std::vector<std::string> Tokenize();
 
   fs::path path_;
-  std::vector<std::string> lines;
-  std::vector<std::string>::const_iterator line_iter;
+  std::vector<std::string> lines_;
+  std::vector<std::string>::const_iterator line_iter_;
 };
