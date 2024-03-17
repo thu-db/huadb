@@ -46,3 +46,14 @@ select id, info from test_insert where id > 5;
 
 statement ok
 drop table test_insert;
+
+statement ok
+create table test_empty(id int);
+
+# Empty table scan test
+query
+select * from test_empty;
+----
+
+statement ok
+drop table test_empty;

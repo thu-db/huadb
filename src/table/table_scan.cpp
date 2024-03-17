@@ -15,6 +15,7 @@ std::shared_ptr<Record> TableScan::GetNextRecord(xid_t xid, IsolationLevel isola
   // 每次调用读取一条记录
   // 读取时更新 rid_ 变量，避免重复读取
   // 扫描结束时，返回空指针
+  // 注意处理扫描空表的情况（rid_.page_id_ 为 NULL_PAGE_ID）
   // LAB 1 BEGIN
   return nullptr;
 }
