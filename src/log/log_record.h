@@ -19,7 +19,6 @@ enum class LogType : enum_t {
   ROLLBACK,
   INSERT,
   DELETE,
-  UPDATE,
   NEW_PAGE,
   BEGIN_CHECKPOINT,
   END_CHECKPOINT,
