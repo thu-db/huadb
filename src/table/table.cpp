@@ -32,7 +32,7 @@ Rid Table::InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_t cid, bo
   // 使用 buffer_pool_ 获取页面
   // 使用 TablePage 类操作记录页面
   // 遍历表的页面，判断页面是否有足够的空间插入记录，如果没有则通过 buffer_pool_ 创建新页面
-  // 如果 first_page_i_ 为 NULL_PAGE_ID，说明表还没有页面，需要创建新页面
+  // 如果 first_page_id_ 为 NULL_PAGE_ID，说明表还没有页面，需要创建新页面
   // 创建新页面时需设置前一个页面的 next_page_id，并将新页面初始化
   // 找到空间足够的页面后，通过 TablePage 插入记录
   // 返回插入记录的 rid

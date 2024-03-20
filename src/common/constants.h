@@ -26,6 +26,7 @@ static constexpr const char *MASTER_RECORD_NAME = "master_record";
 static constexpr size_t LOG_SEGMENT_SIZE = (1 << 20);
 static constexpr size_t DB_PAGE_SIZE = (1 << 8);
 static constexpr size_t MAX_RECORD_SIZE = 230;
+// 日志记录最长长度
 static constexpr size_t MAX_LOG_SIZE = sizeof(enum_t) + sizeof(xid_t) + sizeof(lsn_t) + sizeof(oid_t) + sizeof(oid_t) +
                                        sizeof(pageid_t) + sizeof(slotid_t) + sizeof(db_size_t) + sizeof(db_size_t) +
                                        MAX_RECORD_SIZE + sizeof(lsn_t);
