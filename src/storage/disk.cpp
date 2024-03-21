@@ -114,7 +114,8 @@ void Disk::ReadLog(uint32_t offset, uint32_t count, char *data) {
   log_fs_.seekg(offset);
   log_fs_.read(data, count);
   if (log_fs_.gcount() != count) {
-    throw DbException("read log failed");
+    throw DbException("read log failed (offset: " + std::to_string(offset) + ", count: " + std::to_string(count) +
+                      ", read: " + std::to_string(log_fs_.gcount()) + ")");
   }
 }
 
