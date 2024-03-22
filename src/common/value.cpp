@@ -192,7 +192,7 @@ bool Value::Less(const Value &other) const {
 
 bool Value::Equal(const Value &other) const {
   if (type_ != other.type_) {
-    throw DbException("Type mismatch (in Less)");
+    throw DbException("Type mismatch (in Equal)");
   }
   switch (type_) {
     case Type::BOOL:
@@ -211,7 +211,7 @@ bool Value::Equal(const Value &other) const {
 
 bool Value::Greater(const Value &other) const {
   if (type_ != other.type_) {
-    throw DbException("Type mismatch (in Less)");
+    throw DbException("Type mismatch (in Greater)");
   }
   switch (type_) {
     case Type::INT:

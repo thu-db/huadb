@@ -39,20 +39,12 @@ db_size_t Bitmap::GetSize() const { return size_; }
 db_size_t Bitmap::GetBytes() const { return bits_.size(); }
 
 db_size_t Bitmap::SerializeTo(char *data) const {
-  // db_size_t offset = 0;
-  // db_size_t size = bits_.size();
-  // memcpy(data + offset, &size, sizeof(size));
-  // offset += sizeof(size);
   memcpy(data, bits_.data(), GetBytes());
   return GetBytes();
 }
 
 db_size_t Bitmap::DeserializeFrom(const char *data) {
   db_size_t offset = 0;
-  // db_size_t size;
-  // memcpy(&size, data + offset, sizeof(size));
-  // offset += sizeof(size);
-  // Resize(size);
   for (db_size_t i = 0; i < GetBytes(); i++) {
     memcpy(&bits_[i], data + offset, sizeof(uint8_t));
     offset += sizeof(uint8_t);

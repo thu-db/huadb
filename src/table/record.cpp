@@ -17,10 +17,15 @@ Record::Record(std::vector<Value> values, Rid rid)
 }
 
 void Record::Append(const Record &record) {
+  null_bitmap_.Resize(null_bitmap_.GetSize() + record.GetValues().size());
   for (const auto &value : record.GetValues()) {
+    if (value.IsNull()) {
+      null_bitmap_.Set(values_.size());
+    } else {
+      null_bitmap_.Clear(values_.size());
+    }
     values_.push_back(value);
   }
-  null_bitmap_.Resize(null_bitmap_.GetSize() + values_.size());
   UpdateSize();
 }
 
