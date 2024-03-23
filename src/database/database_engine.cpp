@@ -249,7 +249,7 @@ void DatabaseEngine::ExecuteSql(const std::string &sql, ResultWriter &writer, co
 
             if (enable_optimizer_) {
               // 查询计划优化
-              Optimizer optimizer(*catalog_, join_order_algorithm_);
+              Optimizer optimizer(*catalog_, join_order_algorithm_, enable_projection_pushdown_);
               plan = optimizer.Optimize(plan);
             }
 
@@ -504,7 +504,7 @@ void DatabaseEngine::Explain(const ExplainStatement &stmt, ResultWriter &writer)
   }
 
   if (enable_optimizer_) {
-    Optimizer optimizer(*catalog_, join_order_algorithm_);
+    Optimizer optimizer(*catalog_, join_order_algorithm_, enable_projection_pushdown_);
     plan = optimizer.Optimize(plan);
   }
 
@@ -525,6 +525,8 @@ void DatabaseEngine::VariableSet(const Connection &connection, const VariableSet
     force_join_ = String2ForceJoin(stmt.value_);
   } else if (stmt.variable_ == "enable_optimizer") {
     enable_optimizer_ = String2Bool(stmt.value_);
+  } else if (stmt.variable_ == "enable_projection_pushdown") {
+    enable_projection_pushdown_ = String2Bool(stmt.value_);
   } else if (stmt.variable_ == "deadlock") {
     lock_manager_->SetDeadLockType(String2DeadlockType(stmt.value_));
   }

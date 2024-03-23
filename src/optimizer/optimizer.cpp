@@ -2,8 +2,10 @@
 
 namespace huadb {
 
-Optimizer::Optimizer(Catalog &catalog, JoinOrderAlgorithm join_order_algorithm)
-    : catalog_(catalog), join_order_algorithm_(join_order_algorithm) {}
+Optimizer::Optimizer(Catalog &catalog, JoinOrderAlgorithm join_order_algorithm, bool enable_projection_pushdown)
+    : catalog_(catalog),
+      join_order_algorithm_(join_order_algorithm),
+      enable_projection_pushdown_(enable_projection_pushdown) {}
 
 std::shared_ptr<Operator> Optimizer::Optimize(std::shared_ptr<Operator> plan) {
   plan = SplitPredicates(plan);
@@ -54,12 +56,12 @@ std::shared_ptr<Operator> Optimizer::PushDownProjection(std::shared_ptr<Operator
 }
 
 std::shared_ptr<Operator> Optimizer::PushDownJoin(std::shared_ptr<Operator> plan) {
-  for (auto &child : plan->children_) {
-    child = PushDown(child);
-  }
   // 判断当前查询计划树的连接谓词是否使用当前的 NestedLoopJoin 节点的列
   // 如果有，将连接谓词添加到当前的 NestedLoopJoin 节点的 join_condition_ 中
   // LAB 5 BEGIN
+  for (auto &child : plan->children_) {
+    child = PushDown(child);
+  }
   return plan;
 }
 

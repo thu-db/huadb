@@ -102,6 +102,7 @@ class DatabaseEngine {
   ForceJoin force_join_ = ForceJoin::NONE;
   JoinOrderAlgorithm join_order_algorithm_ = DEFAULT_JOIN_ORDER_ALGORITHM;
   bool enable_optimizer_ = true;
+  bool enable_projection_pushdown_ = false;
 
   bool crashed_ = false;
 };

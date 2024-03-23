@@ -10,7 +10,7 @@ static constexpr JoinOrderAlgorithm DEFAULT_JOIN_ORDER_ALGORITHM = JoinOrderAlgo
 
 class Optimizer {
  public:
-  Optimizer(Catalog &catalog, JoinOrderAlgorithm join_order_algorithm);
+  Optimizer(Catalog &catalog, JoinOrderAlgorithm join_order_algorithm, bool enable_projection_pushdown);
   std::shared_ptr<Operator> Optimize(std::shared_ptr<Operator> plan);
 
  private:
@@ -24,6 +24,7 @@ class Optimizer {
   std::shared_ptr<Operator> ReorderJoin(std::shared_ptr<Operator> plan);
 
   JoinOrderAlgorithm join_order_algorithm_;
+  bool enable_projection_pushdown_;
   Catalog &catalog_;
 };
 
