@@ -83,7 +83,9 @@ bool Run(const fs::path &path) {
           }
         } catch (huadb::DbException &e) {
           if (statement.expected_result_ == ResultType::SUCCESS) {
-            throw huadb::DbException(record->loc_.ToString() + "\nUnexpected error: " + e.what());
+            std::cerr << huadb::BOLD << huadb::RED << "ERROR\n"
+                      << huadb::RESET << record->loc_ << "\nUnexpected error: " << e.what() << std::endl;
+            return false;
           }
         }
         break;
@@ -99,15 +101,21 @@ bool Run(const fs::path &path) {
           connections[query.connection_name_]->SendQuery(query.sql_, writer);
           std::ostringstream error_stream;
           if (!CompareResult(result.str(), query.expected_result_, query.sort_mode_, error_stream)) {
-            throw huadb::DbException("Wrong Result\n" + error_stream.str());
+            std::cerr << huadb::BOLD << huadb::RED << "ERROR\n"
+                      << huadb::RESET << "Wrong Result\n"
+                      << error_stream.str() << std::endl;
+            return false;
           }
         } catch (huadb::DbException &e) {
-          throw huadb::DbException(record->loc_.ToString() + "\nUnexpected error: " + e.what());
+          std::cerr << huadb::BOLD << huadb::RED << "ERROR\n"
+                    << huadb::RESET << record->loc_ << "\nUnexpected error: " << e.what() << std::endl;
+          return false;
         }
         break;
       }
       default: {
-        throw huadb::DbException("Unknown record type");
+        std::cerr << huadb::BOLD << huadb::RED << "ERROR\n" << huadb::RESET << "Unknown record type" << std::endl;
+        return false;
       }
     }
   }
