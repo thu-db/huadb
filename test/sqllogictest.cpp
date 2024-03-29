@@ -102,7 +102,7 @@ bool Run(const fs::path &path) {
           std::ostringstream error_stream;
           if (!CompareResult(result.str(), query.expected_result_, query.sort_mode_, error_stream)) {
             std::cerr << huadb::BOLD << huadb::RED << "ERROR\n"
-                      << huadb::RESET << "Wrong Result\n"
+                      << huadb::RESET << record->loc_ << "\nUnexpected error: Wrong Result\n"
                       << error_stream.str() << std::endl;
             return false;
           }
