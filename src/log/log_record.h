@@ -32,7 +32,7 @@ class LogRecord {
   virtual size_t SerializeTo(char *data) const;
   static std::shared_ptr<LogRecord> DeserializeFrom(lsn_t lsn, const char *data);
 
-  // 撤销和重做
+  // 撤销和重做，undo_next_lsn 用于高级功能中的补偿日式
   virtual void Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t undo_next_lsn);
   virtual void Redo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager);
 
