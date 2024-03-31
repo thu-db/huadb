@@ -35,11 +35,11 @@ format:
 		clang-format -style=file:.clang-format $$file -i; \
 	done
 
-lab%:
-	./build/debug/bin/sqllogictest test/lab{0..$*}/*.test
-
 lab%-only:
 	./build/debug/bin/sqllogictest test/lab$*/*.test
+
+lab%:
+	./build/debug/bin/sqllogictest test/lab{0..$*}/*.test
 
 shell:
 	./build/debug/bin/shell
