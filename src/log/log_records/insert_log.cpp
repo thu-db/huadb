@@ -70,6 +70,7 @@ std::shared_ptr<InsertLog> InsertLog::DeserializeFrom(lsn_t lsn, const char *dat
 
 void InsertLog::Undo(BufferPool &buffer_pool, Catalog &catalog, LogManager &log_manager, lsn_t undo_next_lsn) {
   // 将插入的记录删除
+  // 通过 catalog_ 获取 db_oid
   // LAB 2 BEGIN
 }
 
