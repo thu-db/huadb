@@ -25,6 +25,10 @@ class TablePage {
   slotid_t InsertRecord(std::shared_ptr<Record> record, xid_t xid, cid_t cid);
   // 删除记录
   void DeleteRecord(slotid_t slot_id, xid_t xid);
+
+  // 用于系统表的原地更新，无需关注
+  void UpdateRecordInPlace(const Record &record, slotid_t slot_id);
+
   // 获取记录
   std::shared_ptr<Record> GetRecord(Rid rid, const ColumnList &column_list);
 

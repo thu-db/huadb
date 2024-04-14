@@ -169,7 +169,7 @@ const ColumnList &SimpleCatalog::GetTableColumnList(const std::string &table_nam
   return GetTable(oid)->GetColumnList();
 }
 
-bool SimpleCatalog::TableExists(oid_t oid) const { return !oid_manager_.OidExists(oid); }
+bool SimpleCatalog::TableExists(oid_t oid) const { return oid_manager_.OidExists(oid); }
 
 oid_t SimpleCatalog::GetNextOid() const { return oid_manager_.GetNextOid(); }
 

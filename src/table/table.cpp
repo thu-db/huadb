@@ -54,6 +54,12 @@ Rid Table::UpdateRecord(const Rid &rid, xid_t xid, cid_t cid, std::shared_ptr<Re
   return InsertRecord(record, xid, cid, write_log);
 }
 
+void Table::UpdateRecordInPlace(const Record &record) {
+  auto rid = record.GetRid();
+  auto table_page = std::make_unique<TablePage>(buffer_pool_.GetPage(db_oid_, oid_, rid.page_id_));
+  table_page->UpdateRecordInPlace(record, rid.slot_id_);
+}
+
 pageid_t Table::GetFirstPageId() const { return first_page_id_; }
 
 oid_t Table::GetOid() const { return oid_; }

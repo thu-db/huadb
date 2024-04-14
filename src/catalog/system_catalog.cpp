@@ -321,6 +321,7 @@ void SystemCatalog::SetCardinality(const std::string &table_name, uint32_t cardi
         throw DbException(table_name + " has more than one record in table_meta");
       }
       record->SetValue(cardinality_idx, Value(cardinality));
+      table_meta->UpdateRecordInPlace(*record);
       table2cardinality_[table_name] = cardinality;
       found = true;
     }
@@ -336,7 +337,7 @@ void SystemCatalog::SetDistinct(const std::string &table_name, const std::string
   auto table_name_idx = statistic_schema.GetColumnIndex("table_name");
   auto db_oid_idx = statistic_schema.GetColumnIndex("db_oid");
   auto column_name_idx = statistic_schema.GetColumnIndex("column_name");
-  auto n_dinstinct_idx = statistic_schema.GetColumnIndex("n_distinct");
+  auto n_distinct_idx = statistic_schema.GetColumnIndex("n_distinct");
   bool found = false;
   while (auto record = scan->GetNextRecord()) {
     if (record->GetValue(db_oid_idx).GetValue<oid_t>() == current_database_oid_ &&
@@ -345,8 +346,9 @@ void SystemCatalog::SetDistinct(const std::string &table_name, const std::string
       if (found) {
         throw DbException(table_name + "." + column_name + " has more than one record in statistic_meta");
       }
-      auto n_distinct = record->GetValue(n_dinstinct_idx).GetValue<uint32_t>();
-      col2distinct_[table_name + "." + column_name] = n_distinct;
+      record->SetValue(n_distinct_idx, Value(distinct));
+      statistic->UpdateRecordInPlace(*record);
+      col2distinct_[table_name + "." + column_name] = distinct;
       found = true;
     }
   }
@@ -444,12 +446,12 @@ void SystemCatalog::LoadStatistics() {
   auto table_name_idx = statistic_schema.GetColumnIndex("table_name");
   auto db_oid_idx = statistic_schema.GetColumnIndex("db_oid");
   auto column_name_idx = statistic_schema.GetColumnIndex("column_name");
-  auto n_dinstinct_idx = statistic_schema.GetColumnIndex("n_distinct");
+  auto n_distinct_idx = statistic_schema.GetColumnIndex("n_distinct");
   while (auto record = scan->GetNextRecord()) {
     if (record->GetValue(db_oid_idx).GetValue<oid_t>() == current_database_oid_) {
       auto table_name = record->GetValue(table_name_idx).GetValue<std::string>();
       auto column_name = record->GetValue(column_name_idx).GetValue<std::string>();
-      auto n_distinct = record->GetValue(n_dinstinct_idx).GetValue<uint32_t>();
+      auto n_distinct = record->GetValue(n_distinct_idx).GetValue<uint32_t>();
       col2distinct_[table_name + "." + column_name] = n_distinct;
     }
   }

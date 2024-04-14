@@ -21,6 +21,9 @@ class Table {
   // 更新记录
   Rid UpdateRecord(const Rid &rid, xid_t xid, cid_t cid, std::shared_ptr<Record> record, bool write_log);
 
+  // 用于系统表的原地更新，无需关注
+  void UpdateRecordInPlace(const Record &record);
+
   // 获取表的第一个页面的页面号
   pageid_t GetFirstPageId() const;
 
