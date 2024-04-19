@@ -6,6 +6,12 @@ insert into lock_test values(1), (2), (3);
 ----
 3
 
+statement ok C1
+set isolation_level = 'serializable';
+
+statement ok C2
+set isolation_level = 'serializable';
+
 # Test 1: Row lock test: delete/update
 statement ok C1
 begin;
