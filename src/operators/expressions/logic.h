@@ -41,7 +41,12 @@ class Logic : public OperatorExpression {
     }
   }
 
-  std::string ToString() const override { return fmt::format("{} {} {}", children_[0], logic_type_, children_[1]); }
+  std::string ToString() const override {
+    if (logic_type_ == LogicType::NOT) {
+      return fmt::format("{} {}", logic_type_, children_[0]);
+    }
+    return fmt::format("{} {} {}", children_[0], logic_type_, children_[1]);
+  }
   LogicType GetLogicType() const { return logic_type_; }
 
  private:
