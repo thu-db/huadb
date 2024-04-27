@@ -603,7 +603,7 @@ void DatabaseEngine::Analyze(const AnalyzeStatement &stmt, ResultWriter &writer)
     value_set.resize(columns.size());
     while (auto record = scan->GetNextRecord()) {
       for (size_t i = 0; i < columns.size(); i++) {
-        value_set[i].insert(record->GetValue(i));
+        value_set[i].insert(record->GetValue(columns[i].GetColumnIndex()));
       }
       record_count++;
     }
