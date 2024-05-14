@@ -46,6 +46,7 @@ std::shared_ptr<Operator> Optimizer::PushDownFilter(std::shared_ptr<Operator> pl
   // 判断谓词是否为 Comparison 类型，如果是，判断是否为 ColumnValue 和 ColumnValue 的比较
   // 若是，则该谓词为连接谓词；若不是，则该谓词为普通谓词
   // LAB 5 BEGIN
+  plan->children_[0] = PushDown(plan->children_[0]);
   return plan;
 }
 
