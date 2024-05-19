@@ -17,7 +17,8 @@ std::shared_ptr<Operator> Optimizer::Optimize(std::shared_ptr<Operator> plan) {
 std::shared_ptr<Operator> Optimizer::SplitPredicates(std::shared_ptr<Operator> plan) {
   // 分解复合的选择谓词
   // 遍历查询计划树，判断每个节点是否为 Filter 节点
-  // 判断 Filter 节点的谓词是否为逻辑表达式，逻辑表达式是否为 AND 类型
+  // 判断 Filter 节点的谓词是否为逻辑表达式 (GetExprType() 是否为 OperatorExpressionType::LOGIC)
+  // 以及逻辑表达式是否为 AND 类型 (GetLogicType() 是否为 LogicType::AND)
   // 如果是，将谓词的左右子表达式作为新的 Filter 节点添加到查询计划树中
   // LAB 5 BEGIN
   return plan;
