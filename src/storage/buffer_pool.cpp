@@ -14,6 +14,9 @@ BufferPool::BufferPool(Disk &disk, LogManager &log_manager) : disk_(disk), log_m
 }
 
 std::shared_ptr<Page> BufferPool::GetPage(oid_t db_oid, oid_t table_oid, pageid_t page_id) {
+  if (page_id == NULL_PAGE_ID) {
+    throw DbException("Invalid page id in BufferPool::GetPage");
+  }
   auto &buffers = (db_oid == SYSTEM_DATABASE_OID) ? systable_buffers_ : buffers_;
   auto &hashmap = (db_oid == SYSTEM_DATABASE_OID) ? systable_hashmap_ : hashmap_;
   auto entry = hashmap.find({table_oid, page_id});
@@ -31,6 +34,9 @@ std::shared_ptr<Page> BufferPool::GetPage(oid_t db_oid, oid_t table_oid, pageid_
 }
 
 std::shared_ptr<Page> BufferPool::NewPage(oid_t db_oid, oid_t table_oid, pageid_t page_id) {
+  if (page_id == NULL_PAGE_ID) {
+    throw DbException("Invalid page id in BufferPool::NewPage");
+  }
   auto page = std::make_shared<Page>();
   AddToBuffer(db_oid, table_oid, page_id, page);
   return page;
@@ -76,6 +82,9 @@ void BufferPool::AddToBuffer(oid_t db_oid, oid_t table_oid, pageid_t page_id, st
 }
 
 void BufferPool::FlushPage(size_t frame_id) {
+  if (frame_id >= BUFFER_SIZE) {
+    throw DbException("Invalid frame id in BufferPool::FlushPage");
+  }
   auto &buffer_entry = buffers_[frame_id];
   if (buffer_entry.page_->IsDirty()) {
     auto table_page = std::make_unique<TablePage>(buffer_entry.page_);
