@@ -6,6 +6,8 @@ HuaDB 为清华大学数据库内核课程的实验框架，实验说明可参�
 
 如果在实验中遇到任何问题，可以在 [Discussions](https://github.com/thu-db/huadb/discussions) 中讨论。如果发现了实验框架的 bug 可以提交 [Issue](https://github.com/thu-db/huadb/issues) 或 [Pull request](https://github.com/thu-db/huadb/pulls)。
 
+**请不要将自己的实验代码放置于任何公开仓库中。**
+
 ## 编译与测试
 
 运行如下命令进行编译：
